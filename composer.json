@@ -1,7 +1,7 @@
 {
-    "name": "oro/commerce-akeneo",
+    "name": "kiboko/commerce-akeneo",
     "description": "Akeneo PIM OroCommerce Connector.",
-    "homepage": "https://github.com/oroinc/OroAkeneoBundle",
+    "homepage": "https://github.com/kiboko-labs/OroAkeneoBundle",
     "license": "OSL-3.0",
     "authors": [
         {
