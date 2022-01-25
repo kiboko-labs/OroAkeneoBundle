@@ -3,7 +3,9 @@
 namespace Oro\Bundle\AkeneoBundle\ImportExport\DataConverter;
 
 use Oro\Bundle\AkeneoBundle\Entity\AkeneoSettings;
+use Oro\Bundle\AkeneoBundle\Exceptions\IgnoreProductUnitChangesException;
 use Oro\Bundle\AkeneoBundle\ImportExport\AkeneoIntegrationTrait;
+use Oro\Bundle\AkeneoBundle\ProductUnit\ProductUnitDiscoveryInterface;
 use Oro\Bundle\AkeneoBundle\Tools\AttributeFamilyCodeGenerator;
 use Oro\Bundle\AkeneoBundle\Tools\Generator;
 use Oro\Bundle\BatchBundle\Item\Support\ClosableInterface;
@@ -18,17 +20,19 @@ use Oro\Bundle\LocaleBundle\Formatter\DateTimeFormatter;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\ImportExport\DataConverter\ProductDataConverter as BaseProductDataConverter;
 use Oro\Bundle\ProductBundle\ProductVariant\Registry\ProductVariantFieldValueHandlerRegistry;
-use Oro\Bundle\ProductBundle\Provider\ProductUnitsProvider;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * Converts data for imported row.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
-class ProductDataConverter extends BaseProductDataConverter implements ContextAwareInterface, ClosableInterface
+class ProductDataConverter extends BaseProductDataConverter implements ContextAwareInterface, ClosableInterface, LoggerAwareInterface
 {
     use AkeneoIntegrationTrait;
     use LocalizationAwareTrait;
+    use LoggerAwareTrait;
 
     /** @var SlugGenerator */
     protected $slugGenerator;
@@ -50,8 +54,11 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
 
     private $mappedAttributes = [];
 
-    /** @var ProductUnitsProvider */
-    protected $productUnitsProvider;
+    /** @var ProductUnitDiscoveryInterface */
+    private $productUnitDiscovery;
+
+    /** @var string */
+    private $codePrefix;
 
     /** @var DoctrineHelper */
     protected $doctrineHelper;
@@ -64,9 +71,9 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         $this->doctrineHelper = $doctrineHelper;
     }
 
-    public function setProductUnitsProvider(ProductUnitsProvider $productUnitsProvider): void
+    public function setProductUnitDiscovery(ProductUnitDiscoveryInterface $productUnitDiscovery): void
     {
-        $this->productUnitsProvider = $productUnitsProvider;
+        $this->productUnitDiscovery = $productUnitDiscovery;
     }
 
     /**
@@ -115,7 +122,11 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
 
     private function setPrimaryUnitPrecision(array &$importedRecord): void
     {
-        $importedRecord['primaryUnitPrecision'] = $this->getPrimaryUnitPrecision($importedRecord);
+        try {
+            $importedRecord['primaryUnitPrecision'] = $this->productUnitDiscovery->discover($this->getTransport(), $importedRecord);
+        } catch (IgnoreProductUnitChangesException $e) {
+            $this->logger->info($e->getMessage());
+        }
     }
 
     private function setNames(array &$importedRecord): void
@@ -136,7 +147,7 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         $importedRecord['attributeFamily'] = ['code' => 'default_family'];
         if (!empty($importedRecord['family'])) {
             $importedRecord['attributeFamily'] = [
-                'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family']),
+                'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family'], $this->codePrefix),
             ];
         }
 
@@ -146,7 +157,7 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
 
         $importedRecord['type'] = Product::TYPE_CONFIGURABLE;
         $importedRecord['attributeFamily'] = [
-            'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family_variant']['family']),
+            'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family_variant']['family'], $this->codePrefix),
         ];
 
         $sets = $importedRecord['family_variant']['variant_attribute_sets'] ?: [];
@@ -568,39 +579,20 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         throw new \Exception('Normalization is not implemented!');
     }
 
+    /** @deprecated */
     protected function getPrimaryUnitPrecision(array $importedRecord): array
     {
-        $unit = $this->configManager->get('oro_product.default_unit');
-        $precision = $this->configManager->get('oro_product.default_unit_precision');
-
-        $unitAttribute = $this->getTransport()->getProductUnitAttribute();
-        $unitPrecisionAttribute = $this->getTransport()->getProductUnitPrecisionAttribute();
-
-        $availableUnits = $this->productUnitsProvider->getAvailableProductUnits();
-
-        if (isset($importedRecord['values'][$unitAttribute])) {
-            $unitData = reset($importedRecord['values'][$unitAttribute]);
-            if (isset($unitData['data']) && in_array($unitData['data'], $availableUnits)) {
-                $unit = $unitData['data'];
-            }
-        }
-        if (isset($importedRecord['values'][$unitPrecisionAttribute])) {
-            $unitPrecisionData = reset($importedRecord['values'][$unitPrecisionAttribute]);
-            if (isset($unitPrecisionData['data'])) {
-                $precision = (int)$unitPrecisionData['data'];
-            }
-        }
-
-        return [
-            'unit' => ['code' => $unit],
-            'precision' => $precision,
-            'sell' => true,
-        ];
+        return $this->productUnitDiscovery->discover($this->getTransport(), $importedRecord);
     }
 
     public function setProductVariantFieldValueHandlerRegistry(
         ProductVariantFieldValueHandlerRegistry $productVariantFieldValueHandlerRegistry
     ): void {
         $this->productVariantFieldValueHandlerRegistry = $productVariantFieldValueHandlerRegistry;
+    }
+
+    public function setCodePrefix(string $codePrefix): void
+    {
+        $this->codePrefix = $codePrefix;
     }
 }

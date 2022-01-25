@@ -12,6 +12,7 @@ services:
     arguments:
       - "@oro_entity.doctrine_helper"
       - "@oro_akeneo.encoder.crypter"
+      - "@oro_akeneo.client_builder"
 
   oro_akeneo.security.acl.voter.channel:
     class: Oro\Bundle\AkeneoBundle\Acl\Voter\CategoryVoter
@@ -64,6 +65,11 @@ services:
     tags:
       - { name: validator.constraint_validator, alias: oro_akeneo.attribute_code_validator }
 
+  oro_akeneo.validator.alternative_identifier_validator:
+    class: Oro\Bundle\AkeneoBundle\Validator\AlternativeIdentifierValidator
+    tags:
+      - { name: val
+
   oro_akeneo.validator.attribute_mapping_validator:
     class: Oro\Bundle\AkeneoBundle\Validator\AttributeMappingValidator
     tags:
@@ -104,6 +110,9 @@ services:
       - '@oro_integration.processor_registry'
     tags:
       - { name: 'oro_message_queue.client.message_processor', topicName: 'oro.integration.akeneo.product' }
+
+  oro_akeneo.client_builder:
+    class: Oro\Bundle\AkeneoBundle\Client\AkeneoClientBuilder
 
   oro_akeneo.config_manager:
     class: 'Oro\Bundle\AkeneoBundle\Config\ConfigManager'
@@ -148,6 +157,12 @@ services:
     class: 'Oro\Bundle\AkeneoBundle\Job\Context\SimpleContextAggregator'
     parent: oro_importexport.job.context.aggregator.simple
     decorates: oro_importexport.job.context.aggregator.simple
+
+  oro_akeneo.product_unit.discovery:
+    class: Oro\Bundle\AkeneoBundle\ProductUnit\ImportFromAkeneoDiscovery
+    arguments:
+      - '@oro_config.manager'
+      - '@oro_product.provider.product_units_provider'
 
   oro_akeneo.product_variant.type_handler.string_type_handle:
     class: 'Oro\Bundle\AkeneoBundle\ProductVariant\TypeHandler\StringTypeHandler'

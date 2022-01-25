@@ -180,6 +180,13 @@ class AkeneoSettings extends Transport
     private $akeneoMergeImageToParent = false;
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(name="akeneo_alternative_identifier", type="string", nullable=true, length=255)
+     */
+    private $alternativeIdentifier;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="akeneo_variant_levels", type="string", length=255)
@@ -299,6 +306,9 @@ class AkeneoSettings extends Transport
                     'akeneoLocales' => $this->getAkeneoLocales()->toArray(),
                     'akeneoLocalesList' => $this->getAkeneoLocalesList(),
                     'akeneoAttributesList' => $this->getAkeneoAttributesList(),
+                    'alternativeIdentifier'         => $this->getAlternativeIdentifier(),
+                    'akeneoAttributesImageList'     => $this->getAkeneoAttributesImageList(),
+                    'akeneoMergeImageToParent'      => $this->isAkeneoMergeImageToParent(),
                     'akeneoVariantLevels' => $this->getAkeneoVariantLevels(),
                     'akeneoAttributesMapping' => $this->getAkeneoAttributesMapping(),
                     'akeneoBrandReferenceEntityCode' => $this->getAkeneoBrandReferenceEntityCode(),
@@ -738,6 +748,21 @@ class AkeneoSettings extends Transport
         $this->akeneoMergeImageToParent = $akeneoMergeImageToParent;
 
         return $this;
+    }
+
+    public function setAlternativeIdentifier(string $alternativeIdentifier = null)
+    {
+        $this->alternativeIdentifier = $alternativeIdentifier;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAlternativeIdentifier(): ?string
+    {
+        return $this->alternativeIdentifier;
     }
 
     public function getAkeneoVariantLevels(): ?string

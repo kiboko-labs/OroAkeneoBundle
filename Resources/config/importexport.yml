@@ -127,6 +127,7 @@ services:
     calls:
       - [setDoctrineHelper, ["@oro_entity.doctrine_helper"]]
       - [setConfigManager, ['@oro_config.manager']]
+      - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
 
   oro_akeneo.importexport.strategy.attribute:
     class: '%oro_akeneo.importexport.strategy.attribute.class%'
@@ -165,6 +166,7 @@ services:
       - [setEntityName, ['Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily']]
       - [setEntityConfigManager, ['@oro_entity_config.config_manager']]
       - [setTranslateUsingLocale, [false]]
+      - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
       - [setDoctrineHelper, ["@oro_entity.doctrine_helper"]]
 
   oro_akeneo.importexport.strategy.attribute_family:
@@ -185,6 +187,7 @@ services:
       - [setStrategy, ["@oro_akeneo.importexport.strategy.attribute_family"]]
       - [setEntityName, ['Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily']]
       - [setContextRegistry, ["@oro_importexport.context_registry"]]
+      - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
 
   oro_akeneo.importexport.processor.attribute_family_status:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\AttributeFamilyStatusProcessor'
@@ -201,6 +204,7 @@ services:
       - "@oro_integration.provider.connector_context_mediator"
     calls:
       - [setSchemaUpdateFilter, ['@oro_akeneo.placeholder.schema_update_filter']]
+      - [setManagerRegistry, ["@doctrine"]]
     tags:
       - { name: oro_integration.connector, type: product, channel_type: oro_akeneo }
 
@@ -222,7 +226,9 @@ services:
       - [setEntityConfigManager, ["@oro_entity_config.config_manager"]]
       - [setDateTimeFormatter, ["@oro_locale.formatter.date_time"]]
       - [setAttachmentsDir, ["%kernel.project_dir%/var/import_export/akeneo"]]
-      - [setProductUnitsProvider, ["@oro_product.provider.product_units_provider"]]
+      - [setProductUnitDiscovery, ["@oro_akeneo.product_unit.discovery"]]
+      - [setLogger, ["@oro_integration.logger.strategy"]]
+      - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
       - [setDoctrineHelper, ["@oro_entity.doctrine_helper"]]
       - [setProductVariantFieldValueHandlerRegistry, ["@oro_product.product_variant_field.registry.product_variant_field_value_handler_registry"]]
 

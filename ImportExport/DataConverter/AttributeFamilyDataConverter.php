@@ -25,6 +25,9 @@ class AttributeFamilyDataConverter extends LocalizedFallbackValueAwareDataConver
      */
     protected $entityConfigManager;
 
+    /** @var string */
+    private $codePrefix;
+
     /** @var DoctrineHelper */
     protected $doctrineHelper;
 
@@ -43,7 +46,7 @@ class AttributeFamilyDataConverter extends LocalizedFallbackValueAwareDataConver
      */
     public function convertToImportFormat(array $importedRecord, $skipNullValues = true)
     {
-        $importedRecord['code'] = AttributeFamilyCodeGenerator::generate($importedRecord['code']);
+        $importedRecord['code'] = AttributeFamilyCodeGenerator::generate($importedRecord['code'], $this->codePrefix);
         $importedRecord['entityClass'] = Product::class;
         $importedRecord['isEnabled'] = true;
         $importedRecord['channel:id'] = $this->getImportExportContext()->getOption('channel');
@@ -61,7 +64,7 @@ class AttributeFamilyDataConverter extends LocalizedFallbackValueAwareDataConver
 
                 $entityConfigFieldId = $this->entityConfigManager->getConfigModelId(
                     $importedRecord['entityClass'],
-                    FieldConfigModelFieldNameGenerator::generate($attributeCode)
+                    FieldConfigModelFieldNameGenerator::generate($attributeCode, $this->codePrefix)
                 );
 
                 if ($entityConfigFieldId) {
@@ -170,5 +173,10 @@ class AttributeFamilyDataConverter extends LocalizedFallbackValueAwareDataConver
     protected function getBackendHeader()
     {
         throw new \Exception('Normalization is not implemented!');
+    }
+
+    public function setCodePrefix(string $codePrefix): void
+    {
+        $this->codePrefix = $codePrefix;
     }
 }

@@ -10,8 +10,10 @@ use Oro\Bundle\AkeneoBundle\Entity\AkeneoSettings;
 use Oro\Bundle\AkeneoBundle\Form\Type\AkeneoSettingsType;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\AttributeFamilyIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\AttributeIterator;
+use Oro\Bundle\AkeneoBundle\Integration\Iterator\CategoryIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\BrandIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\ProductIterator;
+use Oro\Bundle\AkeneoBundle\Tools\ParseUpdatedPlaceholder;
 use Oro\Bundle\AkeneoBundle\Settings\DataProvider\SyncProductsDataProvider;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use Oro\Bundle\MultiCurrencyBundle\Config\MultiCurrencyConfigProvider;
@@ -204,12 +206,12 @@ class AkeneoTransport implements AkeneoTransportInterface
      *
      * @return \Iterator
      */
-    public function getProducts(int $pageSize)
+    public function getProducts(int $pageSize, ?\DateTime $updatedAt = null)
     {
         $this->initAttributesList();
         $this->initMeasureFamilies();
 
-        $searchFilters = $this->akeneoSearchBuilder->getFilters($this->transportEntity->getProductFilter());
+        $searchFilters = $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))());
 
         if ($this->transportEntity->getSyncProducts() === SyncProductsDataProvider::PUBLISHED) {
             return new ProductIterator(
@@ -236,20 +238,21 @@ class AkeneoTransport implements AkeneoTransportInterface
             $this->attributes,
             $this->familyVariants,
             $this->measureFamilies,
-            $this->getAttributeMapping()
+            $this->getAttributeMapping(),
+            $this->getAlternativeIdentifier()
         );
     }
 
     /**
      * @return \Iterator
      */
-    public function getProductModels(int $pageSize)
+    public function getProductModels(int $pageSize, ?\DateTime $updatedAt = null)
     {
         $this->initAttributesList();
         $this->initFamilyVariants();
         $this->initMeasureFamilies();
 
-        $searchFilters = $this->akeneoSearchBuilder->getFilters($this->transportEntity->getProductFilter());
+        $searchFilters = $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))());
         if (isset($searchFilters['completeness'])) {
             unset($searchFilters['completeness']);
         }
@@ -325,6 +328,14 @@ class AkeneoTransport implements AkeneoTransportInterface
         }
 
         return $familtyAttributes;
+    }
+
+    /**
+     * @return null|string
+     */
+    private function getAlternativeIdentifier(): ?string
+    {
+        return $this->transportEntity->getAlternativeIdentifier();
     }
 
     public function downloadAndSaveMediaFile(string $code): void

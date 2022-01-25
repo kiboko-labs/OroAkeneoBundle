@@ -4,8 +4,8 @@ namespace Oro\Bundle\AkeneoBundle\Tools;
 
 class AttributeFamilyCodeGenerator
 {
-    public static function generate(string $value): string
+    public static function generate(string $value, string $prefix = 'Akeneo_'): string
     {
-        return sprintf('Akeneo_%s', $value);
+        return sprintf('%s%s', $prefix, $value);
     }
 }

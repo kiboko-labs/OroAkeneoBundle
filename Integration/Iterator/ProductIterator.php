@@ -16,6 +16,11 @@ class ProductIterator extends AbstractIterator
 
     private $attributeMapping = [];
 
+    /**
+     * @var string|null
+     */
+    private $alternativeAttribute;
+
     private $assets = [];
 
     public function __construct(
@@ -25,7 +30,8 @@ class ProductIterator extends AbstractIterator
         array $attributes = [],
         array $familyVariants = [],
         array $measureFamilies = [],
-        array $attributeMapping = []
+        array $attributeMapping = [],
+        ?string $alternativeAttribute = null
     ) {
         parent::__construct($resourceCursor, $client, $logger);
 
@@ -33,6 +39,7 @@ class ProductIterator extends AbstractIterator
         $this->familyVariants = $familyVariants;
         $this->measureFamilies = $measureFamilies;
         $this->attributeMapping = $attributeMapping;
+        $this->alternativeAttribute = $alternativeAttribute;
     }
 
     /**
@@ -42,12 +49,38 @@ class ProductIterator extends AbstractIterator
     {
         $product = $this->resourceCursor->current();
 
+        $this->setAlternativeIdentifier($product);
         $this->setSku($product);
         $this->setValueAttributeTypes($product);
         $this->setFamilyVariant($product);
         $this->setAssetCode($product);
 
         return $product;
+    }
+
+    /**
+     * Switch the product code (intern identifier in Akeneo) value
+     * with an other attribute to allow to map it differently
+     */
+    protected function setAlternativeIdentifier(array &$product)
+    {
+        if (null === $this->alternativeAttribute) return;
+
+        @list($altAttribute, $identifier) = explode(':', $this->alternativeAttribute);
+
+        if (!empty($altAttribute)
+            && isset($product['values'][$altAttribute])
+            && isset($product['identifier'])
+        ) {
+
+            if (isset($product['values'][$altAttribute][0]['data'])) {
+                if (null !== $identifier) {
+                    $product[$identifier] = $product['identifier'];
+                }
+
+                $product['identifier'] = $product['values'][$altAttribute][0]['data'];
+            }
+        }
     }
 
     /**
