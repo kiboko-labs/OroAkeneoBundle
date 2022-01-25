@@ -2,14 +2,9 @@
 
 namespace Oro\Bundle\AkeneoBundle\Client;
 
-use Akeneo\Pim\ApiClient\AkeneoPimClientInterface;
-use Akeneo\PimEnterprise\ApiClient\AkeneoPimEnterpriseClientBuilder;
 use Oro\Bundle\AkeneoBundle\Encoder\Crypter;
 use Oro\Bundle\AkeneoBundle\Entity\AkeneoSettings;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
-use Psr\Http\Client\ClientInterface;
-use Psr\Http\Message\RequestFactoryInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 
 /**
  * Factory to create Akeneo PIM client instance.
@@ -49,27 +44,19 @@ class AkeneoClientFactory
     /** @var DoctrineHelper */
     private $doctrineHelper;
 
-    /** @var ClientInterface */
-    private $httpClient;
-
-    /** @var RequestFactoryInterface */
-    private $requestFactory;
-
-    /** @var StreamFactoryInterface */
-    private $streamFactory;
+    /**
+     * @var AkeneoClientBuilder
+     */
+    private $clientBuilder;
 
     public function __construct(
         DoctrineHelper $doctrineHelper,
         Crypter $crypter,
-        ClientInterface $httpClient,
-        RequestFactoryInterface $requestFactory,
-        StreamFactoryInterface $streamFactory
+        AkeneoClientBuilder $clientBuilder
     ) {
         $this->doctrineHelper = $doctrineHelper;
         $this->crypter = $crypter;
-        $this->httpClient = $httpClient;
-        $this->requestFactory = $requestFactory;
-        $this->streamFactory = $streamFactory;
+        $this->clientBuilder = $clientBuilder;
     }
 
     public function getInstance(AkeneoSettings $akeneoSettings, bool $tokensEnabled = true): AkeneoPimClientInterface
@@ -105,9 +92,10 @@ class AkeneoClientFactory
         $this->refreshToken = $akeneoSettings->getRefreshToken();
     }
 
-    private function createClientByToken(): AkeneoPimClientInterface
+    private function createClientByToken()
     {
-        $this->client = $this->getClientBuilder()->buildAuthenticatedByToken(
+        $this->clientBuilder->setBaseUri($this->akeneoUrl);
+        $this->client = $this->clientBuilder->buildAuthenticatedByToken(
             $this->clientId,
             $this->secret,
             $this->token,
@@ -117,19 +105,15 @@ class AkeneoClientFactory
         return $this->client;
     }
 
-    private function getClientBuilder(): AkeneoPimEnterpriseClientBuilder
+    /**
+     * Build token by username and password.
+     *
+     * @return AkeneoPimEnterpriseClient
+     */
+    private function createClient()
     {
-        $clientBuilder = new AkeneoPimEnterpriseClientBuilder($this->akeneoUrl);
-        $clientBuilder->setHttpClient($this->httpClient);
-        $clientBuilder->setRequestFactory($this->requestFactory);
-        $clientBuilder->setStreamFactory($this->streamFactory);
-
-        return $clientBuilder;
-    }
-
-    private function createClient(): AkeneoPimClientInterface
-    {
-        $this->client = $this->getClientBuilder()->buildAuthenticatedByPassword(
+        $this->clientBuilder->setBaseUri($this->akeneoUrl);
+        $this->client = $this->clientBuilder->buildAuthenticatedByPassword(
             $this->clientId,
             $this->secret,
             $this->userName,

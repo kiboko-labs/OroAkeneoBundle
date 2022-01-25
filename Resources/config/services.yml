@@ -12,9 +12,7 @@ services:
     arguments:
       - "@oro_entity.doctrine_helper"
       - "@oro_akeneo.encoder.crypter"
-      - "@psr18.http_client"
-      - "@psr18.http_client"
-      - "@psr18.http_client"
+      - "@oro_akeneo.client_builder"
 
   oro_akeneo.event_subscriber.field_config:
     class: Oro\Bundle\AkeneoBundle\EventSubscriber\FieldConfigSubscriber
@@ -86,6 +84,11 @@ services:
     tags:
       - { name: validator.constraint_validator, alias: oro_product_unique_variant_links_simple_product }
 
+  oro_akeneo.validator.alternative_identifier_validator:
+    class: Oro\Bundle\AkeneoBundle\Validator\AlternativeIdentifierValidator
+    tags:
+      - { name: validator.constraint_validator, alias: oro_akeneo.alternative_identifier_validator }
+
   oro_akeneo.event_subscriber.doctrine:
     class: 'Oro\Bundle\AkeneoBundle\EventSubscriber\DoctrineSubscriber'
     calls:
@@ -125,6 +128,9 @@ services:
       - '@oro_integration.processor_registry'
     tags:
       - { name: 'oro_message_queue.client.message_processor', topicName: 'oro.integration.akeneo.product' }
+
+  oro_akeneo.client_builder:
+    class: Oro\Bundle\AkeneoBundle\Client\AkeneoClientBuilder
 
   oro_akeneo.config_manager:
     class: 'Oro\Bundle\AkeneoBundle\Config\ConfigManager'
@@ -394,3 +400,9 @@ services:
     class: 'Oro\Bundle\AkeneoBundle\EventListener\DeletedAttributeRelationListener'
     decorates: oro_serialized_fields.event_listener.deleted_attribute_relation_serialized
     parent: oro_serialized_fields.event_listener.deleted_attribute_relation_serialized
+
+  oro_akeneo.product_unit.discovery:
+    class: Oro\Bundle\AkeneoBundle\ProductUnit\ImportFromAkeneoDiscovery
+    arguments:
+      - '@oro_config.manager'
+      - '@oro_product.provider.product_units_provider'

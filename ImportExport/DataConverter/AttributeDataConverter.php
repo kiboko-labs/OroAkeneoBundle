@@ -21,6 +21,9 @@ class AttributeDataConverter extends EntityFieldDataConverter
 
     private const ENTITY_LABEL_MAX_LENGTH = 50;
 
+    /** @var string */
+    private $codePrefix;
+
     /** @var DoctrineHelper */
     protected $doctrineHelper;
 
@@ -69,7 +72,7 @@ class AttributeDataConverter extends EntityFieldDataConverter
         }
 
         $importedRecord['type'] = $type;
-        $importedRecord['fieldName'] = FieldConfigModelFieldNameGenerator::generate($importedRecord['code']);
+        $importedRecord['fieldName'] = FieldConfigModelFieldNameGenerator::generate($importedRecord['code'], $this->codePrefix);
         $importedRecord['entity:id'] = (int)$this->context->getValue('entity_id');
         $this->setLabels($importedRecord);
         $this->setEnumOptions($importedRecord);
@@ -154,5 +157,10 @@ class AttributeDataConverter extends EntityFieldDataConverter
     protected function getBackendHeader()
     {
         throw new \Exception('Normalization is not implemented!');
+    }
+
+    public function setCodePrefix(string $codePrefix): void
+    {
+        $this->codePrefix = $codePrefix;
     }
 }

@@ -173,6 +173,13 @@ class AkeneoSettings extends Transport
     private $akeneoAttributesImageList;
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(name="akeneo_alternative_identifier", type="string", nullable=true, length=255)
+     */
+    private $alternativeIdentifier;
+
+    /**
      * @var boolean
      *
      * @ORM\Column(name="akeneo_merge_image_to_parent", type="boolean", options={"default"=false})
@@ -299,6 +306,9 @@ class AkeneoSettings extends Transport
                     'akeneoLocales' => $this->getAkeneoLocales()->toArray(),
                     'akeneoLocalesList' => $this->getAkeneoLocalesList(),
                     'akeneoAttributesList' => $this->getAkeneoAttributesList(),
+                    'alternativeIdentifier'         => $this->getAlternativeIdentifier(),
+                    'akeneoAttributesImageList'     => $this->getAkeneoAttributesImageList(),
+                    'akeneoMergeImageToParent'      => $this->isAkeneoMergeImageToParent(),
                     'akeneoVariantLevels' => $this->getAkeneoVariantLevels(),
                     'akeneoAttributesMapping' => $this->getAkeneoAttributesMapping(),
                     'akeneoBrandReferenceEntityCode' => $this->getAkeneoBrandReferenceEntityCode(),
@@ -782,5 +792,20 @@ class AkeneoSettings extends Transport
     public function setAkeneoBrandMapping(?string $akeneoBrandMapping): void
     {
         $this->akeneoBrandMapping = $akeneoBrandMapping;
+    }
+
+    public function setAlternativeIdentifier(string $alternativeIdentifier = null)
+    {
+        $this->alternativeIdentifier = $alternativeIdentifier;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAlternativeIdentifier(): ?string
+    {
+        return $this->alternativeIdentifier;
     }
 }

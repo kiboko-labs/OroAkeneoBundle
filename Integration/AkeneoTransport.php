@@ -204,12 +204,12 @@ class AkeneoTransport implements AkeneoTransportInterface
      *
      * @return \Iterator
      */
-    public function getProducts(int $pageSize)
+    public function getProducts(int $pageSize, ?\DateTime $updatedAt = null)
     {
         $this->initAttributesList();
         $this->initMeasureFamilies();
 
-        $searchFilters = $this->akeneoSearchBuilder->getFilters($this->transportEntity->getProductFilter());
+        $searchFilters = $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))());
 
         if ($this->transportEntity->getSyncProducts() === SyncProductsDataProvider::PUBLISHED) {
             return new ProductIterator(
@@ -222,7 +222,8 @@ class AkeneoTransport implements AkeneoTransportInterface
                 $this->attributes,
                 $this->familyVariants,
                 $this->measureFamilies,
-                $this->getAttributeMapping()
+                $this->getAttributeMapping(),
+                $this->getAlternativeIdentifier()
             );
         }
 
@@ -243,13 +244,13 @@ class AkeneoTransport implements AkeneoTransportInterface
     /**
      * @return \Iterator
      */
-    public function getProductModels(int $pageSize)
+    public function getProductModels(int $pageSize, ?\DateTime $updatedAt = null)
     {
         $this->initAttributesList();
         $this->initFamilyVariants();
         $this->initMeasureFamilies();
 
-        $searchFilters = $this->akeneoSearchBuilder->getFilters($this->transportEntity->getProductFilter());
+        $searchFilters = $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))());
         if (isset($searchFilters['completeness'])) {
             unset($searchFilters['completeness']);
         }
@@ -557,4 +558,9 @@ class AkeneoTransport implements AkeneoTransportInterface
             return new \EmptyIterator();
         }
     }
+
+     private function getAlternativeIdentifier(): ?string
+     {
+        return $this->transportEntity->getAlternativeIdentifier();
+     }
 }

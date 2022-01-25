@@ -1,3 +1,4 @@
+
 # Akeneo PIM OroCommerce Connector
 
 ## Short overview
@@ -73,6 +74,15 @@ Connector supports and tested on the next dataset:
 * Products: 50000, including images
 
 ## Setting up the Integration on the Oro Side
+
+A prefix is defined for atrribute code, attribute family code and their options if they are too long for OroCommerce. For example per default, it's `Akeneo_`. 
+You can change it by setting under `config/config.yml` of your project, the followings:
+```
+oro_akeneo:
+    code_prefix: 'ak_'
+```
+Important: this should be done only at really first stage, even before you set the integration and start the first sync.
+
 
 Create a new integration to start synchronizing data from Akeneo to OroCommerce.
 
@@ -180,3 +190,19 @@ Because of the differences between Akeneo and OroCommerce, you should take into 
 * OroCommerce does not support prices per currency, only the last price per currency listed is used for product assignment.
 * Categories tree rebuild starts after categories import.
 * Optional listeners are disabled by default. Please reindex data and recalculate prices manually.
+
+
+ ## Change log
+
+ ### Branch 3.1-custom (diglin repository)
+
+ * FEATURE: Allow to change attribute code prefix
+ * ENHANCE: Catch error when image not found
+ * BUGFIX: attribute option code error when the code doesn't respect Oro rules
+ * BUGFIX: Prevent the deletion of images when an image changed on Akeneo side. Previously the connector deleted all images except the new image of product image
+ * BUGFIX: breaking attribute vs attribute family relation when attribute is newly imported
+ * FEATURE: allow to use an alternative identifier as the Akeneo one. e.g. you have in Akeneo the identifier attribute `ean` but in OroCommerce you want to use an other Akeneo attribute like 'mysku' for the SKU. So use in the configuration field of the integration, the value 'mysku'. If you want to keep the value of the Akeneo identifier, set the value `my_sku:ean`, the EAN will be kept and save into the product in OroCommerce
+ * FEATURE: filter the attribute list to import, import by consequence only the attributes and the product data while syncing
+ * FEATURE: make sure that category of an Akeneo channel is imported only instead of all channels
+ * FEATURE: Merge images of children products to the configurable products. Can be configured.
+ * FEATURE: backend admin can use a placeholder `<updated_at_placeholder>` into the product filter settings to allow to use the date of the last successful batch as value when using the "updated_at" filter from akeneo. This makes possible to import delta changes only.

@@ -2,6 +2,7 @@
 
 namespace Oro\Bundle\AkeneoBundle;
 
+use Oro\Bundle\AkeneoBundle\DependencyInjection\CompilerPass\AdditionalApiCompilerPass;
 use Oro\Bundle\AkeneoBundle\DependencyInjection\CompilerPass\AdditionalOptionalListenersCompilerPass;
 use Oro\Bundle\AkeneoBundle\DependencyInjection\CompilerPass\EnterprisePass;
 use Oro\Bundle\AkeneoBundle\DependencyInjection\CompilerPass\TypeValidationLoaderPass;
@@ -16,6 +17,7 @@ class OroAkeneoBundle extends Bundle
      */
     public function build(ContainerBuilder $container)
     {
+        $container->addCompilerPass(new AdditionalApiCompilerPass());
         $container->addCompilerPass(new AdditionalOptionalListenersCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
         $container->addCompilerPass(new EnterprisePass());
         $container->addCompilerPass(new TypeValidationLoaderPass());
