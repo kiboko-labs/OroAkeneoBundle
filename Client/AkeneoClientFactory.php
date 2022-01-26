@@ -2,6 +2,8 @@
 
 namespace Oro\Bundle\AkeneoBundle\Client;
 
+use Akeneo\Pim\ApiClient\AkeneoPimClientInterface;
+use Akeneo\PimEnterprise\ApiClient\AkeneoPimEnterpriseClient;
 use Oro\Bundle\AkeneoBundle\Encoder\Crypter;
 use Oro\Bundle\AkeneoBundle\Entity\AkeneoSettings;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
@@ -35,7 +37,7 @@ class AkeneoClientFactory
     /** @var string */
     private $refreshToken;
 
-    /** @var AkeneoPimClientInterface */
+    /** @var AkeneoPimEnterpriseClient */
     private $client;
 
     /** @var AkeneoSettings */
@@ -59,7 +61,7 @@ class AkeneoClientFactory
         $this->clientBuilder = $clientBuilder;
     }
 
-    public function getInstance(AkeneoSettings $akeneoSettings, bool $tokensEnabled = true): AkeneoPimClientInterface
+    public function getInstance(AkeneoSettings $akeneoSettings, bool $tokensEnabled = true): AkeneoPimEnterpriseClient
     {
         $this->initProperties($akeneoSettings);
 

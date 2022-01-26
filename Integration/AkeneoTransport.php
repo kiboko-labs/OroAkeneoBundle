@@ -12,6 +12,7 @@ use Oro\Bundle\AkeneoBundle\Integration\Iterator\AttributeIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\BrandIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\ProductIterator;
 use Oro\Bundle\AkeneoBundle\Settings\DataProvider\SyncProductsDataProvider;
+use Oro\Bundle\AkeneoBundle\Tools\ParseUpdatedPlaceholder;
 use Oro\Bundle\CurrencyBundle\Provider\CurrencyProviderInterface;
 use Oro\Bundle\GaufretteBundle\FileManager;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;

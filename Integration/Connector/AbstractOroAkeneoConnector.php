@@ -9,7 +9,7 @@
 
 namespace Oro\Bundle\AkeneoBundle\Integration\Connector;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Oro\Bundle\IntegrationBundle\Entity\Channel as Integration;
 use Oro\Bundle\IntegrationBundle\Entity\Status;
 use Oro\Bundle\IntegrationBundle\Exception\RuntimeException;
