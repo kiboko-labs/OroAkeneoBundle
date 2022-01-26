@@ -8,5 +8,5 @@ oro.akeneo:
       message: 'A single value must be separated with a colon (akeneo_code:oro_attribute_name). Values must be separated with a semi-colon (custom_sku:sku;name:names).'
     product_by_sku.not_found: 'Product "%sku%" not found.'
     product_variants.empty: 'Product "%sku%" variant products are empty.'
-   alternative_identifier:
-     message: 'Only letters, digits, underscore or ":" character is allowed'
+    alternative_identifier:
+      message: 'Only letters, digits, underscore or ":" character is allowed'
