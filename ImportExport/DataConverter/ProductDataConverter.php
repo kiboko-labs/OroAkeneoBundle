@@ -149,7 +149,7 @@ class ProductDataConverter extends BaseProductDataConverter implements LoggerAwa
         $importedRecord['attributeFamily'] = ['code' => 'default_family'];
         if (!empty($importedRecord['family'])) {
             $importedRecord['attributeFamily'] = [
-                'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family']),
+                'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family'], $this->codePrefix),
             ];
         }
 
