@@ -2,17 +2,17 @@
 
 namespace Oro\Bundle\AkeneoBundle\Client;
 
+use Akeneo\Pim\ApiClient\AkeneoPimClientBuilder;
+use Akeneo\Pim\ApiClient\AkeneoPimClientInterface;
 use Akeneo\Pim\ApiClient\Security\Authentication;
-use Akeneo\PimEnterprise\ApiClient\AkeneoPimEnterpriseClientBuilder;
-use Akeneo\PimEnterprise\ApiClient\AkeneoPimEnterpriseClientInterface;
 use Oro\Bundle\AkeneoBundle\Client\Api\ApiAwareInterface;
 
-class AkeneoClientBuilder extends AkeneoPimEnterpriseClientBuilder
+class AkeneoClientBuilder extends AkeneoPimClientBuilder
 {
     /**
      * @var ApiAwareInterface[]
      */
-    protected $apiRegistry = [];
+    protected array $apiRegistry = [];
 
     /**
      * @param ApiAwareInterface|null ...$apis
@@ -28,13 +28,13 @@ class AkeneoClientBuilder extends AkeneoPimEnterpriseClientBuilder
      * @param string $baseUri
      * @return $this
      */
-    public function setBaseUri(string $baseUri)
+    public function setBaseUri(string $baseUri): AkeneoClientBuilder
     {
         $this->baseUri = $baseUri;
         return $this;
     }
 
-    public function addApi(ApiAwareInterface $api)
+    public function addApi(ApiAwareInterface $api): void
     {
         $shortClass = (new \ReflectionClass($api))->getShortName();
         $this->apiRegistry[$shortClass] = $api;
@@ -43,17 +43,7 @@ class AkeneoClientBuilder extends AkeneoPimEnterpriseClientBuilder
     /**
      * @inheritDoc
      */
-    public function buildAuthenticatedByPassword($clientId, $secret, $username, $password):  AkeneoPimEnterpriseClientInterface
-    {
-        $authentication = Authentication::fromPassword($clientId, $secret, $username, $password);
-
-        return $this->buildAuthenticatedClient($authentication);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function buildAuthenticatedClient(Authentication $authentication)
+    protected function buildAuthenticatedClient(Authentication $authentication): AkeneoPimClientInterface
     {
         list($resourceClient, $pageFactory, $cursorFactory, $fileSystem) = parent::setUp($authentication);
 
