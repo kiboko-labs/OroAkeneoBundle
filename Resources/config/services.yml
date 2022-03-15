@@ -128,6 +128,8 @@ services:
       - '@oro_integration.processor_registry'
     tags:
       - { name: 'oro_message_queue.client.message_processor', topicName: 'oro.integration.akeneo.product' }
+    calls:
+      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.client_builder:
     class: Oro\Bundle\AkeneoBundle\Client\AkeneoClientBuilder

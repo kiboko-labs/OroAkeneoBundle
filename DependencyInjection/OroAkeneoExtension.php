@@ -26,6 +26,7 @@ class OroAkeneoExtension extends Extension
         $container->setParameter('oro_akeneo.importexport.code_prefix', $config['code_prefix']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader->load('commands.yml');
         $loader->load('integration.yml');
         $loader->load('importexport.yml');
         $loader->load('services.yml');

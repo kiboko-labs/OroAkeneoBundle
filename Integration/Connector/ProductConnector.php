@@ -3,6 +3,7 @@
 namespace Oro\Bundle\AkeneoBundle\Integration\Connector;
 
 use Oro\Bundle\AkeneoBundle\Placeholder\SchemaUpdateFilter;
+use Oro\Bundle\AkeneoBundle\Tools\CacheProviderTrait;
 use Oro\Bundle\ImportExportBundle\Context\ContextInterface;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\IntegrationBundle\Provider\AllowedConnectorInterface;
@@ -15,6 +16,8 @@ use Psr\Log\LoggerAwareInterface;
  */
 class ProductConnector extends AbstractOroAkeneoConnector implements ConnectorInterface, AllowedConnectorInterface
 {
+    use CacheProviderTrait;
+
     const IMPORT_JOB_NAME = 'akeneo_product_import';
     const PAGE_SIZE = 100;
     const TYPE = 'product';
@@ -74,19 +77,13 @@ class ProductConnector extends AbstractOroAkeneoConnector implements ConnectorIn
      */
     protected function getConnectorSource()
     {
-        $items = $this->stepExecution
-            ->getJobExecution()
-            ->getExecutionContext()
-            ->get('items');
+        $items = $this->cacheProvider->fetch('akeneo')['items'] ?? [];
 
         if ($items) {
             return new \ArrayIterator();
         }
 
-        $variants = $this->stepExecution
-            ->getJobExecution()
-            ->getExecutionContext()
-            ->get('variants');
+        $variants = $this->cacheProvider->fetch('akeneo')['variants'] ?? [];
 
         if ($variants) {
             return new \ArrayIterator();
