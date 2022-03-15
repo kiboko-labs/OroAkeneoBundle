@@ -11,21 +11,32 @@ use Oro\Bundle\ImportExportBundle\Event\LoadTemplateFixturesEvent;
 use Oro\Bundle\ImportExportBundle\Event\NormalizeEntityEvent;
 use Oro\Bundle\ImportExportBundle\Event\StrategyEvent;
 use Oro\Bundle\TagBundle\EventListener\ImportExportTagsSubscriber;
+use Oro\Bundle\TagBundle\Manager\TagImportManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Tags lazy processing
  */
-class ImportExportTagsSubscriberDecorator implements AdditionalOptionalListenerInterface, EventSubscriberInterface
+class ImportExportTagsSubscriberDecorator implements
+    AdditionalOptionalListenerInterface,
+    EventSubscriberInterface
 {
     use AdditionalOptionalListenerTrait;
 
     /** @var ImportExportTagsSubscriber */
     protected $innerSubscriber;
 
-    public function __construct(ImportExportTagsSubscriber $innerSubscriber)
+    public function __construct(ImportExportTagsSubscriber $innerSubscriber, TagImportManager $tagImportManager)
     {
         $this->innerSubscriber = $innerSubscriber;
+
+        \Closure::bind(
+            function (TagImportManager $tagImportManager) {
+                $this->tagImportManager = $tagImportManager;
+            },
+            $this->innerSubscriber,
+            $this->innerSubscriber
+        )($tagImportManager);
     }
 
     /**

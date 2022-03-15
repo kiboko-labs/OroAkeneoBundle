@@ -8,11 +8,10 @@ use Oro\Bundle\AkeneoBundle\ImportExport\AkeneoIntegrationTrait;
 use Oro\Bundle\AkeneoBundle\ProductUnit\ProductUnitDiscoveryInterface;
 use Oro\Bundle\AkeneoBundle\Tools\AttributeFamilyCodeGenerator;
 use Oro\Bundle\AkeneoBundle\Tools\Generator;
-use Oro\Bundle\BatchBundle\Item\Support\ClosableInterface;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
+use Oro\Bundle\EntityBundle\Provider\EntityFieldProvider;
 use Oro\Bundle\EntityConfigBundle\Config\ConfigManager;
 use Oro\Bundle\EntityExtendBundle\Extend\RelationType;
-use Oro\Bundle\ImportExportBundle\Context\ContextAwareInterface;
 use Oro\Bundle\ImportExportBundle\Context\ContextInterface;
 use Oro\Bundle\LocaleBundle\Entity\AbstractLocalizedFallbackValue;
 use Oro\Bundle\LocaleBundle\Entity\Localization;
@@ -335,7 +334,7 @@ class ProductDataConverter extends BaseProductDataConverter implements LoggerAwa
             return;
         }
 
-        $fields = $this->fieldHelper->getFields(Product::class, true);
+        $fields = $this->fieldHelper->getEntityFields(Product::class, EntityFieldProvider::OPTION_WITH_RELATIONS);
         $importExportProvider = $this->entityConfigManager->getProvider('importexport');
 
         foreach ($fields as $field) {

@@ -30,7 +30,7 @@ class ProductConnector extends AbstractOroAkeneoConnector implements ConnectorIn
     /**
      * {@inheritdoc}
      */
-    public function getLabel()
+    public function getLabel(): string
     {
         return 'oro.akeneo.connector.product.label';
     }
