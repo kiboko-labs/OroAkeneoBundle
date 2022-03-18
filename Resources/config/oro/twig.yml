@@ -1,2 +1,2 @@
 bundles:
-  '@OroAkeneo/Form/fields.html.twig'
+  - '@OroAkeneo/Form/fields.html.twig'
