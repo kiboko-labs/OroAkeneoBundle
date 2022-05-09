@@ -103,26 +103,4 @@ class ProductConnector extends AbstractOroAkeneoConnector implements ConnectorIn
     {
         return $this->schemaUpdateFilter->isApplicable($integration, Product::class);
     }
-
-    protected function initializeFromContext(ContextInterface $context)
-    {
-        $this->transport = $this->contextMediator->getTransport($context, true);
-        $this->channel = $this->contextMediator->getChannel($context);
-
-        $status = $this->getLastCompletedIntegrationStatus($this->channel, $this->getType());
-        $this->addStatusData(self::LAST_SYNC_KEY, $status->getData()[self::LAST_SYNC_KEY] ?? null);
-
-        $this->validateConfiguration();
-        $this->transport->init($this->channel->getTransport());
-        $this->setSourceIterator($this->getConnectorSource());
-
-        if ($this->getSourceIterator() instanceof LoggerAwareInterface) {
-            $this->getSourceIterator()->setLogger($this->logger);
-        }
-    }
-
-    public function supportsForceSync()
-    {
-        return true;
-    }
 }
