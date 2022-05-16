@@ -279,7 +279,7 @@ class AttributeWriter extends BaseAttributeWriter implements StepExecutionAwareI
         $attributeConfig->set('field_name', $fieldName);
         $attributeConfig->set('is_attribute', true);
         $attributeConfig->set('is_global', false);
-        $attributeConfig->set('organization_id', $this->getOrganizationId());
+        $attributeConfig->remove('organization_id');
         $this->configManager->persist($attributeConfig);
 
         parent::setAttributeData($fieldConfigModel);
