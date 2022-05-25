@@ -544,7 +544,7 @@ class AkeneoTransport implements AkeneoTransportInterface
         }
     }
 
-    public function initMeasureFamilies()
+    protected function initMeasureFamilies()
     {
         if (!empty($this->measureFamilies)) {
             return;
