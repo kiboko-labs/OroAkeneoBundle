@@ -244,7 +244,6 @@ services:
       - [ setTranslateUsingLocale, [ false ] ]
       - [ setEntityConfigManager, [ '@oro_entity_config.config_manager' ] ]
       - [ setDateTimeFormatter, [ '@oro_locale.formatter.date_time' ] ]
-      - [ setProductUnitsProvider, [ '@oro_product.provider.product_units_provider' ] ]
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
       - [ setProductVariantFieldValueHandlerRegistry, [ '@oro_product.product_variant_field.registry.product_variant_field_value_handler_registry' ] ]       - [setProductUnitDiscovery, ["@oro_akeneo.product_unit.discovery"]]
       - [ setLogger, ["@oro_integration.logger.strategy"]]
@@ -328,7 +327,6 @@ services:
   oro_akeneo.importexport.writer.async_product:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Writer\AsyncWriter'
     arguments:
-      - '@oro_message_queue.job.runner'
       - '@oro_message_queue.message_producer'
       - '@oro_entity.doctrine_helper'
       - '@oro_platform.optional_listeners.manager'

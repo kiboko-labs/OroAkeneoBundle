@@ -1,610 +1,296 @@
 <?php
 
-namespace Oro\Bundle\AkeneoBundle\Integration;
+namespace AppBundle\Integration;
 
 use Akeneo\Pim\ApiClient\AkeneoPimClientInterface;
-use Akeneo\Pim\ApiClient\Exception\NotFoundHttpException;
+use DateTimeInterface;
+use Iterator;
 use Oro\Bundle\AkeneoBundle\Client\AkeneoClientFactory;
 use Oro\Bundle\AkeneoBundle\Entity\AkeneoSettings;
-use Oro\Bundle\AkeneoBundle\Form\Type\AkeneoSettingsType;
-use Oro\Bundle\AkeneoBundle\Integration\Iterator\AttributeFamilyIterator;
-use Oro\Bundle\AkeneoBundle\Integration\Iterator\AttributeIterator;
-use Oro\Bundle\AkeneoBundle\Integration\Iterator\BrandIterator;
-use Oro\Bundle\AkeneoBundle\Integration\Iterator\ConfigurableProductIterator;
+use Oro\Bundle\AkeneoBundle\Integration\AkeneoSearchBuilder;
+use Oro\Bundle\AkeneoBundle\Integration\AkeneoTransportInterface;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\ProductIterator;
-use Oro\Bundle\AkeneoBundle\Settings\DataProvider\SyncProductsDataProvider;
-use Oro\Bundle\AkeneoBundle\Tools\ParseUpdatedPlaceholder;
 use Oro\Bundle\CurrencyBundle\Provider\CurrencyProviderInterface;
-use Oro\Bundle\GaufretteBundle\FileManager;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
-use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Intl\Intl;
 
-class AkeneoTransport implements AkeneoTransportInterface
+final class AkeneoTransport implements AkeneoTransportInterface
 {
-    use LoggerAwareTrait;
+    /**
+     * @var int
+     */
+    private const PAGE_SIZE = 100;
 
-    const PAGE_SIZE = 100;
+    private AkeneoTransportInterface $decorated;
+    private AkeneoPimClientInterface $client;
+    private AkeneoSettings $transportEntity;
+    private AkeneoClientFactory $clientFactory;
+    private AkeneoSearchBuilder $akeneoSearchBuilder;
+    private array $referenceDataClassMapping = [];
+    private array $additionalAttributes = [];
+    private LoggerInterface $logger;
+    private array $attributesWithNorms = [];
+    private array $familyVariants = [];
+    /**
+     * @var string
+     */
+    private const CODE = 'code';
 
-    private $attributes = [];
-
-    private $familyVariants = [];
-
-    private $families = [];
-
-    private $measureFamilies = [];
-
-    private $attributeMapping = [];
-
-    /** @var AkeneoClientFactory */
-    private $clientFactory;
-
-    /** @var AkeneoPimClientInterface */
-    private $client;
-
-    /** @var CurrencyProviderInterface */
-    private $configProvider;
-
-    /** @var AkeneoSettings */
-    private $transportEntity;
-
-    /** @var AkeneoSearchBuilder */
-    private $akeneoSearchBuilder;
-
-    /** @var FileManager */
-    private $fileManager;
-
+    /**
+     * @param mixed[] $referenceDataClassMapping
+     * @param mixed[] $additionalAttributes
+     */
     public function __construct(
-        AkeneoClientFactory $clientFactory,
-        CurrencyProviderInterface $configProvider,
+        AkeneoTransportInterface $decorated,
+        AkeneoClientFactory $akeneoClientFactory,
         AkeneoSearchBuilder $akeneoSearchBuilder,
-        FileManager $fileManager,
+        array $referenceDataClassMapping,
+        array $additionalAttributes,
         LoggerInterface $logger
     ) {
-        $this->clientFactory = $clientFactory;
-        $this->configProvider = $configProvider;
+        $this->decorated = $decorated;
+        $this->clientFactory = $akeneoClientFactory;
         $this->akeneoSearchBuilder = $akeneoSearchBuilder;
-        $this->fileManager = $fileManager;
+        $this->referenceDataClassMapping = $referenceDataClassMapping;
+        $this->additionalAttributes = $additionalAttributes;
         $this->logger = $logger;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @param \DateTime|\DateTimeImmutable|null $updatedAt
      */
-    public function init(Transport $transportEntity, $tokensEnabled = true)
+    public function getProducts(int $pageSize, ?DateTimeInterface $updatedAt = null): ProductIterator
     {
+        $this->initAttributesList();
+
+        $searchFilters = $this->akeneoSearchBuilder->getFilters($this->transportEntity->getProductFilter());
+
+        if ($this->transportEntity->getSyncProducts() === 'published') {
+            $api = $this->client->getPublishedProductApi();
+        } else {
+            $api = $this->client->getProductApi();
+        }
+
+        return new ProductIterator(
+            $api->all($pageSize,
+                ['search' => $searchFilters, 'scope' => $this->transportEntity->getAkeneoActiveChannel()]),
+            $this->client,
+            $this->logger,
+            $this->attributesWithNorms,
+            [],
+            [],
+            [],
+            $this->transportEntity->getAlternativeIdentifier()
+        );
+    }
+
+    /**
+     * @return mixed[]
+     */
+    private function arrayFromMappingSetting(): array
+    {
+        $configuration = $this->transportEntity->getChannel()->getMappingSettings()->offsetGet('norms');
+        if (empty($configuration)) {
+            return [];
+        }
+
+        return explode(';', $configuration);
+    }
+
+    /**
+     * @return mixed[]
+     */
+    private function arrayFromAkeneoAttributesList(): array
+    {
+        $configuration = $this->transportEntity->getAkeneoAttributesList();
+        if (empty($configuration)) {
+            return [];
+        }
+
+        return explode(';', $configuration);
+    }
+
+    /**
+     * @return mixed[]
+     */
+    private function arrayFromAkeneoAttributesImageList(): array
+    {
+        $configuration = $this->transportEntity->getAkeneoAttributesImageList();
+        if (empty($configuration)) {
+            return [];
+        }
+
+        return explode(';', $configuration);
+    }
+
+    private function initAttributesList(): void
+    {
+        if ($this->attributesWithNorms !== []) {
+            return;
+        }
+
+        $attributeCodes = array_merge(
+            [],
+            $this->arrayFromMappingSetting(),
+            $this->arrayFromAkeneoAttributesList(),
+            $this->arrayFromAkeneoAttributesImageList(),
+            $this->additionalAttributes,
+            array_keys($this->referenceDataClassMapping)
+        );
+        foreach ($this->client->getAttributeApi()->all(self::PAGE_SIZE) as $attribute) {
+            if (!in_array($attribute[self::CODE], $attributeCodes, true)) {
+                continue;
+            }
+
+            $this->attributesWithNorms[$attribute[self::CODE]] = $attribute;
+        }
+    }
+
+    protected function initFamilyVariants(): void
+    {
+        if (count($this->familyVariants) <= 0) {
+            foreach ($this->client->getFamilyApi()->all(self::PAGE_SIZE) as $family) {
+                foreach ($this->client->getFamilyVariantApi()->all($family[self::CODE], self::PAGE_SIZE) as $variant) {
+                    $variant['family'] = $family[self::CODE];
+                    $this->familyVariants[$variant[self::CODE]] = $variant;
+                }
+            }
+        }
+    }
+
+    public function init(Transport $transportEntity, $tokensEnabled = true): void
+    {
+        $this->decorated->init($transportEntity, $tokensEnabled);
         $this->client = $this->clientFactory->getInstance($transportEntity, $tokensEnabled);
         $this->transportEntity = $transportEntity;
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
-    public function getCurrencies()
+    public function getCurrencies(): array
     {
-        $currencies = [];
-
-        foreach ($this->client->getCurrencyApi()->all() as $currency) {
-            if (false === $currency['enabled']) {
-                continue;
-            }
-
-            $currencies[] = $currency['code'];
-        }
-
-        return $currencies;
+        return $this->decorated->getCurrencies();
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
-    public function getMergedCurrencies()
+    public function getMergedCurrencies(): array
     {
-        $currencies = [];
-        $oroCurrencies = $this->configProvider->getCurrencies();
-
-        foreach ($this->client->getCurrencyApi()->all() as $currency) {
-            if (false === $currency['enabled']) {
-                continue;
-            }
-            if (in_array($currency['code'], $oroCurrencies)) {
-                $currencies[$currency['code']] = $currency['code'];
-            }
-        }
-
-        return $currencies;
+        return $this->decorated->getMergedCurrencies();
     }
 
     public function setConfigProvider(CurrencyProviderInterface $configProvider)
     {
-        $this->configProvider = $configProvider;
+        return $this->decorated->setConfigProvider($configProvider);
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
-    public function getLocales()
+    public function getLocales(): array
     {
-        $locales = [];
-
-        foreach ($this->client->getLocaleApi()->all() as $locale) {
-            if (false === $locale['enabled']) {
-                continue;
-            }
-
-            $localeName = Intl::getLocaleBundle()->getLocaleName($locale['code']);
-            $locales[$localeName ?: $locale['code']] = $locale['code'];
-        }
-
-        return $locales;
+        return $this->decorated->getLocales();
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
-    public function getChannels()
+    public function getChannels(): array
     {
-        $channels = [];
-        foreach ($this->client->getChannelApi()->all() as $channel) {
-            $channels[$channel['code']] = $channel['code'];
-        }
-
-        return $channels;
+        return $this->decorated->getChannels();
     }
 
-    /**
-     * @return \Iterator
-     */
-    public function getCategories(int $pageSize)
+    public function getCategories(int $pageSize): Iterator
     {
-        $categoryTreeChannel = null;
-        $akeneoChannel = $this->transportEntity->getAkeneoActiveChannel();
-
-        if (!empty($akeneoChannel)) {
-            foreach ($this->client->getChannelApi()->all() as $channel) {
-                $categoryTreeChannel = ($channel['code'] == $akeneoChannel && !empty($channel['category_tree'])) ? $channel['category_tree'] : null;
-
-                if (null !== $categoryTreeChannel) {
-                    break;
-                }
-            }
-        }
-
-        if (null === $categoryTreeChannel) {
-            return $this->client->getCategoryApi()->all($pageSize);
-        }
-
-        $parentCategory = [];
-        $akeneoTree = new \ArrayIterator([], \ArrayIterator::STD_PROP_LIST);
-
-        foreach ($this->client->getCategoryApi()->all($pageSize) as $category) {
-            if ($category['code'] == $categoryTreeChannel || in_array($category['parent'], $parentCategory)) {
-                $parentCategory[] = $category['code'];
-                $akeneoTree->append($category);
-            }
-        }
-        unset($parentCategory);
-
-        return $akeneoTree;
+        return $this->decorated->getCategories($pageSize);
     }
 
-    /**
-     * @return \Iterator
-     */
-    public function getAttributeFamilies()
+    public function getAttributeFamilies(): Iterator
     {
-        return new AttributeFamilyIterator(
-            $this->client->getFamilyApi()->all(self::PAGE_SIZE),
-            $this->client,
-            $this->logger
-        );
+        return $this->decorated->getAttributeFamilies();
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @return \Iterator
+     * @param \DateTime|\DateTimeImmutable|null $updatedAt
      */
-    public function getProducts(int $pageSize, ?\DateTime $updatedAt = null)
+    public function getProductModels(int $pageSize, ?DateTimeInterface $updatedAt = null): ProductIterator
     {
         $this->initAttributesList();
-        $this->initMeasureFamilies();
+        $this->initFamilyVariants();
 
-        $searchFilters = $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))());
-
-        if ($this->transportEntity->getSyncProducts() === SyncProductsDataProvider::PUBLISHED) {
-            return new ProductIterator(
-                $this->client->getPublishedProductApi()->all(
-                    $pageSize,
-                    ['search' => $searchFilters, 'scope' => $this->transportEntity->getAkeneoActiveChannel()]
-                ),
-                $this->client,
-                $this->logger,
-                $this->attributes,
-                $this->familyVariants,
-                $this->measureFamilies,
-                $this->getAttributeMapping(),
-                $this->getAlternativeIdentifier()
-            );
+        $searchFilters = $this->akeneoSearchBuilder->getFilters($this->transportEntity->getProductFilter());
+        if (isset($searchFilters['completeness'])) {
+            unset($searchFilters['completeness']);
         }
 
         return new ProductIterator(
-            $this->client->getProductApi()->all(
+            $this->client->getProductModelApi()->all(
                 $pageSize,
                 ['search' => $searchFilters, 'scope' => $this->transportEntity->getAkeneoActiveChannel()]
             ),
             $this->client,
             $this->logger,
-            $this->attributes,
-            $this->familyVariants,
-            $this->measureFamilies,
-            $this->getAttributeMapping()
+            $this->attributesWithNorms,
+            $this->familyVariants
         );
     }
 
-    public function getProductsList(int $pageSize): iterable
+    public function getAttributes(int $pageSize): Iterator
     {
-        $this->initAttributesList();
-
-        $queryParams = [
-            'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters($this->transportEntity->getProductFilter()),
-            'attributes' => key($this->attributes),
-        ];
-
-        if ($this->transportEntity->getSyncProducts() === SyncProductsDataProvider::PUBLISHED) {
-            return new ConfigurableProductIterator(
-                $this->client->getPublishedProductApi()->all($pageSize, $queryParams),
-                $this->client,
-                $this->logger,
-                $this->getAttributeMapping()
-            );
-        }
-
-        return new ConfigurableProductIterator(
-            $this->client->getProductApi()->all($pageSize, $queryParams),
-            $this->client,
-            $this->logger,
-            $this->getAttributeMapping()
-        );
+        return $this->decorated->getAttributes($pageSize);
     }
 
-    /**
-     * @return \Iterator
-     */
-    public function getProductModels(int $pageSize, ?\DateTime $updatedAt = null)
+    public function getLabel(): string
     {
-        $this->initAttributesList();
-        $this->initFamilyVariants();
-        $this->initMeasureFamilies();
-
-        $queryParams = [
-            'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters($this->transportEntity->getConfigurableProductFilter()),
-        ];
-
-        return new ProductIterator(
-            $this->client->getProductModelApi()->all($pageSize, $queryParams),
-            $this->client,
-            $this->logger,
-            $this->attributes,
-            $this->familyVariants,
-            $this->measureFamilies,
-            $this->getAttributeMapping()
-        );
+        return $this->decorated->getLabel();
     }
 
-    public function getProductModelsList(int $pageSize): iterable
+    public function getSettingsFormType(): string
     {
-        $this->initAttributesList();
-
-        $queryParams = [
-            'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters($this->transportEntity->getConfigurableProductFilter()),
-            'attributes' => key($this->attributes),
-        ];
-
-        return new ConfigurableProductIterator(
-            $this->client->getProductModelApi()->all($pageSize, $queryParams),
-            $this->client,
-            $this->logger,
-            $this->getAttributeMapping()
-        );
+        return $this->decorated->getSettingsFormType();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSettingsFormType()
+    public function getSettingsEntityFQCN(): string
     {
-        return AkeneoSettingsType::class;
+        return $this->decorated->getSettingsEntityFQCN();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSettingsEntityFQCN()
+    public function downloadAndSaveMediaFile($code): void
     {
-        return AkeneoSettings::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getLabel()
-    {
-        return 'oro.akeneo.integration.settings.label';
-    }
-
-    /**
-     * @return AttributeIterator
-     */
-    public function getAttributes(int $pageSize)
-    {
-        $attributeFilter = $this->getAttributeFilter();
-
-        return new AttributeIterator(
-            $this->client->getAttributeApi()->all($pageSize),
-            $this->client,
-            $this->logger,
-            $attributeFilter
-        );
-    }
-
-    private function getAttributeFilter(): array
-    {
-        $attrList = $this->transportEntity->getAkeneoAttributesList();
-        if (!empty($attrList)) {
-            return array_merge(
-                explode(';', $attrList) ?? [],
-                explode(';', $this->transportEntity->getAkeneoAttributesImageList()) ?? []
-            );
-        }
-
-        $this->initFamilies();
-
-        $familtyAttributes = [];
-        foreach ($this->families as $family) {
-            $familtyAttributes = array_unique(array_merge($familtyAttributes, $family['attributes'] ?? []));
-        }
-
-        return $familtyAttributes;
-    }
-
-    public function downloadAndSaveMediaFile(string $code): void
-    {
-        if ($this->fileManager->hasFile($code)) {
-            return;
-        }
-
-        try {
-            $content = $this->client
-                ->getProductMediaFileApi()
-                ->download($code)
-                ->getBody()
-                ->getContents();
-        } catch (\Throwable $e) {
-            $this->logger->critical(
-                'Error on downloading media file.',
-                ['message' => $e->getMessage(), 'exception' => $e]
-            );
-
-            return;
-        }
-
-        try {
-            $this->fileManager->writeToStorage($content, $code);
-        } catch (\Throwable $e) {
-            $this->logger->critical(
-                'Error during saving media file.',
-                ['message' => $e->getMessage(), 'exception' => $e]
-            );
-
-            return;
-        }
-    }
-
-    public function downloadAndSaveAsset(string $code, string $file): void
-    {
-        if ($this->fileManager->hasFile($code)) {
-            return;
-        }
-
-        try {
-            $content = $this->client
-                ->getAssetReferenceFileApi()
-                ->downloadFromNotLocalizableAsset($code)
-                ->getBody()
-                ->getContents();
-        } catch (\Throwable $e) {
-            $this->logger->critical(
-                'Error on downloading asset.',
-                ['message' => $e->getMessage(), 'exception' => $e]
-            );
-
-            return;
-        }
-
-        try {
-            $this->fileManager->writeToStorage($content, $code);
-        } catch (\Throwable $e) {
-            $this->logger->critical(
-                'Error during saving asset.',
-                ['message' => $e->getMessage(), 'exception' => $e]
-            );
-
-            return;
-        }
-    }
-
-    public function downloadAndSaveReferenceEntityMediaFile(string $code): void
-    {
-        if ($this->fileManager->hasFile($code)) {
-            return;
-        }
-
-        try {
-            $content = $this->client
-                ->getReferenceEntityMediaFileApi()
-                ->download($code)
-                ->getBody()
-                ->getContents();
-        } catch (\Throwable $e) {
-            $this->logger->critical(
-                'Error on downloading asset.',
-                ['message' => $e->getMessage(), 'exception' => $e]
-            );
-
-            return;
-        }
-
-        try {
-            $this->fileManager->writeToStorage($content, $code);
-        } catch (\Throwable $e) {
-            $this->logger->critical(
-                'Error during saving asset.',
-                ['message' => $e->getMessage(), 'exception' => $e]
-            );
-
-            return;
-        }
-    }
-
-    public function downloadAndSaveAssetMediaFile(string $code): void
-    {
-        if ($this->fileManager->hasFile($code)) {
-            return;
-        }
-
-        try {
-            $content = $this->client
-                ->getAssetMediaFileApi()
-                ->download($code)
-                ->getBody()
-                ->getContents();
-        } catch (\Throwable $e) {
-            $this->logger->critical(
-                'Error on downloading asset.',
-                ['message' => $e->getMessage(), 'exception' => $e]
-            );
-
-            return;
-        }
-
-        try {
-            $this->fileManager->writeToStorage($content, $code);
-        } catch (\Throwable $e) {
-            $this->logger->critical(
-                'Error during saving asset.',
-                ['message' => $e->getMessage(), 'exception' => $e]
-            );
-
-            return;
-        }
-    }
-
-    protected function initAttributesList()
-    {
-        if (empty($this->attributes)) {
-            $attributeFilter = $this->getAttributeFilter();
-            foreach ($this->client->getAttributeApi()->all(self::PAGE_SIZE) as $attribute) {
-                if ($attributeFilter && !in_array($attribute['code'], $attributeFilter)) {
-                    continue;
-                }
-
-                $this->attributes[$attribute['code']] = $attribute;
-            }
-        }
-    }
-
-    protected function initFamilyVariants()
-    {
-        if (!empty($this->familyVariants)) {
-            return;
-        }
-
-        $this->initFamilies();
-
-        foreach ($this->families as $family) {
-            foreach ($this->client->getFamilyVariantApi()->all($family['code'], self::PAGE_SIZE) as $variant) {
-                $variant['family'] = $family['code'];
-                $this->familyVariants[$variant['code']] = $variant;
-            }
-        }
-    }
-
-    protected function initFamilies()
-    {
-        if (!empty($this->families)) {
-            return;
-        }
-
-        foreach ($this->client->getFamilyApi()->all(self::PAGE_SIZE) as $family) {
-            $this->families[$family['code']] = $family;
-        }
-    }
-
-    protected function initMeasureFamilies()
-    {
-        if (!empty($this->measureFamilies)) {
-            return;
-        }
-
-        foreach ($this->client->getMeasureFamilyApi()->all() as $measureFamily) {
-            foreach (($measureFamily['units'] ?? []) as $unit) {
-                $this->measureFamilies[$unit['code']] = $unit['symbol'];
-            }
-        }
-    }
-
-    protected function getAttributeMapping(): array
-    {
-        if ($this->attributeMapping) {
-            return $this->attributeMapping;
-        }
-
-        $attributesMappings = trim(
-            $this->transportEntity->getAkeneoAttributesMapping() ?? AkeneoSettings::DEFAULT_ATTRIBUTES_MAPPING,
-            ';:'
-        );
-
-        if (!empty($attributesMappings)) {
-            $attributesMapping = explode(';', $attributesMappings);
-            foreach ($attributesMapping as $attributeMapping) {
-                list($akeneoAttribute, $systemAttribute) = explode(':', $attributeMapping);
-                if (!isset($akeneoAttribute, $systemAttribute)) {
-                    continue;
-                }
-
-                $this->attributeMapping[$systemAttribute] = $akeneoAttribute;
-            }
-        }
-
-        return $this->attributeMapping;
+        $this->decorated->downloadAndSaveMediaFile($code);
     }
 
     public function getBrands(): \Traversable
     {
-        $brandReferenceEntityCode = $this->transportEntity->getAkeneoBrandReferenceEntityCode();
-        if (!$brandReferenceEntityCode) {
-            return new \EmptyIterator();
-        }
-
-        try {
-            return new BrandIterator(
-                $this->client->getReferenceEntityRecordApi()->all($brandReferenceEntityCode),
-                $this->client,
-                $this->logger,
-                $this
-            );
-        } catch (NotFoundHttpException $e) {
-            return new \EmptyIterator();
-        }
+        return $this->decorated->getBrands();
     }
 
-     private function getAlternativeIdentifier(): ?string
-     {
-        return $this->transportEntity->getAlternativeIdentifier();
-     }
+    public function downloadAndSaveAsset(string $code, string $file): void
+    {
+        $this->decorated->downloadAndSaveAsset($code, $file);
+    }
+
+    public function downloadAndSaveReferenceEntityMediaFile(string $code): void
+    {
+        $this->decorated->downloadAndSaveMediaFile($code);
+    }
+
+    public function downloadAndSaveAssetMediaFile(string $code): void
+    {
+        $this->decorated->downloadAndSaveAssetMediaFile($code);
+    }
+
+    public function getProductsList(int $pageSize): iterable
+    {
+        return $this->decorated->getProductsList($pageSize);
+    }
+
+    public function getProductModelsList(int $pageSize): iterable
+    {
+        return $this->decorated->getProductModelsList($pageSize);
+    }
 }

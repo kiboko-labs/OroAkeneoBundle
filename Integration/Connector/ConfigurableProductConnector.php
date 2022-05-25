@@ -6,15 +6,13 @@ use Oro\Bundle\AkeneoBundle\Integration\AkeneoTransport;
 use Oro\Bundle\AkeneoBundle\Placeholder\SchemaUpdateFilter;
 use Oro\Bundle\AkeneoBundle\Tools\CacheProviderTrait;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
-use Oro\Bundle\IntegrationBundle\Provider\AbstractConnector;
 use Oro\Bundle\IntegrationBundle\Provider\AllowedConnectorInterface;
-use Oro\Bundle\IntegrationBundle\Provider\ConnectorInterface;
 use Oro\Bundle\ProductBundle\Entity\Product;
 
 /**
  * Integration configurable product connector.
  */
-class ConfigurableProductConnector extends AbstractConnector implements ConnectorInterface, AllowedConnectorInterface
+class ConfigurableProductConnector extends AbstractOroAkeneoConnector implements AllowedConnectorInterface
 {
     use CacheProviderTrait;
 
@@ -64,8 +62,8 @@ class ConfigurableProductConnector extends AbstractConnector implements Connecto
         }
 
         $iterator = new \AppendIterator();
-        $iterator->append($this->transport->getProductsList(self::PAGE_SIZE));
-        $iterator->append($this->transport->getProductModelsList(self::PAGE_SIZE));
+        $iterator->append($this->transport->getProductsList(self::PAGE_SIZE,$this->getLastSyncDate()));
+        $iterator->append($this->transport->getProductModelsList(self::PAGE_SIZE,$this->getLastSyncDate()));
 
         return $iterator;
     }

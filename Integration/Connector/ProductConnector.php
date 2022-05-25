@@ -4,18 +4,14 @@ namespace Oro\Bundle\AkeneoBundle\Integration\Connector;
 
 use Oro\Bundle\AkeneoBundle\Placeholder\SchemaUpdateFilter;
 use Oro\Bundle\AkeneoBundle\Tools\CacheProviderTrait;
-use Oro\Bundle\ImportExportBundle\Context\ContextInterface;
-use Oro\Bundle\AkeneoBundle\Tools\CacheProviderTrait;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\IntegrationBundle\Provider\AllowedConnectorInterface;
-use Oro\Bundle\IntegrationBundle\Provider\ConnectorInterface;
 use Oro\Bundle\ProductBundle\Entity\Product;
-use Psr\Log\LoggerAwareInterface;
 
 /**
  * Integration product connector.
  */
-class ProductConnector extends AbstractOroAkeneoConnector implements ConnectorInterface, AllowedConnectorInterface
+class ProductConnector extends AbstractOroAkeneoConnector implements AllowedConnectorInterface
 {
     use CacheProviderTrait;
 
