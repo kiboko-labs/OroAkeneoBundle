@@ -242,6 +242,32 @@ class AkeneoTransport implements AkeneoTransportInterface
         );
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @return \Iterator
+     */
+    public function getProductsForVariants(int $pageSize, ?\DateTime $updatedAt = null)
+    {
+        $queryParams = [
+            'scope' => $this->transportEntity->getAkeneoActiveChannel(),
+            'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))()),
+            'attributes' => 'parent'
+        ];
+
+        return new ProductIterator(
+            $this->client->getProductApi()->all($pageSize, $queryParams),
+            $this->client,
+            $this->logger,
+            $this->attributes,
+            $this->familyVariants,
+            $this->measureFamilies,
+            $this->getAttributeMapping(),
+            $this->getAlternativeIdentifier()
+
+        );
+    }
+
     public function getProductsList(int $pageSize, ?\DateTime $updatedAt = null): iterable
     {
         $this->initAttributesList();

@@ -47,6 +47,13 @@ interface AkeneoTransportInterface extends TransportInterface
     public function getProducts(int $pageSize, ?\DateTime $updatedAt = null);
 
     /**
+     * {@inheritdoc}
+     *
+     * @return \Iterator
+     */
+    public function getProductsForVariants(int $pageSize, ?\DateTime $updatedAt = null);
+
+    /**
      * @return \Iterator
      */
     public function getProductModels(int $pageSize, ?\DateTime $updatedAt = null);
