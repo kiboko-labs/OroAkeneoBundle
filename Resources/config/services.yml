@@ -126,10 +126,10 @@ services:
       - '@security.token_storage'
       - '@logger'
       - '@oro_integration.processor_registry'
-    tags:
-      - { name: 'oro_message_queue.client.message_processor', topicName: 'oro.integration.akeneo.product' }
     calls:
       - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+    tags:
+      - { name: 'oro_message_queue.client.message_processor', topicName: 'oro.integration.akeneo.product' }
 
   oro_akeneo.client_builder:
     class: Oro\Bundle\AkeneoBundle\Client\AkeneoClientBuilder

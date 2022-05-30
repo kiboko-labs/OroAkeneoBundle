@@ -106,6 +106,10 @@ services:
   oro_akeneo.importexport.processor.async:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\AsyncProcessor'
     public: true
+
+  oro_akeneo.importexport.processor.build_variant_cache:
+    class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\BuildVariantCacheProcessor'
+    public: true
     calls:
       - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
@@ -141,6 +145,7 @@ services:
       index_1: '@oro_akeneo.strategy.import.helper'
     calls:
       - [ setConfigManager, [ '@oro_entity_config.config_manager' ] ]
+
   oro_akeneo.importexport.processor.attribute:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\AttributeImportProcessor'
     public: true
@@ -204,19 +209,6 @@ services:
     calls:
       - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
-  oro_akeneo.integration.connector.product:
-    class: 'Oro\Bundle\AkeneoBundle\Integration\Connector\ProductConnector'
-    arguments:
-      - '@oro_importexport.context_registry'
-      - '@oro_integration.logger.strategy'
-      - '@oro_integration.provider.connector_context_mediator'
-    calls:
-      - [ setManagerRegistry, [ "@doctrine" ] ]
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
-      - [ setSchemaUpdateFilter, [ '@oro_akeneo.placeholder.schema_update_filter' ] ]
-    tags:
-      - { name: oro_integration.connector, type: product, channel_type: oro_akeneo }
-
   oro_akeneo.integration.connector.brand:
     class: 'Oro\Bundle\AkeneoBundle\Integration\Connector\BrandConnector'
     arguments:
@@ -225,6 +217,44 @@ services:
       - '@oro_integration.provider.connector_context_mediator'
     tags:
       - { name: oro_integration.connector, type: brand, channel_type: oro_akeneo }
+
+  oro_akeneo.integration.connector.product:
+    class: 'Oro\Bundle\AkeneoBundle\Integration\Connector\ProductConnector'
+    arguments:
+      - '@oro_importexport.context_registry'
+      - '@oro_integration.logger.strategy'
+      - '@oro_integration.provider.connector_context_mediator'
+    calls:
+      - [ setManagerRegistry, [ "@doctrine" ] ]
+      - [ setSchemaUpdateFilter, [ '@oro_akeneo.placeholder.schema_update_filter' ] ]
+      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+    tags:
+      - { name: oro_integration.connector, type: product, channel_type: oro_akeneo }
+
+  oro_akeneo.integration.connector.configurable_product:
+    class: 'Oro\Bundle\AkeneoBundle\Integration\Connector\ConfigurableProductConnector'
+    arguments:
+      - '@oro_importexport.context_registry'
+      - '@oro_integration.logger.strategy'
+      - '@oro_integration.provider.connector_context_mediator'
+    calls:
+      - [ setSchemaUpdateFilter, [ '@oro_akeneo.placeholder.schema_update_filter' ] ]
+      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+    tags:
+      - { name: oro_integration.connector, type: configurable_product, channel_type: oro_akeneo }
+
+  oro_akeneo.integration.connector.variant:
+    class: 'Oro\Bundle\AkeneoBundle\Integration\Connector\VariantProductConnector'
+    arguments:
+      - '@oro_importexport.context_registry'
+      - '@oro_integration.logger.strategy'
+      - '@oro_integration.provider.connector_context_mediator'
+    calls:
+      - [ setManagerRegistry, [ "@doctrine" ] ]
+      - [ setSchemaUpdateFilter, [ '@oro_akeneo.placeholder.schema_update_filter' ] ]
+      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+    tags:
+      - { name: oro_integration.connector, type: product_variant, channel_type: oro_akeneo }
 
   oro_akeneo.importexport.data_converter.product:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\DataConverter\ProductDataConverter'
@@ -235,8 +265,8 @@ services:
       - [ setDateTimeFormatter, [ '@oro_locale.formatter.date_time' ] ]
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
       - [ setProductVariantFieldValueHandlerRegistry, [ '@oro_product.product_variant_field.registry.product_variant_field_value_handler_registry' ] ]       - [setProductUnitDiscovery, ["@oro_akeneo.product_unit.discovery"]]
-      - [setLogger, ["@oro_integration.logger.strategy"]]
-      - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
+      - [ setLogger, ["@oro_integration.logger.strategy"]]
+      - [ setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
   oro_akeneo.importexport.strategy.product:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\ProductImportStrategy'
     parent: oro_product.importexport.strategy.product
@@ -318,8 +348,19 @@ services:
     arguments:
       - '@oro_message_queue.message_producer'
       - '@oro_entity.doctrine_helper'
-    calls:
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - '@oro_platform.optional_listeners.manager'
+      - '@oro_akeneo.event_listener.additional_optional_listeners_manager'
+
+  oro_akeneo.importexport.writer.empty:
+    class: 'Oro\Bundle\AkeneoBundle\ImportExport\Writer\EmptyWriter'
+
+  oro_akeneo.importexport.writer.configurable_async_product:
+    class: 'Oro\Bundle\AkeneoBundle\ImportExport\Writer\ConfigurableAsyncWriter'
+    arguments:
+      - '@oro_message_queue.message_producer'
+      - '@oro_entity.doctrine_helper'
+      - '@oro_platform.optional_listeners.manager'
+      - '@oro_akeneo.event_listener.additional_optional_listeners_manager'
 
   oro_akeneo.importexport.cache:
     class: Doctrine\Common\Cache\ArrayCache

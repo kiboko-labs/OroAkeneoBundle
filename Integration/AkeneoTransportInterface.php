@@ -47,9 +47,20 @@ interface AkeneoTransportInterface extends TransportInterface
     public function getProducts(int $pageSize, ?\DateTime $updatedAt = null);
 
     /**
+     * {@inheritdoc}
+     *
+     * @return \Iterator
+     */
+    public function getProductsForVariants(int $pageSize, ?\DateTime $updatedAt = null);
+
+    /**
      * @return \Iterator
      */
     public function getProductModels(int $pageSize, ?\DateTime $updatedAt = null);
+
+    public function getProductsList(int $pageSize): iterable;
+
+    public function getProductModelsList(int $pageSize): iterable;
 
     /**
      * @return \Iterator
@@ -65,4 +76,6 @@ interface AkeneoTransportInterface extends TransportInterface
     public function downloadAndSaveReferenceEntityMediaFile(string $code): void;
 
     public function downloadAndSaveAssetMediaFile(string $code): void;
+
+    public function getAlternativeIdentifier(): ?string;
 }

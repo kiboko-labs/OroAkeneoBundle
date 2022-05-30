@@ -3,6 +3,7 @@
 namespace Oro\Bundle\AkeneoBundle\Integration\Connector;
 
 use Oro\Bundle\AkeneoBundle\Placeholder\SchemaUpdateFilter;
+use Oro\Bundle\AkeneoBundle\Settings\DataProvider\SyncProductsDataProvider;
 use Oro\Bundle\AkeneoBundle\Tools\CacheProviderTrait;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\IntegrationBundle\Provider\AllowedConnectorInterface;
@@ -11,13 +12,13 @@ use Oro\Bundle\ProductBundle\Entity\Product;
 /**
  * Integration product connector.
  */
-class ProductConnector extends AbstractOroAkeneoConnector implements AllowedConnectorInterface
+class VariantProductConnector extends AbstractOroAkeneoConnector implements AllowedConnectorInterface
 {
     use CacheProviderTrait;
 
-    const IMPORT_JOB_NAME = 'akeneo_product_import';
+    const IMPORT_JOB_NAME = 'akeneo_variant_product_import';
     const PAGE_SIZE = 100;
-    const TYPE = 'product';
+    const TYPE = 'variant';
 
     /**
      * @var SchemaUpdateFilter
@@ -29,7 +30,7 @@ class ProductConnector extends AbstractOroAkeneoConnector implements AllowedConn
      */
     public function getLabel()
     {
-        return 'oro.akeneo.connector.product.label';
+        return 'oro.akeneo.connector.product_variant.label';
     }
 
     /**
@@ -61,7 +62,7 @@ class ProductConnector extends AbstractOroAkeneoConnector implements AllowedConn
      */
     public function isAllowed(Channel $integration, array $processedConnectorsStatuses): bool
     {
-        return !$this->needToUpdateSchema($integration);
+        return !$this->needToUpdateSchema($integration) && $integration->getTransport()->getSyncProducts() === SyncProductsDataProvider::PUBLISHED;
     }
 
     public function setSchemaUpdateFilter(SchemaUpdateFilter $schemaUpdateFilter): void
@@ -74,14 +75,8 @@ class ProductConnector extends AbstractOroAkeneoConnector implements AllowedConn
      */
     protected function getConnectorSource()
     {
-        $items = $this->cacheProvider->fetch('akeneo')['items'] ?? [];
-        if ($items) {
-            return new \ArrayIterator();
-        }
-
         $iterator = new \AppendIterator();
-        $iterator->append($this->transport->getProducts(self::PAGE_SIZE, $this->getLastSyncDate()));
-        $iterator->append($this->transport->getProductModels(self::PAGE_SIZE, $this->getLastSyncDate()));
+        $iterator->append($this->transport->getProductsForVariants(self::PAGE_SIZE, $this->getLastSyncDate()));
 
         return $iterator;
     }

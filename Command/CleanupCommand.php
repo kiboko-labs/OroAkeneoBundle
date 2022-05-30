@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CleanupCommand extends Command implements CronCommandInterface
 {
     /** @var string */
-    protected static $defaultName = 'oro:akeneo:cleanup';
+    protected static $defaultName = 'oro:cron:cleanup';
 
     /** @var DoctrineHelper */
     private $doctrineHelper;
@@ -46,6 +46,7 @@ class CleanupCommand extends Command implements CronCommandInterface
                 <<<'HELP'
                     The <info>%command.name%</info> command clears fields changes for complete job records
                     from <comment>oro_integration_fields_changes</comment> table.
+
                       <info>php %command.full_name%</info>
                     HELP
             );
