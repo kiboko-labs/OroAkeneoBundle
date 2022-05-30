@@ -8,6 +8,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Oro\Bundle\ImportExportBundle\Context\ContextRegistry;
 use Oro\Bundle\ImportExportBundle\Processor\ProcessorInterface;
 use Oro\Bundle\ImportExportBundle\Strategy\Import\ImportStrategyHelper;
+use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductVariantLink;
 use Oro\Bundle\ProductBundle\Entity\Repository\ProductRepository;
@@ -30,6 +31,9 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
     /** @var TranslatorInterface */
     private $translator;
 
+    /** @var int */
+    private $organizationId;
+    
     public function __construct(
         ManagerRegistry $registry,
         ImportStrategyHelper $strategyHelper,
@@ -67,7 +71,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         /** @var ProductRepository $productRepository */
         $productRepository = $objectManager->getRepository(Product::class);
 
-        $parentProduct = $productRepository->findOneBySku($parentSku);
+        $parentProduct = $this->findProductBySku($productRepository,$parentSku);
         if (!$parentProduct instanceof Product) {
             $context->incrementErrorEntriesCount();
             $errorMessages = [
@@ -153,7 +157,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
 
             $objectManager->clear();
 
-            $parentProduct = $productRepository->findOneBySku($parentSku);
+            $parentProduct = $this->findProductBySku($productRepository,$parentSku);
             if (!$parentProduct instanceof Product) {
                 return null;
             }
@@ -180,5 +184,36 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         $context->incrementUpdateCount();
 
         return $parentProduct;
+    }
+    
+    private function findProductBySku(ProductRepository $productRepository, $parentSku)
+    {
+        $organizationId = $this->getOrganizationId();
+
+        $qb = $productRepository->getBySkuQueryBuilder($parentSku);
+        $qb->andWhere($qb->expr()->eq('product.organization', ':organization'))
+            ->setParameter('organization', $organizationId);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    private function getOrganizationId(): ?int
+    {
+        if (!$this->organizationId) {
+            $channelId = $this->stepExecution->getJobExecution()->getExecutionContext()->get('channel');
+            if (!$channelId) {
+                return null;
+            }
+
+            /** @var Channel $channel */
+            $channel = $this->registry->getRepository(Channel::class)->find($channelId);
+            if (!$channel) {
+                return null;
+            }
+
+            $this->organizationId = $channel->getOrganization()->getId();
+        }
+
+        return $this->organizationId;
     }
 }
