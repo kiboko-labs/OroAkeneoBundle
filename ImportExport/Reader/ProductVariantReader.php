@@ -13,7 +13,7 @@ class ProductVariantReader extends IteratorBasedReader
     {
         parent::initializeFromContext($context);
 
-        $variants = $this->cacheProvider->fetch('akeneo')['variants'] ?? [];
+        $variants = $this->cacheProvider->fetch('product_variants') ?? [];
 
         $this->stepExecution->setReadCount(count($variants));
 

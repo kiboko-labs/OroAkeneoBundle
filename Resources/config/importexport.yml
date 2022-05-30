@@ -110,6 +110,8 @@ services:
   oro_akeneo.importexport.processor.build_variant_cache:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\BuildVariantCacheProcessor'
     public: true
+    calls:
+      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.importexport.processor.category_parent:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\CategoryParentProcessor'
