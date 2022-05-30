@@ -125,7 +125,7 @@ connector:
           class: Oro\Bundle\BatchBundle\Step\ItemStep
           services:
             reader: oro_akeneo.integration.connector.variant
-            processor: oro_akeneo.importexport.processor.save_variant
+            processor: oro_akeneo.importexport.processor.build_variant_cache
             writer: oro_akeneo.importexport.writer.empty
           parameters:
             batch_size: 25

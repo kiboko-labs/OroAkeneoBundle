@@ -247,12 +247,11 @@ class AkeneoTransport implements AkeneoTransportInterface
      *
      * @return \Iterator
      */
-    public function getProductsForVariants(int $pageSize, ?\DateTime $updatedAt = null)
+    public function getProductsForVariants(int $pageSize, ?\DateTime $updatedAt = null): iterable
     {
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
             'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))()),
-            'attributes' => 'parent'
         ];
 
         return new ProductIterator(

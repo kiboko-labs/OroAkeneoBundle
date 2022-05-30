@@ -4,7 +4,7 @@ namespace Oro\Bundle\AkeneoBundle\ImportExport\Processor;
 
 use Oro\Bundle\ImportExportBundle\Processor\ProcessorInterface;
 
-class SaveVariant implements ProcessorInterface
+class BuildVariantCacheProcessor implements ProcessorInterface
 {
     use CacheProviderAwareProcessor;
 

@@ -12,11 +12,11 @@ use Oro\Bundle\ProductBundle\Entity\Product;
 /**
  * Integration product connector.
  */
-class VariantConnector extends AbstractOroAkeneoConnector implements AllowedConnectorInterface
+class VariantProductConnector extends AbstractOroAkeneoConnector implements AllowedConnectorInterface
 {
     use CacheProviderTrait;
 
-    const IMPORT_JOB_NAME = 'akeneo_variant_import';
+    const IMPORT_JOB_NAME = 'akeneo_variant_product_import';
     const PAGE_SIZE = 100;
     const TYPE = 'variant';
 
@@ -30,7 +30,7 @@ class VariantConnector extends AbstractOroAkeneoConnector implements AllowedConn
      */
     public function getLabel()
     {
-        return 'oro.akeneo.connector.variant.label';
+        return 'oro.akeneo.connector.product_variant.label';
     }
 
     /**

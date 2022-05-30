@@ -107,8 +107,8 @@ services:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\AsyncProcessor'
     public: true
 
-  oro_akeneo.importexport.processor.save_variant:
-    class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\AsyncProcessor'
+  oro_akeneo.importexport.processor.build_variant_cache:
+    class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\BuildVariantCacheProcessor'
     public: true
 
   oro_akeneo.importexport.processor.category_parent:
@@ -242,7 +242,7 @@ services:
       - { name: oro_integration.connector, type: configurable_product, channel_type: oro_akeneo }
 
   oro_akeneo.integration.connector.variant:
-    class: 'Oro\Bundle\AkeneoBundle\Integration\Connector\VariantConnector'
+    class: 'Oro\Bundle\AkeneoBundle\Integration\Connector\VariantProductConnector'
     arguments:
       - '@oro_importexport.context_registry'
       - '@oro_integration.logger.strategy'

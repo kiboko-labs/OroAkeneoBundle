@@ -90,6 +90,8 @@ oro:
         label: Category connector
       product:
         label: Product connector
+      product_variant:
+        label: Product variant connector
       configurable_product:
         label: Configurable product connector
       attribute_family:
