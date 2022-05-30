@@ -7,12 +7,13 @@ use Oro\Bundle\AkeneoBundle\Settings\DataProvider\SyncProductsDataProvider;
 use Oro\Bundle\AkeneoBundle\Tools\CacheProviderTrait;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\IntegrationBundle\Provider\AllowedConnectorInterface;
+use Oro\Bundle\IntegrationBundle\Provider\OrderedConnectorInterface;
 use Oro\Bundle\ProductBundle\Entity\Product;
 
 /**
  * Integration product connector.
  */
-class VariantProductConnector extends AbstractOroAkeneoConnector implements AllowedConnectorInterface
+class VariantProductConnector extends AbstractOroAkeneoConnector implements AllowedConnectorInterface, OrderedConnectorInterface
 {
     use CacheProviderTrait;
 
@@ -87,5 +88,10 @@ class VariantProductConnector extends AbstractOroAkeneoConnector implements Allo
     private function needToUpdateSchema(Channel $integration): bool
     {
         return $this->schemaUpdateFilter->isApplicable($integration, Product::class);
+    }
+
+    public function getOrder()
+    {
+        return 7;
     }
 }
