@@ -154,7 +154,7 @@ class AttributeWriter extends BaseAttributeWriter implements StepExecutionAwareI
             $labelKey = $config->get('label');
 
             foreach ($this->attributeLabels[$fieldName] as $locale => $value) {
-                $this->translationManager->saveTranslation(
+                $this->translationManager->saveOrUpdateTranslation(
                     $labelKey,
                     $value,
                     $locale,
