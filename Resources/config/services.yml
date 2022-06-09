@@ -409,7 +409,6 @@ services:
       - '@oro_config.manager'
       - '@oro_product.provider.product_units_provider'
 
-  oro_translation.manager.translation:
-    class: 'Oro\Bundle\AkeneoBundle\Manager\TranslationManager'
+  Oro\Bundle\AkeneoBundle\Manager\TranslationManager:
     decorates: oro_translation.manager.translation
     parent: oro_translation.manager.translation
