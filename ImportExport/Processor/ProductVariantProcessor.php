@@ -4,7 +4,9 @@ namespace Oro\Bundle\AkeneoBundle\ImportExport\Processor;
 
 use Akeneo\Bundle\BatchBundle\Entity\StepExecution;
 use Akeneo\Bundle\BatchBundle\Step\StepExecutionAwareInterface;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectRepository;
 use Oro\Bundle\ImportExportBundle\Context\ContextRegistry;
 use Oro\Bundle\ImportExportBundle\Processor\ProcessorInterface;
 use Oro\Bundle\ImportExportBundle\Strategy\Import\ImportStrategyHelper;
@@ -12,7 +14,7 @@ use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductVariantLink;
 use Oro\Bundle\ProductBundle\Entity\Repository\ProductRepository;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareInterface
 {
@@ -33,7 +35,10 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
 
     /** @var int */
     private $organizationId;
-    
+
+    /** @var ObjectRepository */
+    private $productRepository;
+
     public function __construct(
         ManagerRegistry $registry,
         ImportStrategyHelper $strategyHelper,
@@ -44,6 +49,9 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         $this->strategyHelper = $strategyHelper;
         $this->contextRegistry = $contextRegistry;
         $this->translator = $translator;
+        $this->productRepository = $this->registry
+            ->getManagerForClass(Product::class)
+            ->getRepository(Product::class);
     }
 
     public function setStepExecution(StepExecution $stepExecution)
@@ -68,10 +76,8 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         $context->setValue('itemData', ['configurable' => $parentSku, 'variants' => $variantSkus]);
 
         $objectManager = $this->registry->getManagerForClass(Product::class);
-        /** @var ProductRepository $productRepository */
-        $productRepository = $objectManager->getRepository(Product::class);
 
-        $parentProduct = $this->findProductBySku($productRepository,$parentSku);
+        $parentProduct = $this->findProductBySku($parentSku);
         if (!$parentProduct instanceof Product) {
             $context->incrementErrorEntriesCount();
             $errorMessages = [
@@ -120,7 +126,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         }
 
         foreach ($variantSkusUppercase as $variantSku) {
-            $variantProduct = $productRepository->findOneBySku($variantSku);
+            $variantProduct = $this->findProductBySku($variantSku);
             if (!$variantProduct instanceof Product) {
                 $context->incrementErrorEntriesCount();
 
@@ -155,9 +161,9 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
             $context->incrementErrorEntriesCount();
             $this->strategyHelper->addValidationErrors($validationErrors, $context);
 
-            $objectManager->clear();
+//            $objectManager->clear();
 
-            $parentProduct = $this->findProductBySku($productRepository,$parentSku);
+            $parentProduct = $this->findProductBySku($parentSku);
             if (!$parentProduct instanceof Product) {
                 return null;
             }
@@ -186,13 +192,13 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         return $parentProduct;
     }
     
-    private function findProductBySku(ProductRepository $productRepository, $parentSku)
+    private function findProductBySku(string $parentSku)
     {
-        $organizationId = $this->getOrganizationId();
-
-        $qb = $productRepository->getBySkuQueryBuilder($parentSku);
+        /** @var QueryBuilder $qb */
+        $qb = $this->productRepository->getBySkuQueryBuilder($parentSku);
         $qb->andWhere($qb->expr()->eq('product.organization', ':organization'))
-            ->setParameter('organization', $organizationId);
+            ->setParameter('organization', $this->getOrganizationId())
+            ->setMaxResults(1);
 
         return $qb->getQuery()->getOneOrNullResult();
     }
