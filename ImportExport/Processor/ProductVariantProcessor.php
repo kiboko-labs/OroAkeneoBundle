@@ -4,7 +4,9 @@ namespace Oro\Bundle\AkeneoBundle\ImportExport\Processor;
 
 use Akeneo\Bundle\BatchBundle\Entity\StepExecution;
 use Akeneo\Bundle\BatchBundle\Step\StepExecutionAwareInterface;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectRepository;
 use Oro\Bundle\ImportExportBundle\Context\ContextRegistry;
 use Oro\Bundle\ImportExportBundle\Processor\ProcessorInterface;
 use Oro\Bundle\ImportExportBundle\Strategy\Import\ImportStrategyHelper;
@@ -12,7 +14,7 @@ use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductVariantLink;
 use Oro\Bundle\ProductBundle\Entity\Repository\ProductRepository;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareInterface
 {
@@ -34,7 +36,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
     /** @var int */
     private $organizationId;
 
-    /** @var \Doctrine\Persistence\ObjectRepository */
+    /** @var ObjectRepository */
     private $productRepository;
 
     public function __construct(
@@ -47,6 +49,9 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         $this->strategyHelper = $strategyHelper;
         $this->contextRegistry = $contextRegistry;
         $this->translator = $translator;
+        $this->productRepository = $this->registry
+            ->getManagerForClass(Product::class)
+            ->getRepository(Product::class);
     }
 
     public function setStepExecution(StepExecution $stepExecution)
@@ -189,18 +194,11 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
     
     private function findProductBySku(string $parentSku)
     {
-        if(!$this->productRepository) {
-            $objectManager = $this->registry->getManagerForClass(Product::class);
-
-            /** @var ProductRepository $productRepository */
-            $this->productRepository = $objectManager->getRepository(Product::class);
-        }
-
-        $organizationId = $this->getOrganizationId();
-
+        /** @var QueryBuilder $qb */
         $qb = $this->productRepository->getBySkuQueryBuilder($parentSku);
         $qb->andWhere($qb->expr()->eq('product.organization', ':organization'))
-            ->setParameter('organization', $organizationId);
+            ->setParameter('organization', $this->getOrganizationId())
+            ->setMaxResults(1);
 
         return $qb->getQuery()->getOneOrNullResult();
     }
