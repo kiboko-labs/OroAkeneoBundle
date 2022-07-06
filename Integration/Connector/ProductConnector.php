@@ -102,7 +102,11 @@ class ProductConnector extends AbstractOroAkeneoConnector implements AllowedConn
         $this->channel = $this->contextMediator->getChannel($context);
 
         $status = $this->getLastCompletedIntegrationStatus($this->channel, $this->getType());
-        $this->addStatusData(self::LAST_SYNC_KEY, $status->getData()[self::LAST_SYNC_KEY] ?? null);
+        if ($status !== null) {
+            $this->addStatusData(self::LAST_SYNC_KEY, $status->getData()[self::LAST_SYNC_KEY] ?? null);
+        } else {
+            $this->addStatusData(self::LAST_SYNC_KEY, null);
+        }
 
         $this->validateConfiguration();
         $this->transport->init($this->channel->getTransport());
