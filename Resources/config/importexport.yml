@@ -363,7 +363,8 @@ services:
       - '@oro_akeneo.event_listener.additional_optional_listeners_manager'
 
   oro_akeneo.importexport.cache:
-    class: Doctrine\Common\Cache\ArrayCache
+    parent: oro_cache.array_cache
+    public: false
     calls:
       - [ setNamespace, [ 'oro_akeneo' ] ]
 

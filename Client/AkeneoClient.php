@@ -3,6 +3,16 @@
 namespace Oro\Bundle\AkeneoBundle\Client;
 
 use Akeneo\Pim\ApiClient\AkeneoPimClientInterface;
+use Akeneo\Pim\ApiClient\Api\AssetApiInterface;
+use Akeneo\Pim\ApiClient\Api\AssetManager\AssetApiInterface as AssetManagerApiInterface;
+use Akeneo\Pim\ApiClient\Api\AssetCategoryApiInterface;
+use Akeneo\Pim\ApiClient\Api\AssetManager\AssetAttributeApiInterface;
+use Akeneo\Pim\ApiClient\Api\AssetManager\AssetAttributeOptionApiInterface;
+use Akeneo\Pim\ApiClient\Api\AssetManager\AssetFamilyApiInterface;
+use Akeneo\Pim\ApiClient\Api\AssetManager\AssetMediaFileApiInterface;
+use Akeneo\Pim\ApiClient\Api\AssetReferenceFileApiInterface;
+use Akeneo\Pim\ApiClient\Api\AssetTagApiInterface;
+use Akeneo\Pim\ApiClient\Api\AssetVariationFileApiInterface;
 use Akeneo\Pim\ApiClient\Api\AssociationTypeApiInterface;
 use Akeneo\Pim\ApiClient\Api\AttributeApiInterface;
 use Akeneo\Pim\ApiClient\Api\AttributeGroupApiInterface;
@@ -17,35 +27,24 @@ use Akeneo\Pim\ApiClient\Api\MeasureFamilyApiInterface;
 use Akeneo\Pim\ApiClient\Api\MeasurementFamilyApiInterface;
 use Akeneo\Pim\ApiClient\Api\MediaFileApiInterface;
 use Akeneo\Pim\ApiClient\Api\ProductApiInterface;
+use Akeneo\Pim\ApiClient\Api\ProductDraftApiInterface;
 use Akeneo\Pim\ApiClient\Api\ProductModelApiInterface;
-use Akeneo\PimEnterprise\ApiClient\AkeneoPimEnterpriseClientInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\AssetApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\AssetCategoryApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\AssetManager\AssetApiInterface as AssetManagerApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\AssetManager\AssetAttributeApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\AssetManager\AssetAttributeOptionApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\AssetManager\AssetFamilyApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\AssetManager\AssetMediaFileApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\AssetReferenceFileApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\AssetTagApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\AssetVariationFileApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\ProductDraftApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\ProductModelDraftApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\PublishedProductApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\ReferenceEntityApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\ReferenceEntityAttributeApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\ReferenceEntityAttributeOptionApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\ReferenceEntityMediaFileApiInterface;
-use Akeneo\PimEnterprise\ApiClient\Api\ReferenceEntityRecordApiInterface;
+use Akeneo\Pim\ApiClient\Api\ProductModelDraftApiInterface;
+use Akeneo\Pim\ApiClient\Api\PublishedProductApiInterface;
+use Akeneo\Pim\ApiClient\Api\ReferenceEntityApiInterface;
+use Akeneo\Pim\ApiClient\Api\ReferenceEntityAttributeApiInterface;
+use Akeneo\Pim\ApiClient\Api\ReferenceEntityAttributeOptionApiInterface;
+use Akeneo\Pim\ApiClient\Api\ReferenceEntityMediaFileApiInterface;
+use Akeneo\Pim\ApiClient\Api\ReferenceEntityRecordApiInterface;
 use Oro\Bundle\AkeneoBundle\Client\Api\ApiAwareInterface;
 
-class AkeneoClient implements AkeneoPimEnterpriseClientInterface
+class AkeneoClient implements AkeneoPimClientInterface
 {
-    /** @var AkeneoPimEnterpriseClientInterface */
-    protected $decoratedClient;
+    /** @var AkeneoPimClientInterface */
+    protected AkeneoPimClientInterface $decoratedClient;
 
     /** @var ApiAwareInterface[] */
-    protected $apiRegistry = [];
+    protected array $apiRegistry = [];
 
     public function __construct(
         AkeneoPimClientInterface $decoratedClient
@@ -53,11 +52,12 @@ class AkeneoClient implements AkeneoPimEnterpriseClientInterface
         $this->decoratedClient = $decoratedClient;
     }
 
-    public function addApi(string $key, ApiAwareInterface $api) {
+    public function addApi(string $key, ApiAwareInterface $api): void
+    {
         $this->apiRegistry[$key] = $api;
     }
 
-    public function get(string $name)
+    public function get(string $name): ?ApiAwareInterface
     {
         return $this->apiRegistry[$name] ?? null;
     }

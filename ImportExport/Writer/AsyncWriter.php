@@ -2,14 +2,14 @@
 
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Writer;
 
-use Akeneo\Bundle\BatchBundle\Entity\StepExecution;
-use Akeneo\Bundle\BatchBundle\Item\ItemWriterInterface;
-use Akeneo\Bundle\BatchBundle\Step\StepExecutionAwareInterface;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Types;
 use Oro\Bundle\AkeneoBundle\Async\Topics;
 use Oro\Bundle\AkeneoBundle\EventListener\AdditionalOptionalListenerManager;
+use Oro\Bundle\BatchBundle\Entity\StepExecution;
+use Oro\Bundle\BatchBundle\Item\ItemWriterInterface;
 use Oro\Bundle\BatchBundle\Item\Support\ClosableInterface;
+use Oro\Bundle\BatchBundle\Step\StepExecutionAwareInterface;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\IntegrationBundle\Entity\FieldsChanges;
 use Oro\Bundle\MessageQueueBundle\Client\BufferedMessageProducer;

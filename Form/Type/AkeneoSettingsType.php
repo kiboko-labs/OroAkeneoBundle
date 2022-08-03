@@ -25,13 +25,14 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Intl\Locales;
 use Symfony\Component\OptionsResolver\Exception\AccessException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Exception\InvalidOptionsException;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
 {
@@ -365,7 +366,7 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                 'required'          => true,
                 'label'             => 'oro.akeneo.integration.settings.akeneo_channels.label',
                 'multiple'          => false,
-                'choices'           => $data->getAkeneoChannels(),
+                'choices'           => array_combine($data->getAkeneoChannels() ?? [], $data->getAkeneoChannels() ?? []),
                 'placeholder'       => 'oro.akeneo.integration.settings.akeneo_channels.placeholder',
             ]
         );
@@ -377,7 +378,7 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                 'required'          => false,
                 'label'             => 'oro.akeneo.integration.settings.akeneo_currencies.label',
                 'multiple'          => true,
-                'choices'           => $data->getAkeneoCurrencies(),
+                'choices'           => array_combine($data->getAkeneoCurrencies() ?? [], $data->getAkeneoCurrencies() ?? []),
             ]
         );
 
@@ -388,11 +389,12 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                 'required'          => false,
                 'label'             => false,
                 'multiple'          => true,
-                'choices'           => $data->getAkeneoLocalesList(),
+                'choices'           => array_combine($data->getAkeneoLocalesList() ?? [], $data->getAkeneoLocalesList() ?? []),
+                'choice_label'      => function ($choice) { return Locales::getName($choice); },
             ]
         );
 
-        $this->codes = $data->getAkeneoLocalesList();
+        $this->codes = $data->getAkeneoLocalesList() ?? [];
         $form->add(
             'akeneoLocales',
             CollectionType::class,
@@ -442,7 +444,7 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                     'required'          => false,
                     'label'             => 'oro.akeneo.integration.settings.akeneo_channels.label',
                     'multiple'          => false,
-                    'choices'           => $channels,
+                    'choices'           => array_combine($channels, $channels),
                 ]
             );
 
@@ -455,12 +457,13 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                     'required'          => false,
                     'label'             => 'oro.akeneo.integration.settings.akeneo_channels.label',
                     'multiple'          => true,
-                    'choices'           => $channels,
+                    'choices'           => array_combine($channels, $channels),
                 ]
             );
 
             $localesList = $this->akeneoTransport->getLocales();
             $transportData['akeneoLocalesList'] = $localesList;
+
             $form->add(
                 'akeneoLocalesList',
                 ChoiceType::class,
@@ -468,7 +471,8 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                     'required'          => false,
                     'label'             => false,
                     'multiple'          => true,
-                    'choices'           => $localesList,
+                    'choices'           => array_combine($localesList, $localesList),
+                    'choice_label'      => function ($choice) { return Locales::getName($choice); },
                 ]
             );
 
@@ -495,7 +499,7 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                     'required'          => false,
                     'label'             => 'oro.akeneo.integration.settings.akeneo_currencies.label',
                     'multiple'          => true,
-                    'choices'           => $currencies,
+                    'choices'           => array_combine($currencies, $currencies),
                 ]
             );
 
@@ -508,7 +512,7 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                     'required'          => false,
                     'label'             => 'oro.akeneo.integration.settings.akeneo_currencies.label',
                     'multiple'          => true,
-                    'choices'           => $currencies,
+                    'choices'           => array_combine($currencies, $currencies),
                 ]
             );
 

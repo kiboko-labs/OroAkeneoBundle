@@ -559,7 +559,7 @@ class AkeneoSettings extends Transport
     }
 
     /**
-     * @return array/null
+     * @return array|null
      */
     public function getAkeneoCurrencies()
     {
