@@ -2,12 +2,15 @@
 
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Processor;
 
-use Doctrine\Persistence\ManagerRegistry;
 use Oro\Bundle\BatchBundle\Entity\StepExecution;
 use Oro\Bundle\BatchBundle\Step\StepExecutionAwareInterface;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectRepository;
 use Oro\Bundle\ImportExportBundle\Context\ContextRegistry;
 use Oro\Bundle\ImportExportBundle\Processor\ProcessorInterface;
 use Oro\Bundle\ImportExportBundle\Strategy\Import\ImportStrategyHelper;
+use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductVariantLink;
 use Oro\Bundle\ProductBundle\Entity\Repository\ProductRepository;
@@ -30,6 +33,12 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
     /** @var TranslatorInterface */
     private $translator;
 
+    /** @var int */
+    private $organizationId;
+
+    /** @var ObjectRepository */
+    private $productRepository;
+
     public function __construct(
         ManagerRegistry $registry,
         ImportStrategyHelper $strategyHelper,
@@ -40,6 +49,9 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         $this->strategyHelper = $strategyHelper;
         $this->contextRegistry = $contextRegistry;
         $this->translator = $translator;
+        $this->productRepository = $this->registry
+            ->getManagerForClass(Product::class)
+            ->getRepository(Product::class);
     }
 
     public function setStepExecution(StepExecution $stepExecution)
@@ -64,10 +76,8 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         $context->setValue('itemData', ['configurable' => $parentSku, 'variants' => $variantSkus]);
 
         $objectManager = $this->registry->getManagerForClass(Product::class);
-        /** @var ProductRepository $productRepository */
-        $productRepository = $objectManager->getRepository(Product::class);
 
-        $parentProduct = $productRepository->findOneBySku($parentSku);
+        $parentProduct = $this->findProductBySku($parentSku);
         if (!$parentProduct instanceof Product) {
             $context->incrementErrorEntriesCount();
             $errorMessages = [
@@ -110,13 +120,13 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
                 continue;
             }
 
-            $variantProduct->setStatus(Product::STATUS_ENABLED);
+//            $variantProduct->setStatus(Product::STATUS_ENABLED);
 
             unset($variantSkusUppercase[$variantProduct->getSkuUppercase()]);
         }
 
         foreach ($variantSkusUppercase as $variantSku) {
-            $variantProduct = $productRepository->findOneBySku($variantSku);
+            $variantProduct = $this->findProductBySku($variantSku);
             if (!$variantProduct instanceof Product) {
                 $context->incrementErrorEntriesCount();
 
@@ -139,7 +149,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
             $variantProduct->addParentVariantLink($variantLink);
             $parentProduct->addVariantLink($variantLink);
 
-            $variantProduct->setStatus(Product::STATUS_ENABLED);
+//            $variantProduct->setStatus(Product::STATUS_ENABLED);
 
             $context->incrementAddCount();
 
@@ -151,9 +161,9 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
             $context->incrementErrorEntriesCount();
             $this->strategyHelper->addValidationErrors($validationErrors, $context);
 
-            $objectManager->clear();
+//            $objectManager->clear();
 
-            $parentProduct = $productRepository->findOneBySku($parentSku);
+            $parentProduct = $this->findProductBySku($parentSku);
             if (!$parentProduct instanceof Product) {
                 return null;
             }
@@ -180,5 +190,36 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         $context->incrementUpdateCount();
 
         return $parentProduct;
+    }
+
+    private function findProductBySku(string $parentSku)
+    {
+        /** @var QueryBuilder $qb */
+        $qb = $this->productRepository->getBySkuQueryBuilder($parentSku);
+        $qb->andWhere($qb->expr()->eq('product.organization', ':organization'))
+            ->setParameter('organization', $this->getOrganizationId())
+            ->setMaxResults(1);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    private function getOrganizationId(): ?int
+    {
+        if (!$this->organizationId) {
+            $channelId = $this->stepExecution->getJobExecution()->getExecutionContext()->get('channel');
+            if (!$channelId) {
+                return null;
+            }
+
+            /** @var Channel $channel */
+            $channel = $this->registry->getRepository(Channel::class)->find($channelId);
+            if (!$channel) {
+                return null;
+            }
+
+            $this->organizationId = $channel->getOrganization()->getId();
+        }
+
+        return $this->organizationId;
     }
 }

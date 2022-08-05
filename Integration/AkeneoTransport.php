@@ -13,6 +13,7 @@ use Oro\Bundle\AkeneoBundle\Integration\Iterator\BrandIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\ConfigurableProductIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\ProductIterator;
 use Oro\Bundle\AkeneoBundle\Settings\DataProvider\SyncProductsDataProvider;
+use Oro\Bundle\AkeneoBundle\Tools\ParseUpdatedPlaceholder;
 use Oro\Bundle\CurrencyBundle\Provider\CurrencyProviderInterface;
 use Oro\Bundle\GaufretteBundle\FileManager;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
@@ -205,14 +206,14 @@ class AkeneoTransport implements AkeneoTransportInterface
      *
      * @return \Iterator
      */
-    public function getProducts(int $pageSize)
+    public function getProducts(int $pageSize, ?\DateTime $updatedAt = null)
     {
         $this->initAttributesList();
         $this->initMeasureFamilies();
 
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters($this->transportEntity->getProductFilter()),
+            'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))()),
         ];
 
         if ($this->transportEntity->getSyncProducts() === SyncProductsDataProvider::PUBLISHED) {
@@ -223,7 +224,8 @@ class AkeneoTransport implements AkeneoTransportInterface
                 $this->attributes,
                 $this->familyVariants,
                 $this->measureFamilies,
-                $this->getAttributeMapping()
+                $this->getAttributeMapping(),
+                $this->getAlternativeIdentifier()
             );
         }
 
@@ -234,17 +236,44 @@ class AkeneoTransport implements AkeneoTransportInterface
             $this->attributes,
             $this->familyVariants,
             $this->measureFamilies,
-            $this->getAttributeMapping()
+            $this->getAttributeMapping(),
+            $this->getAlternativeIdentifier()
+
         );
     }
 
-    public function getProductsList(int $pageSize): iterable
+    /**
+     * {@inheritdoc}
+     *
+     * @return \Iterator
+     */
+    public function getProductsForVariants(int $pageSize, ?\DateTime $updatedAt = null): iterable
+    {
+        $queryParams = [
+            'scope' => $this->transportEntity->getAkeneoActiveChannel(),
+            'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))()),
+        ];
+
+        return new ProductIterator(
+            $this->client->getProductApi()->all($pageSize, $queryParams),
+            $this->client,
+            $this->logger,
+            $this->attributes,
+            $this->familyVariants,
+            $this->measureFamilies,
+            $this->getAttributeMapping(),
+            $this->getAlternativeIdentifier()
+
+        );
+    }
+
+    public function getProductsList(int $pageSize, ?\DateTime $updatedAt = null): iterable
     {
         $this->initAttributesList();
 
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters($this->transportEntity->getProductFilter()),
+            'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))()),
             'attributes' => key($this->attributes),
         ];
 
@@ -268,7 +297,7 @@ class AkeneoTransport implements AkeneoTransportInterface
     /**
      * @return \Iterator
      */
-    public function getProductModels(int $pageSize)
+    public function getProductModels(int $pageSize, ?\DateTime $updatedAt = null)
     {
         $this->initAttributesList();
         $this->initFamilyVariants();
@@ -276,7 +305,7 @@ class AkeneoTransport implements AkeneoTransportInterface
 
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters($this->transportEntity->getConfigurableProductFilter()),
+            'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getConfigurableProductFilter(), $updatedAt))()),
         ];
 
         return new ProductIterator(
@@ -290,13 +319,13 @@ class AkeneoTransport implements AkeneoTransportInterface
         );
     }
 
-    public function getProductModelsList(int $pageSize): iterable
+    public function getProductModelsList(int $pageSize,  ?\DateTime $updatedAt = null): iterable
     {
         $this->initAttributesList();
 
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters($this->transportEntity->getConfigurableProductFilter()),
+            'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getConfigurableProductFilter(), $updatedAt))()),
             'attributes' => key($this->attributes),
         ];
 
@@ -553,7 +582,7 @@ class AkeneoTransport implements AkeneoTransportInterface
         }
     }
 
-    protected function getAttributeMapping(): array
+    public function getAttributeMapping(): array
     {
         if ($this->attributeMapping) {
             return $this->attributeMapping;
@@ -596,5 +625,10 @@ class AkeneoTransport implements AkeneoTransportInterface
         } catch (NotFoundHttpException $e) {
             return new \EmptyIterator();
         }
+    }
+
+    public function getAlternativeIdentifier(): ?string
+    {
+        return $this->transportEntity->getAlternativeIdentifier();
     }
 }

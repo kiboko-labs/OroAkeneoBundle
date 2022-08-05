@@ -17,6 +17,12 @@
             "/Tests/"
         ]
     },
+    "repositories": {
+        "composer": {
+            "type": "composer",
+            "url": "https://packagist.orocrm.com"
+        }
+    },
     "require": {
         "oro/commerce": "5.0.*",
         "akeneo/api-php-client": "8.*"

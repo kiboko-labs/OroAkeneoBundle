@@ -18,3 +18,4 @@ jobs:
       
     - name: Run php-cs-fixer 
       run: php php-cs-fixer.phar fix --dry-run --config=.php_cs.php --cache-file=.php_cs.cache --verbose --show-progress=dots --diff --allow-risky=yes
+

@@ -67,7 +67,7 @@ connector:
           class: Oro\Bundle\BatchBundle\Step\ItemStep
           services:
             reader: oro_akeneo.integration.connector.product
-            processor: oro_akeneo.importexport.processor.async
+            processor: oro_akeneo.importexport.processor.build_variant_cache
             writer: oro_akeneo.importexport.writer.async_product
           parameters:
             batch_size: 25
@@ -115,6 +115,29 @@ connector:
             writer: oro_integration.writer.persistent_batch_writer
           parameters:
             batch_size: 1
+
+    akeneo_variant_product_import:
+      title: "Link Product variant to configurable from Akeneo"
+      type:  import
+      steps:
+        build_cache_variants:
+          title: import
+          class: Oro\Bundle\BatchBundle\Step\ItemStep
+          services:
+            reader: oro_akeneo.integration.connector.variant
+            processor: oro_akeneo.importexport.processor.build_variant_cache
+            writer: oro_akeneo.importexport.writer.empty
+          parameters:
+            batch_size: 25
+        save_variants:
+          title: import
+          class: Oro\Bundle\BatchBundle\Step\ItemStep
+          services:
+            reader: oro_akeneo.importexport.reader.product_variant
+            processor: oro_akeneo.importexport.processor.import.product_variant
+            writer: oro_integration.writer.persistent_batch_writer
+          parameters:
+            batch_size: 25
 
     akeneo_brand_import:
       title: "Brand import from Akeneo"

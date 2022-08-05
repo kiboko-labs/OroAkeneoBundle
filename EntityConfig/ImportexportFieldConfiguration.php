@@ -19,10 +19,10 @@ class ImportexportFieldConfiguration implements FieldConfigInterface
     {
         $nodeBuilder
             ->scalarNode('source')
-                ->info('`string` source of field.')
+            ->info('`string` source of field.')
             ->end()
             ->scalarNode('source_name')
-                ->info('`string` source name of field.')
+            ->info('`string` source name of field.')
             ->end();
     }
 }
