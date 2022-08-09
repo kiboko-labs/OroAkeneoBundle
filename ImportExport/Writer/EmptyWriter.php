@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Writer;
 
-use Akeneo\Bundle\BatchBundle\Item\ItemWriterInterface;
+use Oro\Bundle\BatchBundle\Item\ItemWriterInterface;
 
 class EmptyWriter implements ItemWriterInterface
 {

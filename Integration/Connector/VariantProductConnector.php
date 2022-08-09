@@ -29,7 +29,7 @@ class VariantProductConnector extends AbstractOroAkeneoConnector implements Allo
     /**
      * {@inheritdoc}
      */
-    public function getLabel()
+    public function getLabel(): string
     {
         return 'oro.akeneo.connector.product_variant.label';
     }

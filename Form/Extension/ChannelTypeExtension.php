@@ -21,6 +21,7 @@ class ChannelTypeExtension extends AbstractTypeExtension
         'attribute_family',
         'product',
         'configurable_product',
+        'variant',
     ];
 
     /**
