@@ -280,14 +280,21 @@ class AkeneoTransport implements AkeneoTransportInterface
         );
     }
 
-    public function getProductsList(int $pageSize, ?\DateTime $updatedAt = null): iterable
+    public function getProductsList(int $pageSize, int $sinceLastNDays = null, ?\DateTime $updatedAt = null): iterable
     {
         $this->initAttributesList();
 
+        $filters = [
+            'parent' => [['operator' => 'NOT EMPTY']],
+            'family' => [['operator' => 'NOT EMPTY']],
+        ];
+        if ($sinceLastNDays) {
+            $filters['updated'] = [['operator' => 'SINCE LAST N DAYS', 'value' => $sinceLastNDays]];
+        }
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))()),
-            'attributes' => key($this->attributes),
+            'search' => $this->akeneoSearchBuilder->getFilters(json_encode(array_merge(json_decode((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))()), $filters))),
+            'attributes' => array_key_first($this->attributes),
         ];
 
         if ($this->transportEntity->getSyncProducts() === SyncProductsDataProvider::PUBLISHED) {
@@ -332,14 +339,20 @@ class AkeneoTransport implements AkeneoTransportInterface
         );
     }
 
-    public function getProductModelsList(int $pageSize,  ?\DateTime $updatedAt = null): iterable
+    public function getProductModelsList(int $pageSize, int $sinceLastNDays = null, ?\DateTime $updatedAt = null): iterable
     {
         $this->initAttributesList();
 
+        $filters = [
+            'family' => [['operator' => 'NOT EMPTY']],
+        ];
+        if ($sinceLastNDays) {
+            $filters['updated'] = [['operator' => 'SINCE LAST N DAYS', 'value' => $sinceLastNDays]];
+        }
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getConfigurableProductFilter(), $updatedAt))()),
-            'attributes' => key($this->attributes),
+            'search' => $this->akeneoSearchBuilder->getFilters(json_encode(array_merge(json_decode((new ParseUpdatedPlaceholder($this->transportEntity->getConfigurableProductFilter(), $updatedAt))()), $filters))),
+            'attributes' => array_key_first($this->attributes),
         ];
 
         return new ConfigurableProductIterator(

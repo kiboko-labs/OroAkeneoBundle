@@ -2,10 +2,10 @@
 
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Processor;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Oro\Bundle\BatchBundle\Entity\StepExecution;
 use Oro\Bundle\BatchBundle\Step\StepExecutionAwareInterface;
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectRepository;
 use Oro\Bundle\ImportExportBundle\Context\ContextRegistry;
 use Oro\Bundle\ImportExportBundle\Processor\ProcessorInterface;
@@ -76,18 +76,28 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         $context->setValue('itemData', ['configurable' => $parentSku, 'variants' => $variantSkus]);
 
         $objectManager = $this->registry->getManagerForClass(Product::class);
+        /** @var ProductRepository $productRepository */
+        $productRepository = $objectManager->getRepository(Product::class);
 
         $parentProduct = $this->findProductBySku($parentSku);
         if (!$parentProduct instanceof Product) {
             $context->incrementErrorEntriesCount();
-            $errorMessages = [
+            $context->addError(
                 $this->translator->trans(
-                    'oro.akeneo.validator.product_by_sku.not_found',
-                    ['%sku%' => $parentSku],
-                    'validators'
-                ),
-            ];
-            $this->strategyHelper->addValidationErrors($errorMessages, $context);
+                    'oro.akeneo.error',
+                    [
+                        '%error%' => $this->translator->trans(
+                            'oro.akeneo.validator.product_by_sku.not_found',
+                            ['%sku%' => $parentSku],
+                            'validators'
+                        ),
+                        '%item%' => json_encode(
+                            $context->getValue('rawItemData'),
+                            \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE
+                        ),
+                    ]
+                )
+            );
 
             return null;
         }
@@ -120,7 +130,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
                 continue;
             }
 
-//            $variantProduct->setStatus(Product::STATUS_ENABLED);
+//            $variantProduct->setStatus(Product::STATUS_ENABLED); TODO
 
             unset($variantSkusUppercase[$variantProduct->getSkuUppercase()]);
         }
@@ -129,15 +139,22 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
             $variantProduct = $this->findProductBySku($variantSku);
             if (!$variantProduct instanceof Product) {
                 $context->incrementErrorEntriesCount();
-
-                $errorMessages = [
+                $context->addError(
                     $this->translator->trans(
-                        'oro.akeneo.validator.product_by_sku.not_found',
-                        ['%sku%' => $variantSku],
-                        'validators'
-                    ),
-                ];
-                $this->strategyHelper->addValidationErrors($errorMessages, $context);
+                        'oro.akeneo.error',
+                        [
+                            '%error%' => $this->translator->trans(
+                                'oro.akeneo.validator.product_by_sku.not_found',
+                                ['%sku%' => $variantSku],
+                                'validators'
+                            ),
+                            '%item%' => json_encode(
+                                $context->getValue('rawItemData'),
+                                \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE
+                            ),
+                        ]
+                    )
+                );
 
                 continue;
             }
@@ -149,7 +166,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
             $variantProduct->addParentVariantLink($variantLink);
             $parentProduct->addVariantLink($variantLink);
 
-//            $variantProduct->setStatus(Product::STATUS_ENABLED);
+//            $variantProduct->setStatus(Product::STATUS_ENABLED); TODO
 
             $context->incrementAddCount();
 
@@ -159,16 +176,41 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         $validationErrors = $this->strategyHelper->validateEntity($parentProduct);
         if ($validationErrors) {
             $context->incrementErrorEntriesCount();
-            $this->strategyHelper->addValidationErrors($validationErrors, $context);
+            foreach ($validationErrors as $validationError) {
+                $context->addError(
+                    $this->translator->trans(
+                        'oro.akeneo.error',
+                        [
+                            '%error%' => $validationError,
+                            '%item%' => json_encode(
+                                $context->getValue('rawItemData'),
+                                \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE
+                            ),
+                        ]
+                    )
+                );
+            }
 
-//            $objectManager->clear();
+//            $objectManager->clear(); TODO
 
-            $parentProduct = $this->findProductBySku($parentSku);
+            $parentProduct = $productRepository->findOneBySku($parentSku);
             if (!$parentProduct instanceof Product) {
                 return null;
             }
 
             $parentProduct->setStatus(Product::STATUS_DISABLED);
+            foreach ($parentProduct->getVariantLinks() as $variantLink) {
+                $variantProduct = $variantLink->getProduct();
+                if ($variantProduct instanceof Product) {
+                    $variantProduct->setStatus(Product::STATUS_DISABLED);
+                }
+            }
+            foreach ($variantSkusUppercase as $variantSku) {
+                $variantProduct = $productRepository->findOneBySku($variantSku);
+                if ($variantProduct instanceof Product) {
+                    $variantProduct->setStatus(Product::STATUS_DISABLED);
+                }
+            }
 
             return $parentProduct;
         }
@@ -177,17 +219,36 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
             $parentProduct->setStatus(Product::STATUS_DISABLED);
 
             $context->incrementErrorEntriesCount();
-            $errorMessages = [
+            $context->addError(
                 $this->translator->trans(
-                    'oro.akeneo.validator.product_variants.empty',
-                    ['%sku%' => $parentSku],
-                    'validators'
-                ),
-            ];
-            $this->strategyHelper->addValidationErrors($errorMessages, $context);
+                    'oro.akeneo.error',
+                    [
+                        '%error%' => $this->translator->trans(
+                            'oro.akeneo.validator.product_variants.empty',
+                            ['%sku%' => $parentSku],
+                            'validators'
+                        ),
+                        '%item%' => json_encode(
+                            $context->getValue('rawItemData'),
+                            \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE
+                        ),
+                    ]
+                )
+            );
+
+            return $parentProduct;
         }
 
         $context->incrementUpdateCount();
+        $parentProduct->setStatus(Product::STATUS_ENABLED);
+
+        foreach ($items as $item) {
+            if (!empty($item['parent_disabled'])) {
+                $parentProduct->setStatus(Product::STATUS_DISABLED);
+            }
+
+            break;
+        }
 
         return $parentProduct;
     }

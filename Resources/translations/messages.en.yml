@@ -93,7 +93,7 @@ oro:
       product_variant:
         label: Product variant connector
       configurable_product:
-        label: Configurable product connector
+        label: Product Variants connector
       attribute_family:
         label: Attribute family connector
       attribute:

@@ -154,7 +154,7 @@ class AttributeWriter extends BaseAttributeWriter implements StepExecutionAwareI
             $labelKey = $config->get('label');
 
             foreach ($this->attributeLabels[$fieldName] as $locale => $value) {
-                $this->translationManager->saveOrUpdateTranslation(
+                $this->translationManager->saveTranslation(
                     $labelKey,
                     $value,
                     $locale,
@@ -259,6 +259,7 @@ class AttributeWriter extends BaseAttributeWriter implements StepExecutionAwareI
         $attributeConfig = $attributeProvider->getConfig($className, $fieldName);
 
         $extendConfig = $extendProvider->getConfig($className, $fieldName);
+        $attributeConfig->remove('organization_id'); //TODO Check if it' accurate to remove this id (kiboko custo ?)
         if ($extendConfig->is('state', ExtendScope::STATE_NEW)) {
             $type = $this->attributeTypeRegistry->getAttributeType($fieldConfigModel);
 
@@ -274,12 +275,13 @@ class AttributeWriter extends BaseAttributeWriter implements StepExecutionAwareI
             $attributeConfig->set('sortable', $type->isSortable($fieldConfigModel));
             $attributeConfig->set('visible', false);
             $attributeConfig->set('enabled', false);
+
+            $attributeConfig->set('is_global', false);
+            $attributeConfig->set('organization_id', $this->getOrganizationId());
         }
 
         $attributeConfig->set('field_name', $fieldName);
         $attributeConfig->set('is_attribute', true);
-        $attributeConfig->set('is_global', true);
-        $attributeConfig->remove('organization_id');
         $this->configManager->persist($attributeConfig);
 
         parent::setAttributeData($fieldConfigModel);

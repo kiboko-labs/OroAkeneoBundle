@@ -37,9 +37,9 @@ class AkeneoSearchBuilder
                             $option['operator'],
                             $option['value'],
                             array_merge(
-                                (isset($option['scope']) ? ['scope' => $option['scope']] : []),
-                                (isset($option['locale']) ? ['locale' => $option['locale']] : []),
-                                (isset($option['locales']) ? ['locales' => $option['locales']] : [])
+                                isset($option['scope']) ? ['scope' => $option['scope']] : [],
+                                isset($option['locale']) ? ['locale' => $option['locale']] : [],
+                                isset($option['locales']) ? ['locales' => $option['locales']] : []
                             )
                         );
                 }
@@ -49,9 +49,6 @@ class AkeneoSearchBuilder
         return $searchBuilder->getFilters();
     }
 
-    /**
-     * @param $string
-     */
     public function isJSON($string): bool
     {
         return is_string($string) && is_array(json_decode($string, true)) && (\JSON_ERROR_NONE == json_last_error());
