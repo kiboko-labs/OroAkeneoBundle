@@ -13,7 +13,6 @@ use Oro\Bundle\AkeneoBundle\Integration\Iterator\BrandIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\ConfigurableProductIterator;
 use Oro\Bundle\AkeneoBundle\Integration\Iterator\ProductIterator;
 use Oro\Bundle\AkeneoBundle\Settings\DataProvider\SyncProductsDataProvider;
-use Oro\Bundle\AkeneoBundle\Tools\ParseUpdatedPlaceholder;
 use Oro\Bundle\CurrencyBundle\Provider\CurrencyProviderInterface;
 use Oro\Bundle\GaufretteBundle\FileManager;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
@@ -213,7 +212,7 @@ class AkeneoTransport implements AkeneoTransportInterface
 
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))()),
+            'search' => $this->akeneoSearchBuilder->getFilters($this->transportEntity->getProductFilter()),
         ];
 
         if ($this->transportEntity->getSyncProducts() === SyncProductsDataProvider::PUBLISHED) {
@@ -251,7 +250,7 @@ class AkeneoTransport implements AkeneoTransportInterface
     {
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))()),
+            'search' => $this->akeneoSearchBuilder->getFilters($this->transportEntity->getProductFilter()),
         ];
 
         if ($this->transportEntity->getSyncProducts() === SyncProductsDataProvider::PUBLISHED) {
@@ -293,7 +292,7 @@ class AkeneoTransport implements AkeneoTransportInterface
         }
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters(json_encode(array_merge(json_decode((new ParseUpdatedPlaceholder($this->transportEntity->getProductFilter(), $updatedAt))()), $filters))),
+            'search' => $this->akeneoSearchBuilder->getFilters(json_encode(array_merge(json_decode($this->transportEntity->getProductFilter(), true), $filters))),
             'attributes' => array_key_first($this->attributes),
         ];
 
@@ -325,7 +324,7 @@ class AkeneoTransport implements AkeneoTransportInterface
 
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters((new ParseUpdatedPlaceholder($this->transportEntity->getConfigurableProductFilter(), $updatedAt))()),
+            'search' => $this->akeneoSearchBuilder->getFilters($this->transportEntity->getConfigurableProductFilter()),
         ];
 
         return new ProductIterator(
@@ -351,7 +350,7 @@ class AkeneoTransport implements AkeneoTransportInterface
         }
         $queryParams = [
             'scope' => $this->transportEntity->getAkeneoActiveChannel(),
-            'search' => $this->akeneoSearchBuilder->getFilters(json_encode(array_merge(json_decode((new ParseUpdatedPlaceholder($this->transportEntity->getConfigurableProductFilter(), $updatedAt))()), $filters))),
+            'search' => $this->akeneoSearchBuilder->getFilters(json_encode(array_merge(json_decode($this->transportEntity->getConfigurableProductFilter()), $filters))),
             'attributes' => array_key_first($this->attributes),
         ];
 

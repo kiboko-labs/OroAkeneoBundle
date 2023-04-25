@@ -56,6 +56,9 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
     /** @var ContextInterface */
     protected $context;
 
+    /** @var String */
+    protected $codePrefix;
+
     public function setImportExportContext(ContextInterface $context): void
     {
         $this->context = $context;
@@ -125,7 +128,7 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         $importedRecord['attributeFamily'] = ['code' => 'default_family'];
         if (!empty($importedRecord['family'])) {
             $importedRecord['attributeFamily'] = [
-                'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family']),
+                'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family'], $this->codePrefix),
             ];
         }
 
@@ -135,7 +138,7 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
 
         $importedRecord['type'] = Product::TYPE_CONFIGURABLE;
         $importedRecord['attributeFamily'] = [
-            'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family_variant']['family']),
+            'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family_variant']['family'], $this->codePrefix),
         ];
 
         $sets = $importedRecord['family_variant']['variant_attribute_sets'] ?: [];
@@ -564,5 +567,10 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         ProductVariantFieldValueHandlerRegistry $productVariantFieldValueHandlerRegistry
     ): void {
         $this->productVariantFieldValueHandlerRegistry = $productVariantFieldValueHandlerRegistry;
+    }
+
+    public function setCodePrefix(string $codePrefix): void
+    {
+        $this->codePrefix = $codePrefix;
     }
 }

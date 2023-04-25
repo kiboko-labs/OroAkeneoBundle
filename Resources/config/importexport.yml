@@ -134,7 +134,7 @@ services:
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
       - [ setConfigManager, [ '@oro_config.manager' ] ]
       - [ setTranslator, [ '@translator' ] ]
-      - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
+      - [ setCodePrefix, ['%oro_akeneo.importexport.code_prefix%'] ]
 
   oro_akeneo.importexport.strategy.attribute:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\AttributeImportStrategy'
@@ -174,7 +174,7 @@ services:
       - [ setEntityConfigManager, [ '@oro_entity_config.config_manager' ] ]
       - [ setTranslateUsingLocale, [ false ] ]
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
-      - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
+      - [ setCodePrefix, ['%oro_akeneo.importexport.code_prefix%'] ]
 
   oro_akeneo.importexport.strategy.attribute_family:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\AttributeFamilyImportStrategy'
@@ -193,7 +193,7 @@ services:
       - [ setStrategy, [ '@oro_akeneo.importexport.strategy.attribute_family' ] ]
       - [ setEntityName, [ 'Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily' ] ]
       - [ setContextRegistry, [ '@oro_importexport.context_registry' ] ]
-      - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
+      - [ setCodePrefix, ['%oro_akeneo.importexport.code_prefix%'] ]
 
   oro_akeneo.importexport.processor.attribute_family_status:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\AttributeFamilyStatusProcessor'
@@ -258,10 +258,9 @@ services:
       - [ setTranslateUsingLocale, [ false ] ]
       - [ setEntityConfigManager, [ '@oro_entity_config.config_manager' ] ]
       - [ setDateTimeFormatter, [ '@oro_locale.formatter.date_time' ] ]
+      - [ setProductUnitsProvider, [ '@oro_product.provider.product_units_provider' ] ]
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
       - [ setProductVariantFieldValueHandlerRegistry, [ '@oro_product.product_variant_field.registry.product_variant_field_value_handler_registry' ] ]
-      - [ setProductUnitDiscovery, ["@oro_akeneo.product_unit.discovery"] ]
-      - [ setLogger, ["@oro_integration.logger.strategy"]]
       - [ setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
 
   oro_akeneo.importexport.strategy.product:
