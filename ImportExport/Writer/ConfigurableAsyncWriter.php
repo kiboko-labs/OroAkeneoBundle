@@ -2,13 +2,15 @@
 
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Writer;
 
-use Oro\Bundle\BatchBundle\Entity\StepExecution;
-use Oro\Bundle\BatchBundle\Item\ItemWriterInterface;
-use Oro\Bundle\BatchBundle\Step\StepExecutionAwareInterface;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Types;
 use Oro\Bundle\AkeneoBundle\Async\Topics;
+use Oro\Bundle\AkeneoBundle\Entity\AkeneoSettings;
 use Oro\Bundle\AkeneoBundle\EventListener\AdditionalOptionalListenerManager;
+use Oro\Bundle\AkeneoBundle\Tools\CacheProviderTrait;
+use Oro\Bundle\BatchBundle\Entity\StepExecution;
+use Oro\Bundle\BatchBundle\Item\ItemWriterInterface;
+use Oro\Bundle\BatchBundle\Step\StepExecutionAwareInterface;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\IntegrationBundle\Entity\FieldsChanges;
 use Oro\Bundle\MessageQueueBundle\Client\BufferedMessageProducer;
@@ -17,11 +19,14 @@ use Oro\Bundle\PlatformBundle\Manager\OptionalListenerManager;
 use Oro\Component\MessageQueue\Client\Message;
 use Oro\Component\MessageQueue\Client\MessagePriority;
 use Oro\Component\MessageQueue\Client\MessageProducerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class ConfigurableAsyncWriter implements
     ItemWriterInterface,
     StepExecutionAwareInterface
 {
+    use CacheProviderTrait;
+
     private const VARIANTS_BATCH_SIZE = 25;
 
     /** @var MessageProducerInterface * */
@@ -41,6 +46,20 @@ class ConfigurableAsyncWriter implements
 
     private $variants = [];
 
+    private $origins = [];
+
+    private $models = [];
+
+    private $configurable = [];
+
+    /** @var CacheInterface */
+    private $cache;
+
+    public function setCache(CacheInterface $cache): void
+    {
+        $this->cache = $cache;
+    }
+
     public function __construct(
         MessageProducerInterface $messageProducer,
         DoctrineHelper $doctrineHelper,
@@ -55,48 +74,106 @@ class ConfigurableAsyncWriter implements
 
     public function initialize()
     {
-        $this->variants = [];
-
         $this->additionalOptionalListenerManager->disableListeners();
         $this->optionalListenerManager->disableListeners($this->optionalListenerManager->getListeners());
+
+        $this->configurable = $this->cacheProvider->fetch('akeneo_configurable') ?: [];
     }
 
     public function write(array $items)
     {
+        if (!$this->variants) {
+            $this->variants = $this->cache->get('variants', function () {
+                return [];
+            });
+        }
+        if (!$this->origins) {
+            $this->origins = $this->cache->get('origins', function () {
+                return [];
+            });
+        }
+        if (!$this->models) {
+            $this->models = $this->cache->get('models', function () {
+                return [];
+            });
+        }
+
         foreach ($items as $item) {
+            $origin = $item['origin'];
             $sku = $item['sku'];
 
-            if (!empty($item['family_variant'])) {
-                if (isset($item['parent'], $this->variants[$sku])) {
-                    $parent = $item['parent'];
-                    foreach (array_keys($this->variants[$sku]) as $sku) {
-                        $this->variants[$parent][$sku] = ['parent' => $parent, 'variant' => $sku];
-                    }
+            if (isset($item['family_variant'])) {
+                $this->origins[$origin] = $sku;
+
+                if (isset($item['parent'])) {
+                    $this->models[$origin] = $item['parent'];
                 }
 
                 continue;
             }
 
-            if (empty($item['parent'])) {
+            if (!isset($item['parent'])) {
                 continue;
             }
 
             $parent = $item['parent'];
+            if (!array_key_exists($parent, $this->origins)) {
+                continue;
+            }
 
-            $this->variants[$parent][$sku] = ['parent' => $parent, 'variant' => $sku];
+            $this->variants[$parent][$origin] = [
+                'parent' => $this->origins[$parent] ?? $parent,
+                'variant' => $sku,
+            ];
         }
-    }
-
-    public function close()
-    {
-        $this->variants = [];
-
-        $this->optionalListenerManager->enableListeners($this->optionalListenerManager->getListeners());
-        $this->additionalOptionalListenerManager->enableListeners();
     }
 
     public function flush()
     {
+        $this->optionalListenerManager->enableListeners($this->optionalListenerManager->getListeners());
+        $this->additionalOptionalListenerManager->enableListeners();
+
+        if (!$this->variants) {
+            return;
+        }
+
+        if ($this->variants) {
+            $variants = $this->cache->getItem('variants');
+            $variants->set($this->variants);
+            $this->cache->save($variants);
+        }
+
+        if ($this->origins) {
+            $origins = $this->cache->getItem('origins');
+            $origins->set($this->origins);
+            $this->cache->save($origins);
+        }
+
+        if ($this->models) {
+            $models = $this->cache->getItem('models');
+            $models->set($this->models);
+            $this->cache->save($models);
+        }
+
+        $updated = $this->cache->getItem('time');
+        $updated->set($this->cacheProvider->fetch('time'));
+        $this->cache->save($updated);
+
+        $this->variants = array_intersect_key($this->variants, $this->configurable);
+
+        foreach ($this->models as $levelTwo => $levelOne) {
+            if (array_key_exists($levelTwo, $this->variants)) {
+                foreach ($this->variants[$levelTwo] as $sku => $item) {
+                    $item['parent'] = $this->origins[$levelOne] ?? $levelOne;
+                    $this->variants[$levelOne][$sku] = $item;
+
+                    $akeneoVariantLevels = $this->cacheProvider->fetch('akeneo_variant_levels');
+                    $this->variants[$levelOne][$sku]['parent_disabled'] = $akeneoVariantLevels === AkeneoSettings::TWO_LEVEL_FAMILY_VARIANT_SECOND_ONLY;
+                    $this->variants[$levelTwo][$sku]['parent_disabled'] = $akeneoVariantLevels === AkeneoSettings::TWO_LEVEL_FAMILY_VARIANT_FIRST_ONLY;
+                }
+            }
+        }
+
         $channelId = $this->stepExecution->getJobExecution()->getExecutionContext()->get('channel');
 
         $chunks = array_chunk($this->variants, self::VARIANTS_BATCH_SIZE, true);
@@ -114,6 +191,10 @@ class ConfigurableAsyncWriter implements
                 $this->sendMessage($channelId, $jobId);
             }
         }
+
+        $this->variants = [];
+        $this->origins = [];
+        $this->models = [];
     }
 
     private function createFieldsChanges(int $jobId, array &$data, string $key): bool

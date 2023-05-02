@@ -6,6 +6,7 @@ use Oro\Bundle\CatalogBundle\Entity\Category;
 use Oro\Bundle\EntityExtendBundle\Entity\AbstractEnumValue;
 use Oro\Bundle\EntityExtendBundle\Tools\ExtendHelper;
 use Oro\Bundle\ProductBundle\Entity\Product;
+use Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision;
 use Oro\Bundle\ProductBundle\ImportExport\Strategy\ProductStrategy;
 
 /**
@@ -34,6 +35,20 @@ class ProductImportStrategy extends ProductStrategy implements ExistingEntityAwa
         $this->databaseHelper->onClear();
 
         parent::close();
+    }
+
+    protected function beforeProcessEntity($entity)
+    {
+        /** @var Product $entity */
+        if ($entity->isConfigurable()) {
+            /** @var Product $existingProduct */
+            $existingProduct = $this->findExistingEntity($entity);
+            if ($existingProduct instanceof Product) {
+                $entity->setStatus($existingProduct->getStatus());
+            }
+        }
+
+        return parent::beforeProcessEntity($entity);
     }
 
     protected function afterProcessEntity($entity)
@@ -74,23 +89,74 @@ class ProductImportStrategy extends ProductStrategy implements ExistingEntityAwa
         return parent::afterProcessEntity($entity);
     }
 
+    protected function validateAndUpdateContext($entity)
+    {
+        $validationErrors = $this->strategyHelper->validateEntity($entity);
+        if ($validationErrors) {
+            $this->processValidationErrors($entity, $validationErrors);
+
+            /** @var Product $entity */
+            $entity = $this->findExistingEntity($entity);
+            if ($entity instanceof Product) {
+                $entity->setStatus(Product::STATUS_DISABLED);
+            }
+
+            return $entity;
+        }
+
+        $this->updateContextCounters($entity);
+
+        return $entity;
+    }
+
     protected function populateOwner(Product $entity)
     {
     }
 
     protected function findExistingEntity($entity, array $searchContext = [])
     {
-        if ($entity instanceof Product && array_key_exists($entity->getSku(), $this->existingProducts)) {
-            return $this->existingProducts[$entity->getSku()];
-        }
-
-        $entity = $this->findExistingEntityTrait($entity, $searchContext);
-
         if ($entity instanceof Product) {
-            $this->existingProducts[$entity->getSku()] = $entity;
+            if (array_key_exists($entity->getSku(), $this->existingProducts)) {
+                return $this->existingProducts[$entity->getSku()];
+            }
+
+            $entity = $this->doctrineHelper->getEntityRepository($entity)->findByCaseInsensitive(
+                [
+                    'sku' => $entity->getSku(),
+                    'organization' => $entity->getOrganization() ?: $this->getChannel()->getOrganization(),
+                ]
+            );
+            if (is_array($entity)) {
+                $entity = array_shift($entity);
+                if ($entity instanceof Product) {
+                    $this->existingProducts[$entity->getSku()] = $entity;
+
+                    return $entity;
+                }
+
+                return null;
+            }
+
+            return $entity;
         }
 
-        return $entity;
+        if ($entity instanceof ProductUnitPrecision) {
+            /** @var Product $product */
+            $product = $this->findExistingEntity($entity->getProduct()) ?? $entity->getProduct();
+
+            /** @var ProductUnitPrecision $precision */
+            foreach ($product->getUnitPrecisions() as $precision) {
+                if ($precision->getProductUnitCode() === $entity->getProductUnitCode()) {
+                    $entity->getProduct()->setPrimaryUnitPrecision($precision);
+
+                    return $precision;
+                }
+            }
+
+            return $product->getPrimaryUnitPrecision();
+        }
+
+        return $this->findExistingEntityTrait($entity, $searchContext);
     }
 
     public function getExistingEntity(object $entity, array $searchContext = []): ?object
@@ -100,17 +166,48 @@ class ProductImportStrategy extends ProductStrategy implements ExistingEntityAwa
 
     protected function findExistingEntityByIdentityFields($entity, array $searchContext = [])
     {
-        if ($entity instanceof Product && array_key_exists($entity->getSku(), $this->existingProducts)) {
-            return $this->existingProducts[$entity->getSku()];
-        }
-
-        $entity = $this->findExistingEntityByIdentityFieldsTrait($entity, $searchContext);
-
         if ($entity instanceof Product) {
-            $this->existingProducts[$entity->getSku()] = $entity;
+            if (array_key_exists($entity->getSku(), $this->existingProducts)) {
+                return $this->existingProducts[$entity->getSku()];
+            }
+
+            $entity = $this->doctrineHelper->getEntityRepository($entity)->findByCaseInsensitive(
+                [
+                    'sku' => $entity->getSku(),
+                    'organization' => $entity->getOrganization() ?: $this->getChannel()->getOrganization(),
+                ]
+            );
+            if (is_array($entity)) {
+                $entity = array_shift($entity);
+                if ($entity instanceof Product) {
+                    $this->existingProducts[$entity->getSku()] = $entity;
+
+                    return $entity;
+                }
+
+                return null;
+            }
+
+            return $entity;
         }
 
-        return $entity;
+        if ($entity instanceof ProductUnitPrecision) {
+            /** @var Product $product */
+            $product = $this->findExistingEntity($entity->getProduct()) ?? $entity->getProduct();
+
+            /** @var ProductUnitPrecision $precision */
+            foreach ($product->getUnitPrecisions() as $precision) {
+                if ($precision->getProductUnitCode() === $entity->getProductUnitCode()) {
+                    $entity->getProduct()->setPrimaryUnitPrecision($precision);
+
+                    return $precision;
+                }
+            }
+
+            return $product->getPrimaryUnitPrecision();
+        }
+
+        return $this->findExistingEntityByIdentityFieldsTrait($entity, $searchContext);
     }
 
     /**

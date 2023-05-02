@@ -3,15 +3,14 @@
 namespace Oro\Bundle\AkeneoBundle\ImportExport\DataConverter;
 
 use Oro\Bundle\AkeneoBundle\Entity\AkeneoSettings;
-use Oro\Bundle\AkeneoBundle\Exceptions\IgnoreProductUnitChangesException;
 use Oro\Bundle\AkeneoBundle\ImportExport\AkeneoIntegrationTrait;
-use Oro\Bundle\AkeneoBundle\ProductUnit\ProductUnitDiscoveryInterface;
 use Oro\Bundle\AkeneoBundle\Tools\AttributeFamilyCodeGenerator;
 use Oro\Bundle\AkeneoBundle\Tools\Generator;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\EntityBundle\Provider\EntityFieldProvider;
 use Oro\Bundle\EntityConfigBundle\Config\ConfigManager;
 use Oro\Bundle\EntityExtendBundle\Extend\RelationType;
+use Oro\Bundle\ImportExportBundle\Context\ContextAwareInterface;
 use Oro\Bundle\ImportExportBundle\Context\ContextInterface;
 use Oro\Bundle\LocaleBundle\Entity\AbstractLocalizedFallbackValue;
 use Oro\Bundle\LocaleBundle\Entity\Localization;
@@ -19,19 +18,17 @@ use Oro\Bundle\LocaleBundle\Formatter\DateTimeFormatterInterface;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\ImportExport\DataConverter\ProductDataConverter as BaseProductDataConverter;
 use Oro\Bundle\ProductBundle\ProductVariant\Registry\ProductVariantFieldValueHandlerRegistry;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
+use Oro\Bundle\ProductBundle\Provider\ProductUnitsProvider;
 
 /**
  * Converts data for imported row.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
-class ProductDataConverter extends BaseProductDataConverter implements LoggerAwareInterface
+class ProductDataConverter extends BaseProductDataConverter implements ContextAwareInterface
 {
     use AkeneoIntegrationTrait;
     use LocalizationAwareTrait;
-    use LoggerAwareTrait;
 
     /** @var ConfigManager */
     protected $entityConfigManager;
@@ -47,11 +44,8 @@ class ProductDataConverter extends BaseProductDataConverter implements LoggerAwa
 
     private $mappedAttributes = [];
 
-    /** @var ProductUnitDiscoveryInterface */
-    private $productUnitDiscovery;
-
-    /** @var string */
-    private $codePrefix;
+    /** @var ProductUnitsProvider */
+    protected $productUnitsProvider;
 
     /** @var DoctrineHelper */
     protected $doctrineHelper;
@@ -61,6 +55,9 @@ class ProductDataConverter extends BaseProductDataConverter implements LoggerAwa
 
     /** @var ContextInterface */
     protected $context;
+
+    /** @var String */
+    protected $codePrefix;
 
     public function setImportExportContext(ContextInterface $context): void
     {
@@ -72,9 +69,9 @@ class ProductDataConverter extends BaseProductDataConverter implements LoggerAwa
         $this->doctrineHelper = $doctrineHelper;
     }
 
-    public function setProductUnitDiscovery(ProductUnitDiscoveryInterface $productUnitDiscovery): void
+    public function setProductUnitsProvider(ProductUnitsProvider $productUnitsProvider): void
     {
-        $this->productUnitDiscovery = $productUnitDiscovery;
+        $this->productUnitsProvider = $productUnitsProvider;
     }
 
     /**
@@ -86,9 +83,9 @@ class ProductDataConverter extends BaseProductDataConverter implements LoggerAwa
 
         $this->processValues($importedRecord);
         $this->processSystemValues($importedRecord);
+        $this->setPrimaryUnitPrecision($importedRecord);
         unset($importedRecord['values']);
 
-        $this->setPrimaryUnitPrecision($importedRecord);
         $this->setStatus($importedRecord);
         $this->setCategory($importedRecord);
         $this->setFamilyVariant($importedRecord);
@@ -106,28 +103,11 @@ class ProductDataConverter extends BaseProductDataConverter implements LoggerAwa
     {
         $importedRecord['status'] = empty($importedRecord['enabled']) ?
             Product::STATUS_DISABLED : Product::STATUS_ENABLED;
-
-        if (!empty($importedRecord['family_variant'])) {
-            $importedRecord['status'] = Product::STATUS_DISABLED;
-
-            return;
-        }
-
-        if (!empty($importedRecord['parent'])) {
-            $importedRecord['status'] = Product::STATUS_DISABLED;
-
-            return;
-        }
     }
 
     private function setPrimaryUnitPrecision(array &$importedRecord): void
     {
-        try {
-            $importedRecord['primaryUnitPrecision'] = $this->productUnitDiscovery->discover($this->getTransport(),
-                $importedRecord);
-        } catch (IgnoreProductUnitChangesException $e) {
-            $this->logger->info($e->getMessage());
-        }
+        $importedRecord['primaryUnitPrecision'] = $this->getPrimaryUnitPrecision($importedRecord);
     }
 
     private function setNames(array &$importedRecord): void
@@ -158,8 +138,7 @@ class ProductDataConverter extends BaseProductDataConverter implements LoggerAwa
 
         $importedRecord['type'] = Product::TYPE_CONFIGURABLE;
         $importedRecord['attributeFamily'] = [
-            'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family_variant']['family'],
-                $this->codePrefix),
+            'code' => AttributeFamilyCodeGenerator::generate($importedRecord['family_variant']['family'], $this->codePrefix),
         ];
 
         $sets = $importedRecord['family_variant']['variant_attribute_sets'] ?: [];
@@ -194,10 +173,9 @@ class ProductDataConverter extends BaseProductDataConverter implements LoggerAwa
             return;
         }
 
-        $importedRecord['status'] = Product::STATUS_ENABLED;
         $importedRecord['variantFields'] = implode(',', $variantFields);
 
-        if ($isTwoLevelFamilyVariant) {
+        if ($isTwoLevelFamilyVariant) { // TODO Check if it's accurate to conserve this code
             $allowSecondProductOnly = $this->getTransport()->getAkeneoVariantLevels() ===
                 AkeneoSettings::TWO_LEVEL_FAMILY_VARIANT_SECOND_ONLY;
             if ($isFirstLevelProduct && $allowSecondProductOnly) {
@@ -556,7 +534,33 @@ class ProductDataConverter extends BaseProductDataConverter implements LoggerAwa
 
     protected function getPrimaryUnitPrecision(array $importedRecord): array
     {
-        return $this->productUnitDiscovery->discover($this->getTransport(), $importedRecord);
+        $unit = $this->configManager->get('oro_product.default_unit');
+        $precision = $this->configManager->get('oro_product.default_unit_precision');
+
+        $unitAttribute = $this->getTransport()->getProductUnitAttribute();
+        $unitPrecisionAttribute = $this->getTransport()->getProductUnitPrecisionAttribute();
+
+        $availableUnits = $this->productUnitsProvider->getAvailableProductUnits();
+
+        if (isset($importedRecord['values'][$unitAttribute])) {
+            $unitData = reset($importedRecord['values'][$unitAttribute]);
+            if (isset($unitData['data']) && in_array($unitData['data'], $availableUnits)) {
+                $unit = $unitData['data'];
+            }
+        }
+        if (isset($importedRecord['values'][$unitPrecisionAttribute])) {
+            $unitPrecisionData = reset($importedRecord['values'][$unitPrecisionAttribute]);
+            if (isset($unitPrecisionData['data'])) {
+                $precision = (int)$unitPrecisionData['data'];
+            }
+        }
+
+        return [
+            'unit' => ['code' => $unit],
+            'precision' => $precision,
+            'sell' => true,
+            'product' => ['sku' => $importedRecord['sku']],
+        ];
     }
 
     public function setProductVariantFieldValueHandlerRegistry(

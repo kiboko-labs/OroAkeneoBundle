@@ -70,8 +70,6 @@ services:
   oro_akeneo.importexport.strategy.category:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\CategoryImportStrategy'
     parent: oro_locale.importexport.strategy.localized_fallback_value_aware
-    arguments:
-      index_1: '@oro_akeneo.strategy.import.helper'
     calls:
       - [ setSlugGenerator, [ '@oro_entity_config.slug.generator' ] ]
 
@@ -99,7 +97,7 @@ services:
     public: true
     arguments:
       - '@doctrine'
-      - '@oro_akeneo.strategy.import.helper'
+      - '@oro_importexport.strategy.import.helper'
       - '@oro_importexport.context_registry'
       - '@translator'
 
@@ -136,13 +134,11 @@ services:
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
       - [ setConfigManager, [ '@oro_config.manager' ] ]
       - [ setTranslator, [ '@translator' ] ]
-      - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
+      - [ setCodePrefix, ['%oro_akeneo.importexport.code_prefix%'] ]
 
   oro_akeneo.importexport.strategy.attribute:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\AttributeImportStrategy'
     parent: oro_entity_config.importexport.strategy.entity_field.add_or_replace
-    arguments:
-      index_1: '@oro_akeneo.strategy.import.helper'
     calls:
       - [ setConfigManager, [ '@oro_entity_config.config_manager' ] ]
 
@@ -178,13 +174,11 @@ services:
       - [ setEntityConfigManager, [ '@oro_entity_config.config_manager' ] ]
       - [ setTranslateUsingLocale, [ false ] ]
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
-      - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
+      - [ setCodePrefix, ['%oro_akeneo.importexport.code_prefix%'] ]
 
   oro_akeneo.importexport.strategy.attribute_family:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\AttributeFamilyImportStrategy'
     parent: oro_locale.importexport.strategy.localized_fallback_value_aware
-    arguments:
-      index_1: '@oro_akeneo.strategy.import.helper'
     calls:
       - [ setAttributeManager, [ '@oro_entity_config.manager.attribute_manager' ] ]
       - [ setConfigManager, [ '@oro_entity_config.config_manager' ] ]
@@ -199,7 +193,7 @@ services:
       - [ setStrategy, [ '@oro_akeneo.importexport.strategy.attribute_family' ] ]
       - [ setEntityName, [ 'Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily' ] ]
       - [ setContextRegistry, [ '@oro_importexport.context_registry' ] ]
-      - [setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
+      - [ setCodePrefix, ['%oro_akeneo.importexport.code_prefix%'] ]
 
   oro_akeneo.importexport.processor.attribute_family_status:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\AttributeFamilyStatusProcessor'
@@ -240,6 +234,7 @@ services:
     calls:
       - [ setSchemaUpdateFilter, [ '@oro_akeneo.placeholder.schema_update_filter' ] ]
       - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setCache, [ '@oro_akeneo.configurable_cache' ] ]
     tags:
       - { name: oro_integration.connector, type: configurable_product, channel_type: oro_akeneo }
 
@@ -263,17 +258,14 @@ services:
       - [ setTranslateUsingLocale, [ false ] ]
       - [ setEntityConfigManager, [ '@oro_entity_config.config_manager' ] ]
       - [ setDateTimeFormatter, [ '@oro_locale.formatter.date_time' ] ]
+      - [ setProductUnitsProvider, [ '@oro_product.provider.product_units_provider' ] ]
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
       - [ setProductVariantFieldValueHandlerRegistry, [ '@oro_product.product_variant_field.registry.product_variant_field_value_handler_registry' ] ]
-      - [ setProductUnitDiscovery, ["@oro_akeneo.product_unit.discovery"] ]
-      - [ setLogger, ["@oro_integration.logger.strategy"]]
       - [ setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
 
   oro_akeneo.importexport.strategy.product:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\ProductImportStrategy'
     parent: oro_product.importexport.strategy.product
-    arguments:
-      index_1: '@oro_akeneo.strategy.import.helper'
 
   oro_akeneo.importexport.processor.product:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\ProductImportProcessor'
@@ -301,8 +293,6 @@ services:
   oro_akeneo.importexport.strategy.product_image:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\ProductImageImportStrategy'
     parent: oro_product.importexport.strategy.product_image
-    arguments:
-      index_1: '@oro_akeneo.strategy.import.helper'
 
   # Converter Price
   oro_akeneo.importexport.data_converter.product_price:
@@ -324,8 +314,6 @@ services:
   oro_akeneo.importexport.strategy.product_price:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\ProductPriceImportStrategy'
     parent: oro_pricing.importexport.strategy.product_price.add_or_replace
-    arguments:
-      index_1: '@oro_akeneo.strategy.import.helper'
 
   oro_akeneo.importexport.writer.attribute:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Writer\AttributeWriter'
@@ -352,6 +340,8 @@ services:
       - '@oro_entity.doctrine_helper'
       - '@oro_platform.optional_listeners.manager'
       - '@oro_akeneo.event_listener.additional_optional_listeners_manager'
+    calls:
+      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.importexport.writer.empty:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Writer\EmptyWriter'
@@ -363,6 +353,9 @@ services:
       - '@oro_entity.doctrine_helper'
       - '@oro_platform.optional_listeners.manager'
       - '@oro_akeneo.event_listener.additional_optional_listeners_manager'
+    calls:
+      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setCache, [ '@oro_akeneo.configurable_cache' ] ]
 
   oro_akeneo.importexport.cache:
     parent: oro_cache.array_cache
@@ -440,8 +433,6 @@ services:
   oro_akeneo.importexport.strategy.brand:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\BrandImportStrategy'
     parent: oro_locale.importexport.strategy.localized_fallback_value_aware
-    arguments:
-      index_1: '@oro_akeneo.strategy.import.helper'
     calls:
       - [ setSlugGenerator, [ '@oro_entity_config.slug.generator' ] ]
 
@@ -481,5 +472,6 @@ services:
       - '@oro_entity.doctrine_helper'
       - '@oro_akeneo.importexport.strategy.default_owner_helper'
     tags:
+      - { name: kernel.event_listener, event: oro_importexport.strategy.process_after, method: onProcessAfter, priority: 256 }
       - { name: kernel.event_listener, event: oro_importexport.strategy.process_before, method: onProcessBefore, priority: 256 }
       - { name: doctrine.event_listener, event: onClear }

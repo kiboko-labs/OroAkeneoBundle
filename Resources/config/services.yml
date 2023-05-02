@@ -96,17 +96,6 @@ services:
     tags:
       - { name: doctrine.event_subscriber }
 
-  oro_akeneo.strategy.import.helper:
-    class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\ImportStrategyHelper'
-    parent: oro_importexport.strategy.import.helper
-    calls:
-      - [setDoctrineHelper, ['@oro_entity.doctrine_helper']]
-
-  oro_akeneo.strategy.import.helper_log:
-    class: 'Oro\Bundle\AkeneoBundle\ImportExport\Strategy\ImportLogStrategyHelper'
-    parent: oro_importexport.strategy.import.helper
-    decorates: oro_importexport.strategy.import.helper
-
   oro_akeneo.async.sync_integration_processor:
     class: 'Oro\Bundle\AkeneoBundle\Async\SyncIntegrationProcessor'
     decorates: oro_integration.async.sync_integration_processor
@@ -404,12 +393,6 @@ services:
     decorates: oro_serialized_fields.event_listener.deleted_attribute_relation_serialized
     parent: oro_serialized_fields.event_listener.deleted_attribute_relation_serialized
 
-  oro_akeneo.product_unit.discovery:
-    class: Oro\Bundle\AkeneoBundle\ProductUnit\ImportFromAkeneoDiscovery
-    arguments:
-      - '@oro_config.manager'
-      - '@oro_product.provider.product_units_provider'
-
   Oro\Bundle\AkeneoBundle\Manager\TranslationManager:
     decorates: oro_translation.manager.translation
     parent: oro_translation.manager.translation
@@ -418,3 +401,8 @@ services:
     class: Oro\Bundle\AkeneoBundle\EntityConfig\ImportexportFieldConfiguration
     tags:
       - oro_entity_config.validation.entity_config
+
+  oro_akeneo.configurable_cache:
+    parent: oro.data.cache
+    tags:
+      - { name: 'cache.pool', namespace: 'oro_akeneo_configurable_cache' }

@@ -653,10 +653,7 @@ class AkeneoSettings extends Transport
         return $this->tokenExpiryDateTime;
     }
 
-    /**
-     * @return AkeneoSettings
-     */
-    public function setTokenExpiryDateTime(DateTime $tokenExpiryDateTime): self
+    public function setTokenExpiryDateTime(\DateTime $tokenExpiryDateTime): self
     {
         $this->tokenExpiryDateTime = $tokenExpiryDateTime;
 
@@ -689,8 +686,6 @@ class AkeneoSettings extends Transport
 
     /**
      * Get mapped locale.
-     *
-     * @param $locale
      *
      * @return null|string
      */
@@ -733,9 +728,6 @@ class AkeneoSettings extends Transport
         return $this->priceList;
     }
 
-    /**
-     * @return AkeneoSettings
-     */
     public function setPriceList(PriceList $priceList): self
     {
         $this->priceList = $priceList;
