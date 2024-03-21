@@ -22,7 +22,7 @@ final class ParseUpdatedPlaceholder
      */
     private $updated;
 
-    public function __construct(string $input, ?\Datetime $updated = null)
+    public function __construct(string $input, ?\DateTime $updated = null)
     {
         $this->input = $input;
         $this->updated = $updated ?? new \DateTime('@0');
@@ -30,7 +30,7 @@ final class ParseUpdatedPlaceholder
 
     public function __invoke(): ?string
     {
-        if ($this->updated && strpos($this->input, self::UPDATED_PLACEHOLDER) !== false) {
+        if ($this->updated && str_contains($this->input, self::UPDATED_PLACEHOLDER)) {
             return strtr($this->input, [self::UPDATED_PLACEHOLDER => $this->updated->format('Y-m-d H:i:s')]);
         }
 

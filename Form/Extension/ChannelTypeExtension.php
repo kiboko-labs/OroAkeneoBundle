@@ -24,9 +24,6 @@ class ChannelTypeExtension extends AbstractTypeExtension
         'variant',
     ];
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getExtendedTypes(): iterable
     {
         return [ChannelType::class];

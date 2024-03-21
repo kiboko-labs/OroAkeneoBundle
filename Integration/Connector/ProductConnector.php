@@ -26,41 +26,26 @@ class ProductConnector extends AbstractOroAkeneoConnector implements AllowedConn
      */
     protected $schemaUpdateFilter;
 
-    /**
-     * {@inheritdoc}
-     */
     public function getLabel(): string
     {
         return 'oro.akeneo.connector.product.label';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getImportEntityFQCN()
     {
         return Product::class;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getImportJobName()
     {
         return self::IMPORT_JOB_NAME;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getType()
     {
         return self::TYPE;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isAllowed(Channel $integration, array $processedConnectorsStatuses): bool
     {
         return !$this->needToUpdateSchema($integration);
@@ -71,9 +56,6 @@ class ProductConnector extends AbstractOroAkeneoConnector implements AllowedConn
         $this->schemaUpdateFilter = $schemaUpdateFilter;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getConnectorSource()
     {
         $items = $this->cacheProvider->fetch('akeneo')['items'] ?? [];

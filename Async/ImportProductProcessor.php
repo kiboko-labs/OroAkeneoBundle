@@ -50,17 +50,11 @@ class ImportProductProcessor implements MessageProcessorInterface, TopicSubscrib
         $this->syncProcessorRegistry = $syncProcessorRegistry;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedTopics()
     {
         return [Topics::IMPORT_PRODUCTS];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function process(MessageInterface $message, SessionInterface $session)
     {
         $body = JSON::decode($message->getBody());

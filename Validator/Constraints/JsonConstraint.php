@@ -14,17 +14,11 @@ class JsonConstraint extends Constraint
      */
     public $message = 'oro.akeneo.validator.ajax.message';
 
-    /**
-     * {@inheritdoc}
-     */
     public function getTargets()
     {
         return self::CLASS_CONSTRAINT;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function validatedBy()
     {
         return 'oro_akeneo.json_validator';

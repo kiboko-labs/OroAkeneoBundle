@@ -20,7 +20,7 @@ class OroAkeneoMigration implements Migration, DatabasePlatformAwareInterface
             "UPDATE oro_attachment_file
 SET owner_user_id = (SELECT default_user_owner_id FROM oro_integration_channel WHERE type = 'oro_akeneo' LIMIT 1)
 WHERE owner_user_id IS NULL
-  AND parent_entity_class = 'Oro\Bundle\ProductBundle\Entity\Product'
+  AND parent_entity_class = 'Oro\\Bundle\\ProductBundle\\Entity\\Product'
   AND parent_entity_field_name LIKE 'Akeneo%';"
         );
 
@@ -28,14 +28,14 @@ WHERE owner_user_id IS NULL
             $queries->addPostQuery(
                 "UPDATE oro_attachment_file
 SET uuid = UUID();
-WHERE parent_entity_class = 'Oro\Bundle\ProductBundle\Entity\Product'
+WHERE parent_entity_class = 'Oro\\Bundle\\ProductBundle\\Entity\\Product'
 AND parent_entity_field_name LIKE 'Akeneo%';"
             );
         } elseif ($this->platform instanceof PostgreSqlPlatform) {
             $queries->addPostQuery(
                 "UPDATE oro_attachment_file
 SET uuid = uuid_generate_v4()
-WHERE parent_entity_class = 'Oro\Bundle\ProductBundle\Entity\Product'
+WHERE parent_entity_class = 'Oro\\Bundle\\ProductBundle\\Entity\\Product'
 AND parent_entity_field_name LIKE 'Akeneo%';"
             );
         }
@@ -44,7 +44,7 @@ AND parent_entity_field_name LIKE 'Akeneo%';"
             "UPDATE oro_attachment_file
 SET owner_user_id = (SELECT default_user_owner_id FROM oro_integration_channel WHERE type = 'oro_akeneo' LIMIT 1)
 WHERE owner_user_id IS null
-    AND parent_entity_class = 'Oro\Bundle\ProductBundle\Entity\ProductImage'
+    AND parent_entity_class = 'Oro\\Bundle\\ProductBundle\\Entity\\ProductImage'
     AND parent_entity_field_name = 'image';"
         );
 
@@ -52,14 +52,14 @@ WHERE owner_user_id IS null
             $queries->addPostQuery(
                 "UPDATE oro_attachment_file
 SET uuid = UUID();
-WHERE parent_entity_class = 'Oro\Bundle\ProductBundle\Entity\ProductImage'
+WHERE parent_entity_class = 'Oro\\Bundle\\ProductBundle\\Entity\\ProductImage'
 AND parent_entity_field_name = 'image';"
             );
         } elseif ($this->platform instanceof PostgreSqlPlatform) {
             $queries->addPostQuery(
                 "UPDATE oro_attachment_file
 SET uuid = uuid_generate_v4()
-WHERE parent_entity_class = 'Oro\Bundle\ProductBundle\Entity\ProductImage'
+WHERE parent_entity_class = 'Oro\\Bundle\\ProductBundle\\Entity\\ProductImage'
 AND parent_entity_field_name = 'image';"
             );
         }

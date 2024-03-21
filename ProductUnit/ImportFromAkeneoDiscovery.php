@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Oro\Bundle\AkeneoBundle\ProductUnit;
 
@@ -9,10 +11,10 @@ use Oro\Bundle\ProductBundle\Provider\ProductUnitsProvider;
 final class ImportFromAkeneoDiscovery implements ProductUnitDiscoveryInterface
 {
     /** @var ConfigManager */
-    protected $configManager;
+    private $configManager;
 
     /** @var ProductUnitsProvider */
-    protected $productUnitsProvider;
+    private $productUnitsProvider;
 
     public function __construct(
         ConfigManager $configManager,

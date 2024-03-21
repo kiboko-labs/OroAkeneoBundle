@@ -14,9 +14,6 @@ class AttributeFamilyImportProcessor extends StepExecutionAwareImportProcessor
     /** @var string */
     private $codePrefix;
 
-    /**
-     * {@inheritdoc}
-     */
     public function process($item)
     {
         if (!empty($item['code'])) {

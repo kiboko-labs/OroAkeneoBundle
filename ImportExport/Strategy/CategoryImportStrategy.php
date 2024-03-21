@@ -131,9 +131,6 @@ class CategoryImportStrategy extends LocalizedFallbackValueAwareStrategy impleme
         return $entity;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function updateContextCounters($entity)
     {
         $identifier = $this->databaseHelper->getIdentifier($entity);

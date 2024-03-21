@@ -210,9 +210,6 @@ class ProductImportStrategy extends ProductStrategy implements ExistingEntityAwa
         return $this->findExistingEntityByIdentityFieldsTrait($entity, $searchContext);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function importExistingEntity($entity, $existingEntity, $itemData = null, array $excludedFields = [])
     {
         // Existing enum values shouldn't be modified. Just added to entity (collection).
@@ -223,9 +220,6 @@ class ProductImportStrategy extends ProductStrategy implements ExistingEntityAwa
         parent::importExistingEntity($entity, $existingEntity, $itemData, $excludedFields);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function updateContextCounters($entity)
     {
         $identifier = $this->databaseHelper->getIdentifier($entity);

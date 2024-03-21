@@ -13,9 +13,6 @@ class ProductPriceImportStrategy extends BaseStrategy
     use AkeneoIntegrationTrait;
     use StrategyValidationTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function beforeProcessEntity($entity)
     {
         if (

@@ -83,17 +83,17 @@ class ConfigurableAsyncWriter implements
     public function write(array $items)
     {
         if (!$this->variants) {
-            $this->variants = $this->cache->get('variants', function () {
+            $this->variants = $this->cache->get('variants', static function () {
                 return [];
             });
         }
         if (!$this->origins) {
-            $this->origins = $this->cache->get('origins', function () {
+            $this->origins = $this->cache->get('origins', static function () {
                 return [];
             });
         }
         if (!$this->models) {
-            $this->models = $this->cache->get('models', function () {
+            $this->models = $this->cache->get('models', static function () {
                 return [];
             });
         }

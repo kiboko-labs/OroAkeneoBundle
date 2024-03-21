@@ -401,7 +401,7 @@ class AkeneoSettings extends Transport
      *
      * @return self
      */
-    public function setAkeneoChannels(array $akeneoChannels = null)
+    public function setAkeneoChannels(?array $akeneoChannels = null)
     {
         $this->akeneoChannels = $akeneoChannels;
 
@@ -472,9 +472,6 @@ class AkeneoSettings extends Transport
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getToken(): ?string
     {
         return $this->token;
@@ -485,9 +482,6 @@ class AkeneoSettings extends Transport
         $this->token = $token;
     }
 
-    /**
-     * @return string
-     */
     public function getRefreshToken(): ?string
     {
         return $this->refreshToken;
@@ -571,7 +565,7 @@ class AkeneoSettings extends Transport
      *
      * @return self
      */
-    public function setAkeneoCurrencies(array $akeneoCurrencies = null)
+    public function setAkeneoCurrencies(?array $akeneoCurrencies = null)
     {
         $this->akeneoCurrencies = $akeneoCurrencies;
 
@@ -593,7 +587,7 @@ class AkeneoSettings extends Transport
      *
      * @return self
      */
-    public function setAkeneoActiveCurrencies(array $akeneoActiveCurrencies = null)
+    public function setAkeneoActiveCurrencies(?array $akeneoActiveCurrencies = null)
     {
         $this->akeneoActiveCurrencies = $akeneoActiveCurrencies;
 
@@ -623,7 +617,7 @@ class AkeneoSettings extends Transport
      *
      * @return self
      */
-    public function setAkeneoLocalesList(array $akeneoLocalesList = null)
+    public function setAkeneoLocalesList(?array $akeneoLocalesList = null)
     {
         $this->akeneoLocalesList = $akeneoLocalesList;
 
@@ -635,10 +629,7 @@ class AkeneoSettings extends Transport
         return $this->akeneoAttributesImageList;
     }
 
-    /**
-     * @param string $akeneoAttributesImageList
-     */
-    public function setAkeneoAttributesImageList(string $akeneoAttributesImageList = null): self
+    public function setAkeneoAttributesImageList(?string $akeneoAttributesImageList = null): self
     {
         $this->akeneoAttributesImageList = $akeneoAttributesImageList;
 
@@ -677,7 +668,7 @@ class AkeneoSettings extends Transport
      *
      * @return AkeneoSettings
      */
-    public function setRootCategory(Category $rootCategory = null)
+    public function setRootCategory(?Category $rootCategory = null)
     {
         $this->rootCategory = $rootCategory;
 
@@ -720,9 +711,6 @@ class AkeneoSettings extends Transport
         return $this;
     }
 
-    /**
-     * @return PriceList
-     */
     public function getPriceList(): ?PriceList
     {
         return $this->priceList;
@@ -740,19 +728,13 @@ class AkeneoSettings extends Transport
         return $this->akeneoAttributesList;
     }
 
-    /**
-     * @param string $attributeList
-     */
-    public function setAkeneoAttributesList(string $attributeList = null): self
+    public function setAkeneoAttributesList(?string $attributeList = null): self
     {
         $this->akeneoAttributesList = $attributeList;
 
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function isAkeneoMergeImageToParent(): ?bool
     {
         return $this->akeneoMergeImageToParent;
@@ -812,16 +794,13 @@ class AkeneoSettings extends Transport
         $this->akeneoBrandMapping = $akeneoBrandMapping;
     }
 
-    public function setAlternativeIdentifier(string $alternativeIdentifier = null)
+    public function setAlternativeIdentifier(?string $alternativeIdentifier = null)
     {
         $this->alternativeIdentifier = $alternativeIdentifier;
 
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getAlternativeIdentifier(): ?string
     {
         return $this->alternativeIdentifier;

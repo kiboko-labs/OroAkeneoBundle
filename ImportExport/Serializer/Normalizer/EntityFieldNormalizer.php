@@ -7,9 +7,6 @@ use Oro\Bundle\EntityConfigBundle\ImportExport\Serializer\EntityFieldNormalizer 
 
 class EntityFieldNormalizer extends BaseEntityFieldNormalizer
 {
-    /**
-     * {@inheritdoc}
-     */
     public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
         return is_array($data)

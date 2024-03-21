@@ -7,11 +7,6 @@ namespace Oro\Bundle\AkeneoBundle\Tools;
  */
 class FieldConfigModelFieldNameGenerator
 {
-    /**
-     * @param string $value
-     *
-     * @return string
-     */
     public static function generate(string $value, $prefix = 'Akeneo_'): string
     {
         $value = sprintf('%s%s', $prefix, $value);

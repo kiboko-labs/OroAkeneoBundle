@@ -16,10 +16,8 @@ class AkeneoSearchBuilder
 
     /**
      * Build search filters from json.
-     *
-     * @param string $json
      */
-    public function getFilters(string $json = null): array
+    public function getFilters(?string $json = null): array
     {
         if (!$this->isJSON($json)) {
             return [];

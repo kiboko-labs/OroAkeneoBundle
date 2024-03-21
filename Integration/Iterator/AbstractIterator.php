@@ -37,9 +37,6 @@ abstract class AbstractIterator implements \Iterator
         $this->setLogger($logger);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     final public function current()
     {
         return $this->doCurrent();
@@ -50,33 +47,21 @@ abstract class AbstractIterator implements \Iterator
      */
     abstract public function doCurrent();
 
-    /**
-     * {@inheritdoc}
-     */
     public function next()
     {
         $this->resourceCursor->next();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function key()
     {
         return $this->resourceCursor->key();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function valid()
     {
         return $this->resourceCursor->valid();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rewind()
     {
         $this->resourceCursor->rewind();

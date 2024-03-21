@@ -44,9 +44,6 @@ class ProductIterator extends AbstractIterator
         $this->attributeMapping = $attributeMapping;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function doCurrent()
     {
         $product = $this->resourceCursor->current();
@@ -74,8 +71,7 @@ class ProductIterator extends AbstractIterator
         @list($altAttribute, $identifier) = explode(':', $this->alternativeAttribute);
 
         if (!empty($altAttribute)
-            && isset($product['values'][$altAttribute])
-            && isset($product['identifier'])
+            && isset($product['values'][$altAttribute], $product['identifier'])
         ) {
             if (isset($product['values'][$altAttribute][0]['data'])) {
                 if (null !== $identifier) {

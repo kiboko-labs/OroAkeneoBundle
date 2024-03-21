@@ -14,9 +14,6 @@ class AkeneoClientBuilder extends AkeneoPimClientBuilder
      */
     protected array $apiRegistry = [];
 
-    /**
-     * @param ApiAwareInterface|null ...$apis
-     */
     public function __construct(?ApiAwareInterface ...$apis)
     {
         foreach ($apis as $api) {
@@ -25,12 +22,12 @@ class AkeneoClientBuilder extends AkeneoPimClientBuilder
     }
 
     /**
-     * @param string $baseUri
      * @return $this
      */
     public function setBaseUri(string $baseUri): AkeneoClientBuilder
     {
         $this->baseUri = $baseUri;
+
         return $this;
     }
 
@@ -40,9 +37,6 @@ class AkeneoClientBuilder extends AkeneoPimClientBuilder
         $this->apiRegistry[$shortClass] = $api;
     }
 
-    /**
-     * @inheritDoc
-     */
     protected function buildAuthenticatedClient(Authentication $authentication): AkeneoPimClientInterface
     {
         list($resourceClient, $pageFactory, $cursorFactory, $fileSystem) = parent::setUp($authentication);
@@ -58,6 +52,7 @@ class AkeneoClientBuilder extends AkeneoPimClientBuilder
             ;
             $client->addApi($key, $api);
         }
+
         return $client;
     }
 }

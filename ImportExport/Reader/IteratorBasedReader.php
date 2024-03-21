@@ -17,9 +17,6 @@ abstract class IteratorBasedReader extends AbstractReader
      */
     protected $rewound = false;
 
-    /**
-     * {@inheritdoc}
-     */
     public function read()
     {
         if (null === $this->getSourceIterator()) {
@@ -51,10 +48,8 @@ abstract class IteratorBasedReader extends AbstractReader
 
     /**
      * Setter for iterator
-     *
-     * @param \Iterator $sourceIterator
      */
-    public function setSourceIterator(\Iterator $sourceIterator = null)
+    public function setSourceIterator(?\Iterator $sourceIterator = null)
     {
         $this->sourceIterator = $sourceIterator;
         $this->rewound = false;

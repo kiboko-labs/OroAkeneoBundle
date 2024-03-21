@@ -56,7 +56,7 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
     /** @var ContextInterface */
     protected $context;
 
-    /** @var String */
+    /** @var string */
     protected $codePrefix;
 
     public function setImportExportContext(ContextInterface $context): void
@@ -74,9 +74,6 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         $this->productUnitsProvider = $productUnitsProvider;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function convertToImportFormat(array $importedRecord, $skipNullValues = true)
     {
         unset($importedRecord['_links']);
@@ -450,9 +447,6 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         return $code;
     }
 
-    /**
-     * @return mixed
-     */
     private function processBasicType(array $value)
     {
         $item = array_shift($value);
@@ -516,17 +510,11 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         $this->dateTimeFormatter = $dateTimeFormatter;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getHeaderConversionRules()
     {
         return [];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getBackendHeader()
     {
         throw new \Exception('Normalization is not implemented!');

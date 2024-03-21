@@ -36,7 +36,7 @@ class UniqueVariantLinksSimpleProductValidator extends ConstraintValidator
     public function validate($value, Constraint $constraint)
     {
         if (!is_a($value, Product::class)) {
-            throw new \InvalidArgumentException(sprintf('Entity must be instance of "%s", "%s" given', Product::class, is_object($value) ? get_class($value) : gettype($value)));
+            throw new \InvalidArgumentException(sprintf('Entity must be instance of "%s", "%s" given', Product::class, is_object($value) ? $value::class : gettype($value)));
         }
 
         if ($value->isConfigurable() || $value->getParentVariantLinks()->count() === 0) {

@@ -24,9 +24,6 @@ class ProductPriceDataConverter extends BaseProductPriceDataConverter
         $this->doctrineHelper = $doctrineHelper;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function convertToImportFormat(array $importedRecord, $skipNullValues = true)
     {
         $importedRecord['quantity'] = 1;
@@ -55,9 +52,6 @@ class ProductPriceDataConverter extends BaseProductPriceDataConverter
         $this->priceListProvider = $priceListProvider;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getHeaderConversionRules()
     {
         return [

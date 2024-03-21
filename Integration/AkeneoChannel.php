@@ -9,17 +9,11 @@ class AkeneoChannel implements ChannelInterface, IconAwareIntegrationInterface
 {
     const TYPE = 'oro_akeneo';
 
-    /**
-     * {@inheritdoc}
-     */
     public function getLabel()
     {
         return 'oro.akeneo.integration.channel.label';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getIcon()
     {
         return 'bundles/oroakeneo/img/akeneo-icon.svg';

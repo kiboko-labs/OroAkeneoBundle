@@ -90,7 +90,7 @@ class AkeneoLocale
         return $this->akeneoSettings;
     }
 
-    public function setAkeneoSettings(AkeneoSettings $akeneoSettings = null): self
+    public function setAkeneoSettings(?AkeneoSettings $akeneoSettings = null): self
     {
         $this->akeneoSettings = $akeneoSettings;
 

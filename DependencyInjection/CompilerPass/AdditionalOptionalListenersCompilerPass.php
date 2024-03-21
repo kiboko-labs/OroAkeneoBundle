@@ -12,9 +12,6 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 class AdditionalOptionalListenersCompilerPass implements CompilerPassInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function process(ContainerBuilder $container)
     {
         $listeners = array_keys(
