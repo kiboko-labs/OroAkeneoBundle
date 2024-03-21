@@ -71,9 +71,6 @@ class AttributeImportStrategy extends EntityFieldImportStrategy
         return parent::beforeProcessEntity($entity);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function processEntity(FieldConfigModel $entity)
     {
         $supportedTypes = $this->fieldTypeProvider->getSupportedFieldTypes();

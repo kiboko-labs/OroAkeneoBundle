@@ -21,39 +21,31 @@ trait ApiAwareTrait
     /** @var FileSystemInterface */
     protected $fileSystem;
 
-    /**
-     * @inheritDoc
-     */
     public function setResourceClient(ResourceClientInterface $resourceClient): ApiAwareInterface
     {
         $this->resourceClient = $resourceClient;
+
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function setPageFactory(PageFactoryInterface $pageFactory): ApiAwareInterface
     {
         $this->pageFactory = $pageFactory;
+
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function setCursorFactory(ResourceCursorFactoryInterface $cursorFactory): ApiAwareInterface
     {
         $this->cursorFactory = $cursorFactory;
+
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function setFileSystem(FileSystemInterface $fileSystem): ApiAwareInterface
     {
         $this->fileSystem = $fileSystem;
+
         return $this;
     }
 }

@@ -9,9 +9,6 @@ use Oro\Bundle\ImportExportBundle\Job\ContextHelper;
 
 class SimpleContextAggregator extends BaseAggregator
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getAggregatedContext(JobExecution $jobExecution)
     {
         /** @var ContextInterface $context */

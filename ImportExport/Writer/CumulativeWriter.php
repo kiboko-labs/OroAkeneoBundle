@@ -59,9 +59,6 @@ class CumulativeWriter implements
         $this->additionalOptionalListenerManager = $additionalOptionalListenerManager;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function write(array $items)
     {
         foreach ($items as $item) {
@@ -186,9 +183,6 @@ class CumulativeWriter implements
         return count($entityStates);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setStepExecution(StepExecution $stepExecution)
     {
         if ($this->writer instanceof StepExecutionAwareInterface) {
@@ -196,9 +190,6 @@ class CumulativeWriter implements
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function restoreStepExecution()
     {
         if ($this->writer instanceof StepExecutionRestoreInterface) {
@@ -206,7 +197,6 @@ class CumulativeWriter implements
         }
     }
 
-    /** {@inheritdoc} */
     public function close()
     {
         $this->doWrite();

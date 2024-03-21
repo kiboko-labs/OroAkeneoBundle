@@ -68,9 +68,6 @@ class AkeneoTransport implements AkeneoTransportInterface
         $this->logger = $logger;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function init(Transport $transportEntity, $tokensEnabled = true)
     {
         $this->client = $this->clientFactory->getInstance($transportEntity, $tokensEnabled);
@@ -201,8 +198,6 @@ class AkeneoTransport implements AkeneoTransportInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @return \Iterator
      */
     public function getProducts(int $pageSize, ?\DateTime $updatedAt = null)
@@ -237,13 +232,10 @@ class AkeneoTransport implements AkeneoTransportInterface
             $this->measureFamilies,
             $this->getAttributeMapping(),
             $this->getAlternativeIdentifier()
-
         );
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @return \Iterator
      */
     public function getProductsForVariants(int $pageSize, ?\DateTime $updatedAt = null): iterable
@@ -275,11 +267,10 @@ class AkeneoTransport implements AkeneoTransportInterface
             $this->measureFamilies,
             $this->getAttributeMapping(),
             $this->getAlternativeIdentifier()
-
         );
     }
 
-    public function getProductsList(int $pageSize, int $sinceLastNDays = null, ?\DateTime $updatedAt = null): iterable
+    public function getProductsList(int $pageSize, ?int $sinceLastNDays = null, ?\DateTime $updatedAt = null): iterable
     {
         $this->initAttributesList();
 
@@ -338,7 +329,7 @@ class AkeneoTransport implements AkeneoTransportInterface
         );
     }
 
-    public function getProductModelsList(int $pageSize, int $sinceLastNDays = null, ?\DateTime $updatedAt = null): iterable
+    public function getProductModelsList(int $pageSize, ?int $sinceLastNDays = null, ?\DateTime $updatedAt = null): iterable
     {
         $this->initAttributesList();
 
@@ -362,25 +353,16 @@ class AkeneoTransport implements AkeneoTransportInterface
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSettingsFormType()
     {
         return AkeneoSettingsType::class;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSettingsEntityFQCN()
     {
         return AkeneoSettings::class;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getLabel()
     {
         return 'oro.akeneo.integration.settings.label';

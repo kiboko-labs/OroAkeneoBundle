@@ -36,9 +36,6 @@ class AttributeImportProcessor extends StepExecutionAwareImportProcessor
     /** @var array */
     private $fieldTypeMapping = [];
 
-    /**
-     * {@inheritdoc}
-     */
     public function process($item)
     {
         $code = $item['code'];

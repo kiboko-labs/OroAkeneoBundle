@@ -25,7 +25,7 @@ trait StrategyRelationsTrait
      * @see \Oro\Bundle\ImportExportBundle\Strategy\Import\ImportStrategyHelper::importEntity
      * @see \Oro\Bundle\ImportExportBundle\Strategy\Import\ConfigurableAddOrReplaceStrategy::updateRelations
      */
-    protected function updateRelations($entity, array $itemData = null)
+    protected function updateRelations($entity, ?array $itemData = null)
     {
         $entityName = $this->doctrineHelper->getEntityClass($entity);
         $fields = $this->fieldHelper->getEntityFields(

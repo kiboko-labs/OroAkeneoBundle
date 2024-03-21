@@ -42,17 +42,11 @@ class OroAkeneoBundleInstaller implements Installation, ExtendExtensionAwareInte
         ],
     ];
 
-    /**
-     * {@inheritdoc}
-     */
     public function getMigrationVersion()
     {
         return 'v1_16';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function up(Schema $schema, QueryBag $queries)
     {
         /* Tables generation */
@@ -117,7 +111,7 @@ class OroAkeneoBundleInstaller implements Installation, ExtendExtensionAwareInte
         $table->addColumn('akeneo_attributes_list', 'text', ['notnull' => false]);
         $table->addColumn('rootcategory_id', 'integer', ['notnull' => false]);
         $table->addColumn('pricelist_id', 'integer', ['notnull' => false]);
-        $table->addColumn('akeneo_alternative_identifier', 'string', ['notnull' => false,'length' => 255]);
+        $table->addColumn('akeneo_alternative_identifier', 'string', ['notnull' => false, 'length' => 255]);
         $table->addColumn('akeneo_attributes_image_list', 'text', ['notnull' => false]);
         $table->addColumn('akeneo_merge_image_to_parent', 'boolean', ['notnull' => false, 'default' => false]);
         $table->addColumn('akeneo_variant_levels', 'string', ['notnull' => false, 'length' => 255]);
@@ -287,9 +281,6 @@ class OroAkeneoBundleInstaller implements Installation, ExtendExtensionAwareInte
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setExtendExtension(ExtendExtension $extendExtension)
     {
         $this->extendExtension = $extendExtension;

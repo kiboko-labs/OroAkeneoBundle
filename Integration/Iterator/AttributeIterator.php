@@ -45,9 +45,6 @@ class AttributeIterator extends AbstractIterator
         'akeneo_reference_entity_collection',
     ];
 
-    /**
-     * {@inheritdoc}
-     */
     public function doCurrent()
     {
         $attribute = $this->attributes->current();
@@ -107,7 +104,7 @@ class AttributeIterator extends AbstractIterator
 
         usort(
             $attribute['options'],
-            function ($a, $b) {
+            static function ($a, $b) {
                 if ($a['sort_order'] == $b['sort_order']) {
                     return 0;
                 }

@@ -30,7 +30,6 @@ class CategoryParentProcessor implements ProcessorInterface
     /**
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @param mixed $item
      */
     public function process($item)
     {

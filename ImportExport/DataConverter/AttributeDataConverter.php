@@ -40,9 +40,6 @@ class AttributeDataConverter extends EntityFieldDataConverter
         $this->translator = $translator;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function convertToImportFormat(array $importedRecord, $skipNullValues = true)
     {
         $type = AttributeTypeConverter::convert($importedRecord['type']);
@@ -145,17 +142,11 @@ class AttributeDataConverter extends EntityFieldDataConverter
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getHeaderConversionRules()
     {
         return [];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getBackendHeader()
     {
         throw new \Exception('Normalization is not implemented!');

@@ -2,11 +2,11 @@
 
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Processor;
 
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectRepository;
 use Oro\Bundle\BatchBundle\Entity\StepExecution;
 use Oro\Bundle\BatchBundle\Step\StepExecutionAwareInterface;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ObjectRepository;
 use Oro\Bundle\ImportExportBundle\Context\ContextRegistry;
 use Oro\Bundle\ImportExportBundle\Processor\ProcessorInterface;
 use Oro\Bundle\ImportExportBundle\Strategy\Import\ImportStrategyHelper;
@@ -62,7 +62,6 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
     /**
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @param mixed $items
      */
     public function process($items)
     {
@@ -103,7 +102,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         }
 
         $variantSkusUppercase = array_map(
-            function ($variantSku) {
+            static function ($variantSku) {
                 return mb_strtoupper($variantSku);
             },
             $variantSkus
@@ -130,7 +129,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
                 continue;
             }
 
-//            $variantProduct->setStatus(Product::STATUS_ENABLED); TODO
+            //            $variantProduct->setStatus(Product::STATUS_ENABLED); TODO
 
             unset($variantSkusUppercase[$variantProduct->getSkuUppercase()]);
         }
@@ -166,7 +165,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
             $variantProduct->addParentVariantLink($variantLink);
             $parentProduct->addVariantLink($variantLink);
 
-//            $variantProduct->setStatus(Product::STATUS_ENABLED); TODO
+            //            $variantProduct->setStatus(Product::STATUS_ENABLED); TODO
 
             $context->incrementAddCount();
 
@@ -191,7 +190,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
                 );
             }
 
-//            $objectManager->clear(); TODO
+            //            $objectManager->clear(); TODO
 
             $parentProduct = $productRepository->findOneBySku($parentSku);
             if (!$parentProduct instanceof Product) {

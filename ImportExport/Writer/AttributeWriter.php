@@ -114,9 +114,6 @@ class AttributeWriter extends BaseAttributeWriter implements StepExecutionAwareI
         $this->stepExecution = $stepExecution;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function write(array $items)
     {
         $translations = [];
@@ -259,7 +256,7 @@ class AttributeWriter extends BaseAttributeWriter implements StepExecutionAwareI
         $attributeConfig = $attributeProvider->getConfig($className, $fieldName);
 
         $extendConfig = $extendProvider->getConfig($className, $fieldName);
-        $attributeConfig->remove('organization_id'); //TODO Check if it' accurate to remove this id (kiboko custo ?)
+        $attributeConfig->remove('organization_id'); // TODO Check if it' accurate to remove this id (kiboko custo ?)
         $attributeConfig->set('is_global', true);
         if ($extendConfig->is('state', ExtendScope::STATE_NEW)) {
             $type = $this->attributeTypeRegistry->getAttributeType($fieldConfigModel);
@@ -277,8 +274,8 @@ class AttributeWriter extends BaseAttributeWriter implements StepExecutionAwareI
             $attributeConfig->set('visible', false);
             $attributeConfig->set('enabled', false);
 
-//            $attributeConfig->set('is_global', false);
-//            $attributeConfig->set('organization_id', $this->getOrganizationId());
+            //            $attributeConfig->set('is_global', false);
+            //            $attributeConfig->set('organization_id', $this->getOrganizationId());
         }
 
         $attributeConfig->set('field_name', $fieldName);

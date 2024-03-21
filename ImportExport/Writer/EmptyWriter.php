@@ -10,6 +10,6 @@ class EmptyWriter implements ItemWriterInterface
 {
     public function write(array $items)
     {
-        //we are building variants cache, so there is nothing to save
+        // we are building variants cache, so there is nothing to save
     }
 }

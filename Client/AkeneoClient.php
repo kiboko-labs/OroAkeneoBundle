@@ -4,8 +4,8 @@ namespace Oro\Bundle\AkeneoBundle\Client;
 
 use Akeneo\Pim\ApiClient\AkeneoPimClientInterface;
 use Akeneo\Pim\ApiClient\Api\AssetApiInterface;
-use Akeneo\Pim\ApiClient\Api\AssetManager\AssetApiInterface as AssetManagerApiInterface;
 use Akeneo\Pim\ApiClient\Api\AssetCategoryApiInterface;
+use Akeneo\Pim\ApiClient\Api\AssetManager\AssetApiInterface as AssetManagerApiInterface;
 use Akeneo\Pim\ApiClient\Api\AssetManager\AssetAttributeApiInterface;
 use Akeneo\Pim\ApiClient\Api\AssetManager\AssetAttributeOptionApiInterface;
 use Akeneo\Pim\ApiClient\Api\AssetManager\AssetFamilyApiInterface;
@@ -40,7 +40,6 @@ use Oro\Bundle\AkeneoBundle\Client\Api\ApiAwareInterface;
 
 class AkeneoClient implements AkeneoPimClientInterface
 {
-    /** @var AkeneoPimClientInterface */
     protected AkeneoPimClientInterface $decoratedClient;
 
     /** @var ApiAwareInterface[] */
@@ -68,6 +67,7 @@ class AkeneoClient implements AkeneoPimClientInterface
         if ('get' === substr($name, 0, 3) && isset($this->apiRegistry[$property])) {
             return $this->apiRegistry[$property];
         }
+
         return $this->decoratedClient->{$name}($arguments);
     }
 

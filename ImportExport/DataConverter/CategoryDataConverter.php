@@ -30,9 +30,6 @@ class CategoryDataConverter extends LocalizedFallbackValueAwareDataConverter imp
         $this->doctrineHelper = $doctrineHelper;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function convertToImportFormat(array $importedRecord, $skipNullValues = true)
     {
         $this->setTitles($importedRecord);
@@ -90,9 +87,6 @@ class CategoryDataConverter extends LocalizedFallbackValueAwareDataConverter imp
         $importedRecord['parentCategory:id'] = $this->getTransport()->getRootCategory()->getId();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getHeaderConversionRules()
     {
         return [
@@ -101,9 +95,6 @@ class CategoryDataConverter extends LocalizedFallbackValueAwareDataConverter imp
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getBackendHeader()
     {
         throw new \Exception('Normalization is not implemented!');

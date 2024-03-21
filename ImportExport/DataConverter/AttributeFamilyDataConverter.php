@@ -50,9 +50,6 @@ class AttributeFamilyDataConverter extends LocalizedFallbackValueAwareDataConver
         $this->entityConfigManager = $entityConfigManager;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function convertToImportFormat(array $importedRecord, $skipNullValues = true)
     {
         $importedRecord['code'] = AttributeFamilyCodeGenerator::generate($importedRecord['code'], $this->codePrefix);
@@ -101,7 +98,7 @@ class AttributeFamilyDataConverter extends LocalizedFallbackValueAwareDataConver
 
         $importedRecord['groups'] = array_filter(
             $importedRecord['groups'],
-            function ($group) {
+            static function ($group) {
                 return !empty($group['attributeRelations']);
             }
         );
@@ -164,9 +161,6 @@ class AttributeFamilyDataConverter extends LocalizedFallbackValueAwareDataConver
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getHeaderConversionRules()
     {
         return [
@@ -176,9 +170,6 @@ class AttributeFamilyDataConverter extends LocalizedFallbackValueAwareDataConver
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getBackendHeader()
     {
         throw new \Exception('Normalization is not implemented!');

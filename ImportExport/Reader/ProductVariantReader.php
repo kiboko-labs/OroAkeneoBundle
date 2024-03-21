@@ -13,7 +13,7 @@ class ProductVariantReader extends IteratorBasedReader
     {
         parent::initializeFromContext($context);
 
-        $cache = $this->cacheProvider->fetch('product_variants') ;
+        $cache = $this->cacheProvider->fetch('product_variants');
         $variants = $cache !== false ? $cache : [];
 
         $this->stepExecution->setReadCount(count($variants));

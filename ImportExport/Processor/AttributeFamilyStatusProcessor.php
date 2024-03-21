@@ -21,9 +21,6 @@ class AttributeFamilyStatusProcessor implements ProcessorInterface
         $this->registry = $registry;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function process($item)
     {
         if (!$item instanceof AttributeFamily) {

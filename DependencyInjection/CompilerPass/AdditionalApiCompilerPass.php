@@ -8,9 +8,6 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class AdditionalApiCompilerPass implements CompilerPassInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function process(ContainerBuilder $container)
     {
         $definition = $container->getDefinition('oro_akeneo.client_builder');

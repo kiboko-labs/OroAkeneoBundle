@@ -16,9 +16,6 @@ class OroAkeneoExtension extends Extension
 {
     const ALIAS = 'oro_akeneo';
 
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $configs, ContainerBuilder $container)
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
@@ -34,9 +31,6 @@ class OroAkeneoExtension extends Extension
         $loader->load('form_types.yml');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAlias()
     {
         return self::ALIAS;

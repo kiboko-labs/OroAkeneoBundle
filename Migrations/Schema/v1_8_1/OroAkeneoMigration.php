@@ -12,20 +12,14 @@ use Oro\Bundle\MigrationBundle\Migration\QueryBag;
  */
 class OroAkeneoMigration implements Migration
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getMigrationVersion()
     {
         return 'v1_8_1';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function up(Schema $schema, QueryBag $queries)
     {
-        /** Tables generation **/
+        /* Tables generation * */
         $this->updateOroIntegrationTransportTable($schema);
     }
 

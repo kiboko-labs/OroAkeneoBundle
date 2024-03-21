@@ -54,7 +54,7 @@ class ValidateConnectionController extends AbstractController
      *
      * @throws \InvalidArgumentException
      */
-    public function validateConnectionAction(Request $request, Channel $channel = null): JsonResponse
+    public function validateConnectionAction(Request $request, ?Channel $channel = null): JsonResponse
     {
         if (!$channel) {
             $channel = new Channel();

@@ -7,9 +7,6 @@ use Oro\Bundle\ProductBundle\ImportExport\DataConverter\ProductImageDataConverte
 
 class ProductImageDataConverter extends BaseProductImageDataConverter
 {
-    /**
-     * {@inheritdoc}
-     */
     public function convertToImportFormat(array $importedRecord, $skipNullValues = true)
     {
         $importedRecord['types'][ProductImageType::TYPE_MAIN] = false;

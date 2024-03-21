@@ -21,9 +21,6 @@ class ProductImageImportProcessor extends StepExecutionAwareImportProcessor impl
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function process($items)
     {
         $images = [];

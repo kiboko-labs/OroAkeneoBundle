@@ -11,9 +11,6 @@ class CategoryImportProcessor extends StepExecutionAwareImportProcessor
     /** @var array */
     private $processedIds;
 
-    /**
-     * {@inheritdoc}
-     */
     public function process($item)
     {
         $this->processedIds[$item['code']] = $item['parent'] ?? null;

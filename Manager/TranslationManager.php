@@ -10,7 +10,6 @@ use Oro\Bundle\TranslationBundle\Manager\TranslationManager as BaseTranslationMa
 
 class TranslationManager extends BaseTranslationManager
 {
-
     /**
      * Update existing translation value or create new one if it does not exist
      *
@@ -44,6 +43,7 @@ class TranslationManager extends BaseTranslationManager
         if ((null === $value && null !== $translation) || (null !== $value && null !== $translation)) {
             $translation->setValue($value);
             $this->translations[$cacheKey] = $translation;
+
             return null;
         }
 

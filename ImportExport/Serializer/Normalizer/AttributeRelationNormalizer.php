@@ -10,9 +10,6 @@ class AttributeRelationNormalizer extends ConfigurableEntityNormalizer
 {
     const FIELD_NAME = 'attributeRelations';
 
-    /**
-     * {@inheritdoc}
-     */
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         $result = parent::denormalize($data, $class, $format, $context);

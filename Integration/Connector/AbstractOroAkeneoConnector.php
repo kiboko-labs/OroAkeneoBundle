@@ -68,8 +68,6 @@ abstract class AbstractOroAkeneoConnector extends AbstractConnector
     }
 
     /**
-     * @param array $item
-     *
      * @return string|null
      */
     protected function getUpdatedDate(array $item)

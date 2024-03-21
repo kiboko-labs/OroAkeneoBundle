@@ -26,41 +26,26 @@ class VariantProductConnector extends AbstractOroAkeneoConnector implements Allo
      */
     protected $schemaUpdateFilter;
 
-    /**
-     * {@inheritdoc}
-     */
     public function getLabel(): string
     {
         return 'oro.akeneo.connector.product_variant.label';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getImportEntityFQCN()
     {
         return Product::class;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getImportJobName()
     {
         return self::IMPORT_JOB_NAME;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getType()
     {
         return self::TYPE;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isAllowed(Channel $integration, array $processedConnectorsStatuses): bool
     {
         return !$this->needToUpdateSchema($integration) && $integration->getTransport()->getSyncProducts() === SyncProductsDataProvider::PUBLISHED;
@@ -71,9 +56,6 @@ class VariantProductConnector extends AbstractOroAkeneoConnector implements Allo
         $this->schemaUpdateFilter = $schemaUpdateFilter;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getConnectorSource()
     {
         $iterator = new \AppendIterator();
