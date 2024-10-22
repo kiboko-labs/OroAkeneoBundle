@@ -59,7 +59,7 @@ class AkeneoTransport implements AkeneoTransportInterface
         CurrencyProviderInterface $configProvider,
         AkeneoSearchBuilder $akeneoSearchBuilder,
         FileManager $fileManager,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->clientFactory = $clientFactory;
         $this->configProvider = $configProvider;

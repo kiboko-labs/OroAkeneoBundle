@@ -66,7 +66,7 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
         TranslatorInterface $translator,
         SyncProductsDataProviderInterface $syncProductsDataProvider,
         AkeneoTransportInterface $akeneoTransport,
-        Crypter $crypter
+        Crypter $crypter,
     ) {
         $this->translator = $translator;
         $this->syncProductsDataProvider = $syncProductsDataProvider;

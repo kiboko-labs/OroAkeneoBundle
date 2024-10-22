@@ -335,7 +335,7 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
         array $value,
         string $fallbackField,
         Localization $defaultLocalization,
-        AkeneoSettings $transport
+        AkeneoSettings $transport,
     ): array {
         $result = [];
 
@@ -552,7 +552,7 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
     }
 
     public function setProductVariantFieldValueHandlerRegistry(
-        ProductVariantFieldValueHandlerRegistry $productVariantFieldValueHandlerRegistry
+        ProductVariantFieldValueHandlerRegistry $productVariantFieldValueHandlerRegistry,
     ): void {
         $this->productVariantFieldValueHandlerRegistry = $productVariantFieldValueHandlerRegistry;
     }

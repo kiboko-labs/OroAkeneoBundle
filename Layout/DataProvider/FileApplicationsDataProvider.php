@@ -15,7 +15,7 @@ class FileApplicationsDataProvider extends BaseFileApplicationsDataProvider
 
     public function __construct(
         BaseFileApplicationsDataProvider $applicationsDataProvider,
-        ConfigProvider $configProvider
+        ConfigProvider $configProvider,
     ) {
         $this->applicationsDataProvider = $applicationsDataProvider;
         $this->configProvider = $configProvider;

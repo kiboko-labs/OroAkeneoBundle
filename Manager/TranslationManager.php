@@ -26,7 +26,7 @@ class TranslationManager extends BaseTranslationManager
         $value,
         $locale,
         $domain = self::DEFAULT_DOMAIN,
-        $scope = Translation::SCOPE_SYSTEM
+        $scope = Translation::SCOPE_SYSTEM,
     ) {
         /** @var TranslationRepository $repo */
         $repo = $this->getEntityRepository(Translation::class);

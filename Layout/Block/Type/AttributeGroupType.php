@@ -36,7 +36,7 @@ class AttributeGroupType extends AbstractContainerType
         AttributeRenderRegistry $attributeRenderRegistry,
         AttributeManager $attributeManager,
         AttributeBlockTypeMapperInterface $blockTypeMapper,
-        AbstractContainerType $abstractContainerType
+        AbstractContainerType $abstractContainerType,
     ) {
         $this->attributeRenderRegistry = $attributeRenderRegistry;
         $this->attributeManager = $attributeManager;

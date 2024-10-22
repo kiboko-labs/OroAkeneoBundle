@@ -49,7 +49,7 @@ class BrandDataConverter implements DataConverterInterface, ContextAwareInterfac
         DoctrineHelper $doctrineHelper,
         FieldHelper $fieldHelper,
         EntityConfigManager $entityConfigManager,
-        ConfigManager $configManager
+        ConfigManager $configManager,
     ) {
         $this->doctrineHelper = $doctrineHelper;
         $this->fieldHelper = $fieldHelper;
@@ -154,7 +154,7 @@ class BrandDataConverter implements DataConverterInterface, ContextAwareInterfac
         array $value,
         string $fallbackField,
         Localization $defaultLocalization,
-        AkeneoSettings $transport
+        AkeneoSettings $transport,
     ): array {
         $result = [];
 

@@ -29,7 +29,7 @@ abstract class AbstractIterator implements \Iterator
     public function __construct(
         ResourceCursorInterface $resourceCursor,
         AkeneoPimClientInterface $client,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->resourceCursor = $resourceCursor;
         $this->client = $client;

@@ -16,7 +16,7 @@ class Generator
     public static function generateLabel(
         string $value,
         int $maxLength = self::DEFAULT_LABEL_LENGTH,
-        string $prefix = self::DEFAULT_LABEL_PREFIX
+        string $prefix = self::DEFAULT_LABEL_PREFIX,
     ): string {
         if ($prefix && mb_strlen($value) <= $maxLength && mb_strpos($value, $prefix) === 0) {
             return $value;

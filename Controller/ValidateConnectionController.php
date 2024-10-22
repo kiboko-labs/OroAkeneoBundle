@@ -34,7 +34,7 @@ class ValidateConnectionController extends AbstractController
     public function __construct(
         CurrencyProviderInterface $currencyProvider,
         TranslatorInterface $translator,
-        AkeneoTransportInterface $akeneoTransport
+        AkeneoTransportInterface $akeneoTransport,
     ) {
         $this->currencyProvider = $currencyProvider;
         $this->translator = $translator;

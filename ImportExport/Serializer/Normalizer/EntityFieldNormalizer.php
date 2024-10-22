@@ -27,6 +27,9 @@ class EntityFieldNormalizer extends BaseEntityFieldNormalizer
             'label' => [
                 self::CONFIG_TYPE => self::TYPE_STRING,
             ],
+            'priority' => [
+                self::CONFIG_TYPE => self::TYPE_INTEGER,
+            ],
             'is_default' => [
                 self::CONFIG_TYPE => self::TYPE_BOOLEAN,
             ],

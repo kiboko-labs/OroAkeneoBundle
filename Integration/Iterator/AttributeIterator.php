@@ -27,7 +27,7 @@ class AttributeIterator extends AbstractIterator
         ResourceCursorInterface $resourceCursor,
         AkeneoPimClientInterface $client,
         LoggerInterface $logger,
-        $attributesFilter = []
+        $attributesFilter = [],
     ) {
         $this->attributesFilter = $attributesFilter;
         $this->attributes = new \ArrayIterator();
