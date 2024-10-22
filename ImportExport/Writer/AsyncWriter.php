@@ -49,7 +49,7 @@ class AsyncWriter implements
         MessageProducerInterface $messageProducer,
         DoctrineHelper $doctrineHelper,
         OptionalListenerManager $optionalListenerManager,
-        AdditionalOptionalListenerManager $additionalOptionalListenerManager
+        AdditionalOptionalListenerManager $additionalOptionalListenerManager,
     ) {
         $this->messageProducer = $messageProducer;
         $this->doctrineHelper = $doctrineHelper;

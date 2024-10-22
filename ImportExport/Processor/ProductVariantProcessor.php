@@ -43,7 +43,7 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
         ManagerRegistry $registry,
         ImportStrategyHelper $strategyHelper,
         ContextRegistry $contextRegistry,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         $this->registry = $registry;
         $this->strategyHelper = $strategyHelper;

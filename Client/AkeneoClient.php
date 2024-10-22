@@ -46,7 +46,7 @@ class AkeneoClient implements AkeneoPimClientInterface
     protected array $apiRegistry = [];
 
     public function __construct(
-        AkeneoPimClientInterface $decoratedClient
+        AkeneoPimClientInterface $decoratedClient,
     ) {
         $this->decoratedClient = $decoratedClient;
     }

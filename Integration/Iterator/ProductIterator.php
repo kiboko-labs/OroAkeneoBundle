@@ -33,7 +33,7 @@ class ProductIterator extends AbstractIterator
         array $familyVariants = [],
         array $measureFamilies = [],
         array $attributeMapping = [],
-        ?string $alternativeAttribute = null
+        ?string $alternativeAttribute = null,
     ) {
         parent::__construct($resourceCursor, $client, $logger);
 

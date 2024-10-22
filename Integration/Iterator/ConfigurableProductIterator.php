@@ -14,7 +14,7 @@ class ConfigurableProductIterator extends AbstractIterator
         ResourceCursorInterface $resourceCursor,
         AkeneoPimClientInterface $client,
         LoggerInterface $logger,
-        array $attributeMapping = []
+        array $attributeMapping = [],
     ) {
         parent::__construct($resourceCursor, $client, $logger);
 

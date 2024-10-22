@@ -18,7 +18,7 @@ final class ImportFromAkeneoDiscovery implements ProductUnitDiscoveryInterface
 
     public function __construct(
         ConfigManager $configManager,
-        ProductUnitsProvider $productUnitsProvider
+        ProductUnitsProvider $productUnitsProvider,
     ) {
         $this->productUnitsProvider = $productUnitsProvider;
         $this->configManager = $configManager;

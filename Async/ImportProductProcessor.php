@@ -41,7 +41,7 @@ class ImportProductProcessor implements MessageProcessorInterface, TopicSubscrib
         JobRunner $jobRunner,
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger,
-        SyncProcessorRegistry $syncProcessorRegistry
+        SyncProcessorRegistry $syncProcessorRegistry,
     ) {
         $this->doctrineHelper = $doctrineHelper;
         $this->jobRunner = $jobRunner;

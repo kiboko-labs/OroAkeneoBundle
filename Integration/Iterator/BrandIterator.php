@@ -16,7 +16,7 @@ class BrandIterator extends AbstractIterator
         ResourceCursorInterface $resourceCursor,
         AkeneoPimClientInterface $client,
         LoggerInterface $logger,
-        AkeneoTransportInterface $akeneoTransport
+        AkeneoTransportInterface $akeneoTransport,
     ) {
         parent::__construct($resourceCursor, $client, $logger);
 

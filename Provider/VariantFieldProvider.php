@@ -23,7 +23,7 @@ class VariantFieldProvider extends BaseVariantFieldProvider
     public function __construct(
         BaseVariantFieldProvider $variantFieldProvider,
         AttributeManager $attributeManager,
-        BaseSerializedFieldProvider $serializedFieldProvider
+        BaseSerializedFieldProvider $serializedFieldProvider,
     ) {
         $this->variantFieldProvider = $variantFieldProvider;
         $this->attributeManager = $attributeManager;

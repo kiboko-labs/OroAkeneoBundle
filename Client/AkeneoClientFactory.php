@@ -53,7 +53,7 @@ class AkeneoClientFactory
     public function __construct(
         DoctrineHelper $doctrineHelper,
         Crypter $crypter,
-        AkeneoClientBuilder $clientBuilder
+        AkeneoClientBuilder $clientBuilder,
     ) {
         $this->doctrineHelper = $doctrineHelper;
         $this->crypter = $crypter;

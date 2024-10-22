@@ -22,7 +22,7 @@ class DeletedAttributeRelationListener extends BaseListener
     public function __construct(
         MessageProducerInterface $messageProducer,
         DeletedAttributeProviderInterface $deletedAttributeProvider,
-        Inflector $inflector
+        Inflector $inflector,
     ) {
         parent::__construct($messageProducer, $deletedAttributeProvider, $inflector);
 

@@ -51,7 +51,7 @@ class CumulativeWriter implements
         ItemWriterInterface $writer,
         OptionalListenerManager $optionalListenerManager,
         ManagerRegistry $registry,
-        AdditionalOptionalListenerManager $additionalOptionalListenerManager
+        AdditionalOptionalListenerManager $additionalOptionalListenerManager,
     ) {
         $this->writer = $writer;
         $this->optionalListenerManager = $optionalListenerManager;

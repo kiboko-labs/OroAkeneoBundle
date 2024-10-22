@@ -16,7 +16,7 @@ class DefaultOwnerHelper
 
     public function __construct(
         DoctrineHelper $doctrineHelper,
-        OwnershipMetadataProviderInterface $ownershipMetadataProvider
+        OwnershipMetadataProviderInterface $ownershipMetadataProvider,
     ) {
         $this->doctrineHelper = $doctrineHelper;
         $this->ownershipMetadataProvider = $ownershipMetadataProvider;

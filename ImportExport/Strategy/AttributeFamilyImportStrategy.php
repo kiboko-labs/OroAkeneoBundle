@@ -154,7 +154,7 @@ class AttributeFamilyImportStrategy extends LocalizedFallbackValueAwareStrategy 
 
     protected function getAttributeGroupRelation(
         AttributeFamily $attributeFamily,
-        FieldConfigModel $attribute
+        FieldConfigModel $attribute,
     ): ?AttributeGroupRelation {
         foreach ($attributeFamily->getAttributeGroups() as $attributeGroup) {
             foreach ($attributeGroup->getAttributeRelations() as $relation) {
@@ -176,7 +176,7 @@ class AttributeFamilyImportStrategy extends LocalizedFallbackValueAwareStrategy 
         $entity,
         $existingEntity,
         $itemData = null,
-        array $excludedFields = []
+        array $excludedFields = [],
     ) {
         parent::importExistingEntity($entity, $existingEntity, $itemData, $excludedFields);
 
