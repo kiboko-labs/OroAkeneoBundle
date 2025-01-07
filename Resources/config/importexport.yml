@@ -78,7 +78,7 @@ services:
     parent: oro_integration.importexport.processor.import
     public: true
     calls:
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
       - [ setDataConverter, [ '@oro_akeneo.importexport.data_converter.category' ] ]
       - [ setStrategy, [ '@oro_akeneo.importexport.strategy.category' ] ]
       - [ setEntityName, [ 'Oro\Bundle\CatalogBundle\Entity\Category' ] ]
@@ -90,7 +90,7 @@ services:
     arguments:
       - '@doctrine'
     calls:
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.importexport.processor.import.product_variant:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Processor\ProductVariantProcessor'
@@ -117,7 +117,7 @@ services:
     arguments:
       - '@doctrine'
     calls:
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.integration.connector.attribute:
     class: 'Oro\Bundle\AkeneoBundle\Integration\Connector\AttributeConnector'
@@ -154,7 +154,7 @@ services:
       - [ setEntityConfigModelClassName, [ 'Oro\Bundle\ProductBundle\Entity\Product' ] ]
       - [ setConfigManager, [ '@oro_entity_config.config_manager' ] ]
       - [ setFieldHelper, [ '@oro_entity.helper.field_helper' ] ]
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.integration.connector.attribute_family:
     class: 'Oro\Bundle\AkeneoBundle\Integration\Connector\AttributeFamilyConnector'
@@ -188,7 +188,7 @@ services:
     parent: oro_integration.importexport.processor.import
     public: true
     calls:
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
       - [ setDataConverter, [ '@oro_akeneo.importexport.data_converter.attribute_family' ] ]
       - [ setStrategy, [ '@oro_akeneo.importexport.strategy.attribute_family' ] ]
       - [ setEntityName, [ 'Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily' ] ]
@@ -201,7 +201,7 @@ services:
     arguments:
       - '@doctrine'
     calls:
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.integration.connector.brand:
     class: 'Oro\Bundle\AkeneoBundle\Integration\Connector\BrandConnector'
@@ -221,7 +221,7 @@ services:
     calls:
       - [ setManagerRegistry, [ "@doctrine" ] ]
       - [ setSchemaUpdateFilter, [ '@oro_akeneo.placeholder.schema_update_filter' ] ]
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
     tags:
       - { name: oro_integration.connector, type: product, channel_type: oro_akeneo }
 
@@ -233,7 +233,7 @@ services:
       - '@oro_integration.provider.connector_context_mediator'
     calls:
       - [ setSchemaUpdateFilter, [ '@oro_akeneo.placeholder.schema_update_filter' ] ]
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
       - [ setCache, [ '@oro_akeneo.configurable_cache' ] ]
     tags:
       - { name: oro_integration.connector, type: configurable_product, channel_type: oro_akeneo }
@@ -258,7 +258,7 @@ services:
       - [ setTranslateUsingLocale, [ false ] ]
       - [ setEntityConfigManager, [ '@oro_entity_config.config_manager' ] ]
       - [ setDateTimeFormatter, [ '@oro_locale.formatter.date_time' ] ]
-      - [ setProductUnitsProvider, [ '@oro_product.provider.product_units_provider' ] ]
+      - [ setProductUnitDiscovery, [ '@oro_akeneo.product_unit.discovery' ]]
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
       - [ setProductVariantFieldValueHandlerRegistry, [ '@oro_product.product_variant_field.registry.product_variant_field_value_handler_registry' ] ]
       - [ setCodePrefix, ['%oro_akeneo.importexport.code_prefix%']]
@@ -299,7 +299,6 @@ services:
     parent: oro_pricing.importexport.data_converter.product_price
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\DataConverter\ProductPriceDataConverter'
     calls:
-      - [ setPriceListProvider, [ '@oro_pricing.provider.price_list_provider' ] ]
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
 
   # Import processor Price
@@ -323,7 +322,7 @@ services:
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
       - [ setEnumSynchronizer, [ '@oro_akeneo.enum_synchronizer' ] ]
       - [ setAttributeTypeRegistry, [ '@oro_entity_config.registry.attribute_type' ] ]
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.importexport.writer.cumulative.persistent_batch_writer:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Writer\CumulativeWriter'
@@ -341,7 +340,7 @@ services:
       - '@oro_platform.optional_listeners.manager'
       - '@oro_akeneo.event_listener.additional_optional_listeners_manager'
     calls:
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.configurable_cache' ] ]
 
   oro_akeneo.importexport.writer.empty:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Writer\EmptyWriter'
@@ -354,14 +353,15 @@ services:
       - '@oro_platform.optional_listeners.manager'
       - '@oro_akeneo.event_listener.additional_optional_listeners_manager'
     calls:
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setConfigurableMemoryCacheProvider, [ '@oro_akeneo.importexport.configurable_cache' ] ]
       - [ setCache, [ '@oro_akeneo.configurable_cache' ] ]
 
   oro_akeneo.importexport.cache:
-    parent: oro_cache.array_cache
-    public: false
-    calls:
-      - [ setNamespace, [ 'oro_akeneo' ] ]
+    parent: oro.cache.provider.memory_cache
+
+  oro_akeneo.importexport.configurable_cache:
+    parent: oro.cache.provider.memory_cache
 
   oro_akeneo.importexport.reader.category:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Reader\CategoryReader'
@@ -376,14 +376,14 @@ services:
       - '@oro_importexport.context_registry'
     calls:
       - [ setAkeneoFileManager, [ '@oro_akeneo.integration.akeneo_file_manager' ] ]
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.importexport.reader.price:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Reader\ProductPriceReader'
     arguments:
       - '@oro_importexport.context_registry'
     calls:
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.importexport.reader.product_image:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Reader\ProductImageReader'
@@ -392,14 +392,14 @@ services:
     calls:
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
       - [ setAkeneoFileManager, [ '@oro_akeneo.integration.akeneo_file_manager' ] ]
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.importexport.reader.product_variant:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Reader\ProductVariantReader'
     arguments:
       - '@oro_importexport.context_registry'
     calls:
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
 
   oro_akeneo.importexport.reader.category_parent:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Reader\CategoryParentReader'
@@ -443,6 +443,16 @@ services:
       - '@oro_entity.helper.field_helper'
       - '@oro_entity_config.config_manager'
       - '@oro_config.manager'
+
+  oro_akeneo.importexport.event_listener.import_sluggable_entity:
+    class: 'Oro\Bundle\AkeneoBundle\ImportExport\EventListener\ImportSluggableEntityListener'
+    parent: oro_redirect.event_listener.import_sluggable_entity
+    decorates: oro_redirect.event_listener.import_sluggable_entity
+    calls:
+      - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
+    tags:
+        - { name: kernel.event_listener, event: oro_importexport.strategy.process_before, method: onProcessBefore }
+        - { name: kernel.event_listener, event: oro_importexport.strategy.process_after, method: onProcessAfter }
 
   oro_akeneo.importexport.event_listener.file_normalizer:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\EventListener\FileNormalizerListener'

@@ -66,7 +66,7 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
         TranslatorInterface $translator,
         SyncProductsDataProviderInterface $syncProductsDataProvider,
         AkeneoTransportInterface $akeneoTransport,
-        Crypter $crypter,
+        Crypter $crypter
     ) {
         $this->translator = $translator;
         $this->syncProductsDataProvider = $syncProductsDataProvider;
@@ -233,13 +233,13 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                     'class'         => Category::class,
                     'required'      => false,
                     'placeholder'   => 'oro.akeneo.integration.settings.root_category.placeholder',
-                    'query_builder' => static function (NestedTreeRepository $er) {
+                    'query_builder' => function (NestedTreeRepository $er) {
                         return $er->getChildrenQueryBuilder()
                             ->orderBy('node.root')
                             ->addOrderBy('node.left')
                             ->andWhere('node.akeneo_code IS NULL');
                     },
-                    'choice_label'  => static function (Category $category) {
+                    'choice_label'  => function (Category $category) {
                         $label = $category->getTitle();
                         while ($parentCategory = $category->getParentCategory()) {
                             $label = sprintf('%s / %s', $parentCategory->getTitle(), $label);
@@ -390,7 +390,7 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                 'label'             => false,
                 'multiple'          => true,
                 'choices'           => array_combine($data->getAkeneoLocalesList() ?? [], $data->getAkeneoLocalesList() ?? []),
-                'choice_label'      => static function ($choice) { return Locales::getName($choice); },
+                'choice_label'      => function ($choice) { return Locales::getName($choice); },
             ]
         );
 
@@ -472,7 +472,7 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                     'label'             => false,
                     'multiple'          => true,
                     'choices'           => array_combine($localesList, $localesList),
-                    'choice_label'      => static function ($choice) { return Locales::getName($choice); },
+                    'choice_label'      => function ($choice) { return Locales::getName($choice); },
                 ]
             );
 

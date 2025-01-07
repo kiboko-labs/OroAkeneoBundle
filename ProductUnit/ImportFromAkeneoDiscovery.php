@@ -52,6 +52,7 @@ final class ImportFromAkeneoDiscovery implements ProductUnitDiscoveryInterface
             'unit'      => ['code' => $unit],
             'precision' => $precision,
             'sell'      => true,
+            'product'   => ['sku' => $importedRecord['sku']],
         ];
     }
 }

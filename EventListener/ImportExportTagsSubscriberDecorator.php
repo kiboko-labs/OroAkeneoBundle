@@ -39,6 +39,9 @@ class ImportExportTagsSubscriberDecorator implements
         )($tagImportManager);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public static function getSubscribedEvents()
     {
         return ImportExportTagsSubscriber::getSubscribedEvents();

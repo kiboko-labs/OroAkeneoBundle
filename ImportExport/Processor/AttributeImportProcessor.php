@@ -2,6 +2,8 @@
 
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Processor;
 
+use Oro\Bundle\CacheBundle\Provider\MemoryCacheProviderAwareInterface;
+use Oro\Bundle\CacheBundle\Provider\MemoryCacheProviderAwareTrait;
 use Oro\Bundle\EntityBundle\Helper\FieldHelper;
 use Oro\Bundle\EntityConfigBundle\Config\ConfigManager;
 use Oro\Bundle\EntityConfigBundle\Entity\FieldConfigModel;
@@ -11,9 +13,9 @@ use Oro\Bundle\IntegrationBundle\ImportExport\Processor\StepExecutionAwareImport
 /**
  * Converts data to import format, processes entity.
  */
-class AttributeImportProcessor extends StepExecutionAwareImportProcessor
+class AttributeImportProcessor extends StepExecutionAwareImportProcessor implements MemoryCacheProviderAwareInterface
 {
-    use CacheProviderAwareProcessor;
+    use MemoryCacheProviderAwareTrait;
 
     /** @var string */
     private $entityConfigModelClassName;

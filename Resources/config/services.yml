@@ -107,7 +107,7 @@ services:
     calls:
       - [setLogger, ["@logger"]]
 
-  oro_akeneo.async.export_contacts_status_update_processor:
+  oro_akeneo.async.import_product_processor:
     class: 'Oro\Bundle\AkeneoBundle\Async\ImportProductProcessor'
     arguments:
       - '@oro_entity.doctrine_helper'
@@ -116,12 +116,16 @@ services:
       - '@logger'
       - '@oro_integration.processor_registry'
     calls:
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
     tags:
-      - { name: 'oro_message_queue.client.message_processor', topicName: 'oro.integration.akeneo.product' }
+      - { name: 'oro_message_queue.client.message_processor', topicName: !php/const Oro\Bundle\AkeneoBundle\Async\Topics::IMPORT_PRODUCTS }
 
   oro_akeneo.client_builder:
     class: Oro\Bundle\AkeneoBundle\Client\AkeneoClientBuilder
+
+  Oro\Bundle\AkeneoBundle\Async\Topics:
+    tags:
+      - { name: oro_message_queue.topic }
 
   oro_akeneo.config_manager:
     class: 'Oro\Bundle\AkeneoBundle\Config\ConfigManager'
@@ -178,7 +182,7 @@ services:
     decorates: oro_attachment.layout.data_provider.file_applications
     arguments:
       - '@oro_akeneo.layout.data_provider.file_applications.inner'
-      - '@oro_entity_config.provider.attribute'
+      - '@oro_entity_config.provider.frontend'
 
   oro_akeneo.layout.block_type.attribute_group:
     class: 'Oro\Bundle\AkeneoBundle\Layout\Block\Type\AttributeGroupType'
@@ -406,3 +410,9 @@ services:
     parent: oro.data.cache
     tags:
       - { name: 'cache.pool', namespace: 'oro_akeneo_configurable_cache' }
+
+  oro_akeneo.product_unit.discovery:
+    class: Oro\Bundle\AkeneoBundle\ProductUnit\ImportFromAkeneoDiscovery
+    arguments:
+      - '@oro_config.manager'
+      - '@oro_product.provider.product_units_provider'

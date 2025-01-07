@@ -15,7 +15,6 @@ jobs:
 
     - name: Install dependencies
       run: php -r "copy('https://cs.symfony.com/download/php-cs-fixer-v3.phar', 'php-cs-fixer.phar');"
-      
-    - name: Run php-cs-fixer 
-      run: php php-cs-fixer.phar fix --dry-run --config=.php_cs.php --cache-file=.php_cs.cache --verbose --show-progress=dots --diff --allow-risky=yes
 
+    - name: Run php-cs-fixer
+      run: php php-cs-fixer.phar fix --dry-run --config=.php_cs.php --cache-file=.php_cs.cache --verbose --show-progress=dots --diff --allow-risky=yes

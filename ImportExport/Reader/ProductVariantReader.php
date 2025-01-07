@@ -2,19 +2,19 @@
 
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Reader;
 
-use Oro\Bundle\AkeneoBundle\Tools\CacheProviderTrait;
+use Oro\Bundle\CacheBundle\Provider\MemoryCacheProviderAwareInterface;
+use Oro\Bundle\CacheBundle\Provider\MemoryCacheProviderAwareTrait;
 use Oro\Bundle\ImportExportBundle\Context\ContextInterface;
 
-class ProductVariantReader extends IteratorBasedReader
+class ProductVariantReader extends IteratorBasedReader implements MemoryCacheProviderAwareInterface
 {
-    use CacheProviderTrait;
+    use MemoryCacheProviderAwareTrait;
 
     protected function initializeFromContext(ContextInterface $context)
     {
         parent::initializeFromContext($context);
 
-        $cache = $this->cacheProvider->fetch('product_variants');
-        $variants = $cache !== false ? $cache : [];
+        $variants = $this->memoryCacheProvider->get('akeneo_variants') ?? [];
 
         $this->stepExecution->setReadCount(count($variants));
 

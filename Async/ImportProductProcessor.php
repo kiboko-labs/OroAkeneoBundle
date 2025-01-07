@@ -3,7 +3,8 @@
 namespace Oro\Bundle\AkeneoBundle\Async;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Oro\Bundle\AkeneoBundle\Tools\CacheProviderTrait;
+use Oro\Bundle\CacheBundle\Provider\MemoryCacheProviderAwareInterface;
+use Oro\Bundle\CacheBundle\Provider\MemoryCacheProviderAwareTrait;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\IntegrationBundle\Authentication\Token\IntegrationTokenAwareTrait;
 use Oro\Bundle\IntegrationBundle\Entity\Channel as Integration;
@@ -19,10 +20,10 @@ use Oro\Component\MessageQueue\Util\JSON;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ImportProductProcessor implements MessageProcessorInterface, TopicSubscriberInterface
+class ImportProductProcessor implements MessageProcessorInterface, TopicSubscriberInterface, MemoryCacheProviderAwareInterface
 {
-    use CacheProviderTrait;
     use IntegrationTokenAwareTrait;
+    use MemoryCacheProviderAwareTrait;
 
     /** @var DoctrineHelper */
     private $doctrineHelper;
@@ -41,7 +42,7 @@ class ImportProductProcessor implements MessageProcessorInterface, TopicSubscrib
         JobRunner $jobRunner,
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger,
-        SyncProcessorRegistry $syncProcessorRegistry,
+        SyncProcessorRegistry $syncProcessorRegistry
     ) {
         $this->doctrineHelper = $doctrineHelper;
         $this->jobRunner = $jobRunner;
@@ -50,11 +51,17 @@ class ImportProductProcessor implements MessageProcessorInterface, TopicSubscrib
         $this->syncProcessorRegistry = $syncProcessorRegistry;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedTopics()
     {
         return [Topics::IMPORT_PRODUCTS];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function process(MessageInterface $message, SessionInterface $session)
     {
         $body = JSON::decode($message->getBody());
@@ -109,7 +116,14 @@ class ImportProductProcessor implements MessageProcessorInterface, TopicSubscrib
                     return false;
                 }
 
-                $this->cacheProvider->save('akeneo', $fieldsChanges->getChangedFields());
+                foreach ($fieldsChanges->getChangedFields() as $key => $changes) {
+                    $this->memoryCacheProvider->get(
+                        'akeneo_' . $key,
+                        function () use (&$changes) {
+                            return $changes;
+                        }
+                    );
+                }
 
                 $status = $processor->process(
                     $integration,

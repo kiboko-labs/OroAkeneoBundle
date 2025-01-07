@@ -12,6 +12,7 @@ class DoctrineSubscriber implements EventSubscriber, ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
+    /** {@inheritdoc} */
     public function getSubscribedEvents()
     {
         return [

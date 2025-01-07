@@ -4,17 +4,12 @@ namespace Oro\Bundle\AkeneoBundle\ImportExport\DataConverter;
 
 use Oro\Bundle\AkeneoBundle\ImportExport\AkeneoIntegrationTrait;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
+use Oro\Bundle\PricingBundle\Entity\PriceList;
 use Oro\Bundle\PricingBundle\ImportExport\DataConverter\ProductPriceDataConverter as BaseProductPriceDataConverter;
-use Oro\Bundle\PricingBundle\Provider\PriceListProvider;
 
 class ProductPriceDataConverter extends BaseProductPriceDataConverter
 {
     use AkeneoIntegrationTrait;
-
-    /**
-     * @var PriceListProvider
-     */
-    protected $priceListProvider;
 
     /** @var DoctrineHelper */
     protected $doctrineHelper;
@@ -41,15 +36,10 @@ class ProductPriceDataConverter extends BaseProductPriceDataConverter
         $transport = $this->getTransport();
 
         if (!$transport->getPriceList()) {
-            return $this->priceListProvider->getDefaultPriceListId();
+            return $this->getDefaultPriceListId();
         }
 
         return $transport->getPriceList()->getId();
-    }
-
-    public function setPriceListProvider(PriceListProvider $priceListProvider): void
-    {
-        $this->priceListProvider = $priceListProvider;
     }
 
     protected function getHeaderConversionRules()
@@ -60,5 +50,23 @@ class ProductPriceDataConverter extends BaseProductPriceDataConverter
             'currency' => 'currency',
             'price_list_id' => 'priceList:id',
         ];
+    }
+
+    public function getDefaultPriceList(): ?PriceList
+    {
+        $defaultPriceListId = $this->getDefaultPriceListId();
+        if (!$defaultPriceListId) {
+            return null;
+        }
+
+        return $this->doctrineHelper
+            ->getEntityManagerForClass(PriceList::class)
+            ->getRepository(PriceList::class)
+            ->find($defaultPriceListId);
+    }
+
+    public function getDefaultPriceListId(): ?int
+    {
+        return $this->configManager->get('oro_pricing.default_price_list');
     }
 }

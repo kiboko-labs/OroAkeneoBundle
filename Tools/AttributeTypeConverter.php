@@ -25,6 +25,9 @@ class AttributeTypeConverter
         'akeneo_reference_entity_collection' => 'multiEnum',
     ];
 
+    /**
+     * @return string
+     */
     public static function convert(string $type): ?string
     {
         return self::TYPE_MAPPING[mb_strtolower($type)] ?? null;

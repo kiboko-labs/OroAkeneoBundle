@@ -1,5 +1,10 @@
-
 # Akeneo PIM OroCommerce Connector
+
+## New maintainer
+
+We would like to inform you about the recent transfer of repository maintenance responsibility from OroInc to Creativestyle. This transition aims to enhance the development and support of OroInc projects, providing a seamless experience for users and contributors. 
+
+* [creativestyle/OroAkeneoBundle](https://github.com/creativestyle/OroAkeneoBundle)
 
 ## Short overview
 This extension allows you to connect [OroCommerce Enterprise](https://oroinc.com/b2b-ecommerce/) with [Akeneo PIM Enterprise](https://www.akeneo.com/) and use the latter’s rich capabilities for product information management with your OroCommerce-powered web store. Combine personalized B2B buying experience with compelling product experience to maximize your content marketing ROI and stay ahead of the B2B eCommerce game.
@@ -22,8 +27,10 @@ With this extension, you will be able to sync the following data from Akeneo to 
 |    1.6    |  EOL   |     1.6     | 2.3, 3.2, 4.0* |
 |    3.1    |  EOL   |     3.1     | 2.3, 3.2, 4.0* |
 |    4.1    |  EOL   |     4.1     | 2.3, 3.2, 4.0* |
-|    4.2    |  2022  |     4.2     | 3.2, 4.0, 5.0  |
+|    4.2    |  EOL   |     4.2     | 3.2, 4.0, 5.0  |
 |    5.0    |  2023  |     5.0     | 5.0+           |
+|    5.1    |  2024  |     5.1     | 5.0+           |
+
 ** Akeneo supported using older client versions, new features are not available.**
 
 ## Installation
@@ -54,6 +61,20 @@ composer require "oro/commerce-akeneo:5.0.*"
 ## OroCloud
 
 [Application Schema Update](https://doc.oroinc.com/cloud/maintenance/basic-use/#application-schema-update)
+
+Add temporary files cleanup using [Scheduled Tasks](https://doc.oroinc.com/cloud/maintenance/scheduled-tasks/#orocloud-maintenance-scheduled-tasks)
+
+```
+orocloud_options:
+  schedule:
+    clear_akeneo_temp_files:
+      command: 'find /mnt/ocom/app/www/var/data/importexport/akeneo/ -type f -mtime +7 -delete'
+      minute: '0'
+      hour: '7'
+      month: '*'
+      monthday: '*/7'
+      weekday: '*'
+```
 
 ## Dataset
 

@@ -8,6 +8,9 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class AttributeCodeValidator extends ConstraintValidator
 {
+    /**
+     * {@inheritdoc}
+     */
     public function validate($value, Constraint $constraint)
     {
         /* @var AttributeCodeConstraint $constraint */
