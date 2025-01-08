@@ -21,17 +21,17 @@ class ImportSluggableEntityListener extends BaseListener
         $this->doctrineHelper = $doctrineHelper;
     }
 
-     public function onProcessAfter(StrategyEvent $event): void
-     {
-         $entity = $event->getEntity();
+    public function onProcessAfter(StrategyEvent $event): void
+    {
+        $entity = $event->getEntity();
 
-         if ($entity instanceof SluggableInterface && $entity instanceof UpdatedAtAwareInterface) {
-             $uow = $this->doctrineHelper->getEntityManager($entity)->getUnitOfWork();
-             if (!$uow->getEntityChangeSet($entity)) {
-                 return;
-             }
+        if ($entity instanceof SluggableInterface && $entity instanceof UpdatedAtAwareInterface) {
+            $uow = $this->doctrineHelper->getEntityManager($entity)->getUnitOfWork();
+            if (!$uow->getEntityChangeSet($entity)) {
+                return;
+            }
 
-             $entity->setUpdatedAt(new \DateTime('now', new \DateTimeZone('UTC')));
-         }
-     }
+            $entity->setUpdatedAt(new \DateTime('now', new \DateTimeZone('UTC')));
+        }
+    }
 }

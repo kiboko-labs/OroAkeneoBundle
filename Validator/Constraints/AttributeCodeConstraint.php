@@ -14,17 +14,11 @@ class AttributeCodeConstraint extends Constraint
      */
     public $message = 'oro.akeneo.validator.attribute_code.message';
 
-    /**
-     * {@inheritdoc}
-     */
     public function getTargets()
     {
         return self::CLASS_CONSTRAINT;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function validatedBy()
     {
         return 'oro_akeneo.attribute_code_validator';

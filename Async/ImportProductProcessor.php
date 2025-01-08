@@ -42,7 +42,7 @@ class ImportProductProcessor implements MessageProcessorInterface, TopicSubscrib
         JobRunner $jobRunner,
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger,
-        SyncProcessorRegistry $syncProcessorRegistry
+        SyncProcessorRegistry $syncProcessorRegistry,
     ) {
         $this->doctrineHelper = $doctrineHelper;
         $this->jobRunner = $jobRunner;
@@ -51,17 +51,11 @@ class ImportProductProcessor implements MessageProcessorInterface, TopicSubscrib
         $this->syncProcessorRegistry = $syncProcessorRegistry;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedTopics()
     {
         return [Topics::IMPORT_PRODUCTS];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function process(MessageInterface $message, SessionInterface $session)
     {
         $body = JSON::decode($message->getBody());
@@ -119,7 +113,7 @@ class ImportProductProcessor implements MessageProcessorInterface, TopicSubscrib
                 foreach ($fieldsChanges->getChangedFields() as $key => $changes) {
                     $this->memoryCacheProvider->get(
                         'akeneo_' . $key,
-                        function () use (&$changes) {
+                        static function () use (&$changes) {
                             return $changes;
                         }
                     );

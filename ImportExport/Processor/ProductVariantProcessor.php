@@ -62,7 +62,6 @@ class ProductVariantProcessor implements ProcessorInterface, StepExecutionAwareI
     /**
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @param mixed $items
      */
     public function process($items)
     {

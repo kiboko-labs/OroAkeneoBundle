@@ -46,7 +46,7 @@ class SyncIntegrationProcessor implements MessageProcessorInterface, ContainerAw
         ManagerRegistry $doctrine,
         TokenStorageInterface $tokenStorage,
         SyncProcessorRegistry $syncProcessorRegistry,
-        JobRunner $jobRunner
+        JobRunner $jobRunner,
     ) {
         $this->doctrine = $doctrine;
         $this->tokenStorage = $tokenStorage;

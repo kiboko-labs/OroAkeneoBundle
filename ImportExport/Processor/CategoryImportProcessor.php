@@ -14,14 +14,14 @@ class CategoryImportProcessor extends StepExecutionAwareImportProcessor implemen
     {
         $this->memoryCacheProvider->get(
             'category_parent_' . $item['code'],
-            function () use ($item) {
+            static function () use ($item) {
                 return $item['parent'] ?? null;
             }
         );
 
         $this->memoryCacheProvider->get(
             'category_' . $item['code'],
-            function () {
+            static function () {
                 return true;
             }
         );

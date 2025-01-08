@@ -83,7 +83,7 @@ class ConfigurableProductConnector extends AbstractConnector implements Connecto
         $now = time();
         $this->memoryCacheProvider->get(
             'time',
-            function () use ($now) {
+            static function () use ($now) {
                 return $now;
             }
         );

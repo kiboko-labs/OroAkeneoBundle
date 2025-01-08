@@ -39,9 +39,6 @@ class ProductTypeExtension extends AbstractTypeExtension
         $this->fieldHelper = $fieldHelper;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getExtendedTypes(): iterable
     {
         return [ProductType::class];

@@ -56,7 +56,7 @@ class AkeneoLocaleType extends AbstractType implements LoggerAwareInterface
                 ChoiceType::class,
                 [
                     'choices' => array_combine($this->codes, $this->codes),
-                    'choice_label' => function ($choice) { return Locales::getName($choice); },
+                    'choice_label' => static function ($choice) { return Locales::getName($choice); },
                     'label' => false,
                     'constraints' => [
                         new NotBlank(),
@@ -107,7 +107,7 @@ class AkeneoLocaleType extends AbstractType implements LoggerAwareInterface
                 ChoiceType::class,
                 [
                     'choices' => array_combine($this->codes, $this->codes),
-                    'choice_label' => function ($choice) { return Locales::getName($choice); },
+                    'choice_label' => static function ($choice) { return Locales::getName($choice); },
                 ]
             );
     }
@@ -124,7 +124,7 @@ class AkeneoLocaleType extends AbstractType implements LoggerAwareInterface
                     ChoiceType::class,
                     [
                         'choices' => array_combine($this->codes, $this->codes),
-                        'choice_label' => function ($choice) { return Locales::getName($choice); },
+                        'choice_label' => static function ($choice) { return Locales::getName($choice); },
                     ]
                 );
 

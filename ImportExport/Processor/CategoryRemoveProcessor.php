@@ -29,7 +29,7 @@ class CategoryRemoveProcessor implements ProcessorInterface, MemoryCacheProvider
         $id = $item->getId();
         $this->memoryCacheProvider->get(
             'category_id_' . $item->getAkeneoCode(),
-            function () use ($id) {
+            static function () use ($id) {
                 return $id;
             }
         );

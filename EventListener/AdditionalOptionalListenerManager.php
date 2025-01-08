@@ -10,7 +10,7 @@ class AdditionalOptionalListenerManager
     private $additionalOptionalListeners = [];
 
     public function addAdditionalOptionalListener(
-        AdditionalOptionalListenerInterface $additionalOptionalListener
+        AdditionalOptionalListenerInterface $additionalOptionalListener,
     ): void {
         $this->additionalOptionalListeners[] = $additionalOptionalListener;
     }

@@ -20,7 +20,7 @@ class AttributeFamilyImportProcessor extends StepExecutionAwareImportProcessor i
             $code = AttributeFamilyCodeGenerator::generate($item['code'], $this->codePrefix);
             $this->memoryCacheProvider->get(
                 'attribute_family_' . $code,
-                function () use ($code) {
+                static function () use ($code) {
                     return $code;
                 }
             );

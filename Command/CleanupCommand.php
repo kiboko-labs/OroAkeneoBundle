@@ -94,10 +94,10 @@ class CleanupCommand extends Command implements
         $iterator = new BufferedIdentityQueryResultIterator($jqb->getQuery());
 
         $result = 0;
-        $iterator->setPageLoadedCallback(function (array $rows) use ($qb, &$result): array {
+        $iterator->setPageLoadedCallback(static function (array $rows) use ($qb, &$result): array {
             $ids = array_column($rows, 'id');
 
-            $result = $result + $qb->setParameter('ids', $ids)->getQuery()->execute();
+            $result += $qb->setParameter('ids', $ids)->getQuery()->execute();
 
             return $ids;
         });

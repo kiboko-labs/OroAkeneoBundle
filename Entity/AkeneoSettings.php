@@ -472,9 +472,6 @@ class AkeneoSettings extends Transport
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getToken(): ?string
     {
         return $this->token;
@@ -485,9 +482,6 @@ class AkeneoSettings extends Transport
         $this->token = $token;
     }
 
-    /**
-     * @return string
-     */
     public function getRefreshToken(): ?string
     {
         return $this->refreshToken;

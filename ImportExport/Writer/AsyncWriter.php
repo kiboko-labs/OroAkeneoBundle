@@ -90,7 +90,7 @@ class AsyncWriter implements
             $this->memoryCacheProvider->reset();
             $this->memoryCacheProvider->get(
                 'akeneo_configurable',
-                function () use (&$configurable) {
+                static function () use (&$configurable) {
                     return $configurable;
                 }
             );

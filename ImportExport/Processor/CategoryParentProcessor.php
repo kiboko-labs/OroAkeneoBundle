@@ -26,7 +26,6 @@ class CategoryParentProcessor implements ProcessorInterface, MemoryCacheProvider
     /**
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @param mixed $item
      */
     public function process($item)
     {
