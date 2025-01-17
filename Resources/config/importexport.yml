@@ -247,7 +247,7 @@ services:
     calls:
       - [ setManagerRegistry, [ "@doctrine" ] ]
       - [ setSchemaUpdateFilter, [ '@oro_akeneo.placeholder.schema_update_filter' ] ]
-      - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
     tags:
       - { name: oro_integration.connector, type: product_variant, channel_type: oro_akeneo }
 

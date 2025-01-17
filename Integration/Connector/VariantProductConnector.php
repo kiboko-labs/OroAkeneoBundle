@@ -4,7 +4,7 @@ namespace Oro\Bundle\AkeneoBundle\Integration\Connector;
 
 use Oro\Bundle\AkeneoBundle\Placeholder\SchemaUpdateFilter;
 use Oro\Bundle\AkeneoBundle\Settings\DataProvider\SyncProductsDataProvider;
-use Oro\Bundle\AkeneoBundle\Tools\CacheProviderTrait;
+use Oro\Bundle\CacheBundle\Provider\MemoryCacheProviderAwareTrait;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\IntegrationBundle\Provider\AllowedConnectorInterface;
 use Oro\Bundle\IntegrationBundle\Provider\OrderedConnectorInterface;
@@ -15,7 +15,7 @@ use Oro\Bundle\ProductBundle\Entity\Product;
  */
 class VariantProductConnector extends AbstractOroAkeneoConnector implements AllowedConnectorInterface, OrderedConnectorInterface
 {
-    use CacheProviderTrait;
+    use MemoryCacheProviderAwareTrait;
 
     const IMPORT_JOB_NAME = 'akeneo_variant_product_import';
     const PAGE_SIZE = 100;
