@@ -2,14 +2,12 @@
 
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Processor;
 
+use Oro\Bundle\CacheBundle\Provider\MemoryCacheProviderAwareTrait;
 use Oro\Bundle\ImportExportBundle\Processor\ProcessorInterface;
 
 class BuildVariantCacheProcessor implements ProcessorInterface
 {
-    use CacheProviderAwareProcessor;
-
-    /** @var array */
-    private $variants = [];
+    use MemoryCacheProviderAwareTrait;
 
     public function process($item)
     {
@@ -18,15 +16,16 @@ class BuildVariantCacheProcessor implements ProcessorInterface
         return $item;
     }
 
-    private function updateVariants(array &$item)
+    private function updateVariants(array &$item): void
     {
         $sku = $item['sku'];
 
+        $variants = $this->memoryCacheProvider->get('product_variants') ?? [];
         if (!empty($item['family_variant'])) {
-            if (isset($item['parent'], $this->variants[$sku])) {
+            if (isset($item['parent'], $variants[$sku])) {
                 $parent = $item['parent'];
-                foreach (array_keys($this->variants[$sku]) as $sku) {
-                    $this->variants[$parent][$sku] = ['parent' => $parent, 'variant' => $sku];
+                foreach (array_keys($variants[$sku]) as $sku) {
+                    $variants[$parent][$sku] = ['parent' => $parent, 'variant' => $sku];
                 }
             }
 
@@ -39,18 +38,6 @@ class BuildVariantCacheProcessor implements ProcessorInterface
 
         $parent = $item['parent'];
 
-        $this->variants[$parent][$sku] = ['parent' => $parent, 'variant' => $sku];
-    }
-
-    public function initialize()
-    {
-        $this->variants = [];
-        $this->cacheProvider->delete('product_variants');
-    }
-
-    public function flush()
-    {
-        $this->cacheProvider->save('product_variants', $this->variants);
-        $this->variants = [];
+        $variants[$parent][$sku] = ['parent' => $parent, 'variant' => $sku];
     }
 }
