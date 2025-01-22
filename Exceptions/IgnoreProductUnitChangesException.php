@@ -1,6 +1,6 @@
 <?php
 
-namespace Oro\Bundle\AkeneoBundle\Form\Exceptions;
+namespace Oro\Bundle\AkeneoBundle\Exceptions;
 
 class IgnoreProductUnitChangesException extends \Exception
 {
