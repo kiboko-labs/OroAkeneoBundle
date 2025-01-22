@@ -49,7 +49,7 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
     private $mappedAttributes = [];
 
     /** @var ProductUnitDiscoveryInterface */
-    private $productUnitDiscovery;
+    protected $productUnitDiscovery;
 
     /** @var DoctrineHelper */
     protected $doctrineHelper;
