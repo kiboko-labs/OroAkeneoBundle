@@ -589,7 +589,7 @@ class AkeneoTransport implements AkeneoTransportInterface
         }
     }
 
-    protected function getAttributeMapping(): array
+    public function getAttributeMapping(): array
     {
         if ($this->attributeMapping) {
             return $this->attributeMapping;
