@@ -397,10 +397,6 @@ services:
     decorates: oro_serialized_fields.event_listener.deleted_attribute_relation_serialized
     parent: oro_serialized_fields.event_listener.deleted_attribute_relation_serialized
 
-  Oro\Bundle\AkeneoBundle\Manager\TranslationManager:
-    decorates: oro_translation.manager.translation
-    parent: oro_translation.manager.translation
-
   oro_akeneo.entity_config.importexport_field_configuration:
     class: Oro\Bundle\AkeneoBundle\EntityConfig\ImportexportFieldConfiguration
     tags:
