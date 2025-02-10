@@ -9,6 +9,9 @@ class BuildVariantCacheProcessor implements ProcessorInterface
 {
     use MemoryCacheProviderAwareTrait;
 
+    /** @var array */
+    private array $variants = [];
+
     public function process($item)
     {
         $this->updateVariants($item);
@@ -20,12 +23,11 @@ class BuildVariantCacheProcessor implements ProcessorInterface
     {
         $sku = $item['sku'];
 
-        $variants = $this->memoryCacheProvider->get('product_variants') ?? [];
         if (!empty($item['family_variant'])) {
-            if (isset($item['parent'], $variants[$sku])) {
+            if (isset($item['parent'], $this->variants[$sku])) {
                 $parent = $item['parent'];
-                foreach (array_keys($variants[$sku]) as $sku) {
-                    $variants[$parent][$sku] = ['parent' => $parent, 'variant' => $sku];
+                foreach (array_keys($this->variants[$sku]) as $sku) {
+                    $this->variants[$parent][$sku] = ['parent' => $parent, 'variant' => $sku];
                 }
             }
 
@@ -38,6 +40,23 @@ class BuildVariantCacheProcessor implements ProcessorInterface
 
         $parent = $item['parent'];
 
-        $variants[$parent][$sku] = ['parent' => $parent, 'variant' => $sku];
+        $this->variants[$parent][$sku] = ['parent' => $parent, 'variant' => $sku];
+    }
+
+    public function initialize(): void
+    {
+        $this->variants = [];
+        $this->memoryCacheProvider->reset();
+    }
+
+    public function flush(): void
+    {
+        $this->memoryCacheProvider->get(
+            'akeneo_variants',
+            function () {
+                return $this->variants;
+            }
+        );
+        $this->variants = [];
     }
 }
