@@ -19,7 +19,7 @@ class BuildVariantCacheProcessor implements ProcessorInterface
         return $item;
     }
 
-    private function updateVariants(array &$item): void
+    private function updateVariants(array $item): void
     {
         $sku = $item['sku'];
 
