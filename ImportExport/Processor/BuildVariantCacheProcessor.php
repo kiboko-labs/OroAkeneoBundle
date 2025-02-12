@@ -46,7 +46,6 @@ class BuildVariantCacheProcessor implements ProcessorInterface
     public function initialize(): void
     {
         $this->variants = [];
-        $this->memoryCacheProvider->reset();
     }
 
     public function flush(): void
