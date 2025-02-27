@@ -239,19 +239,6 @@ services:
     tags:
       - { name: oro_integration.connector, type: configurable_product, channel_type: oro_akeneo }
 
-  oro_akeneo.integration.connector.variant:
-    class: 'Oro\Bundle\AkeneoBundle\Integration\Connector\VariantProductConnector'
-    arguments:
-      - '@oro_importexport.context_registry'
-      - '@oro_integration.logger.strategy'
-      - '@oro_integration.provider.connector_context_mediator'
-    calls:
-      - [ setManagerRegistry, [ "@doctrine" ] ]
-      - [ setSchemaUpdateFilter, [ '@oro_akeneo.placeholder.schema_update_filter' ] ]
-      - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
-    tags:
-      - { name: oro_integration.connector, type: product_variant, channel_type: oro_akeneo }
-
   oro_akeneo.importexport.data_converter.product:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\DataConverter\ProductDataConverter'
     parent: oro_product.importexport.data_converter.product
@@ -342,9 +329,6 @@ services:
       - '@oro_akeneo.event_listener.additional_optional_listeners_manager'
     calls:
       - [ setMemoryCacheProvider, [ '@oro_akeneo.importexport.configurable_cache' ] ]
-
-  oro_akeneo.importexport.writer.empty:
-    class: 'Oro\Bundle\AkeneoBundle\ImportExport\Writer\EmptyWriter'
 
   oro_akeneo.importexport.writer.configurable_async_product:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Writer\ConfigurableAsyncWriter'
