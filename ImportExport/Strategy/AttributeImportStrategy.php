@@ -3,6 +3,7 @@
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Strategy;
 
 use Oro\Bundle\EntityBundle\Helper\FieldHelper;
+use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\EntityConfigBundle\Config\ConfigManager;
 use Oro\Bundle\EntityConfigBundle\Entity\FieldConfigModel;
 use Oro\Bundle\EntityConfigBundle\ImportExport\Strategy\EntityFieldImportStrategy;
@@ -39,6 +40,14 @@ class AttributeImportStrategy extends EntityFieldImportStrategy
     public function setConfigManager($configManager)
     {
         $this->configManager = $configManager;
+    }
+
+    /**
+     * @param DoctrineHelper $doctrineHelper
+     */
+    public function setDoctrineHelper($doctrineHelper)
+    {
+        $this->doctrineHelper = $doctrineHelper;
     }
 
     /**
