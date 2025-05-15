@@ -384,7 +384,28 @@ class AttributeWriter extends BaseAttributeWriter implements StepExecutionAwareI
         $attachmentConfig->set('width', self::MAX_WIDTH);
         $attachmentConfig->set('height', self::MAX_HEIGHT);
 
+        if (in_array($this->fieldNameMapping[$fieldName], $this->getFileMappingSettings())) {
+            $attachmentConfig->set('is_stored_externally', true);
+        }
+
         $this->configManager->persist($attachmentConfig);
+    }
+
+    private function getFileMappingSettings(): array
+    {
+        $channelId = $this->stepExecution->getJobExecution()->getExecutionContext()->get('channel');
+        if (!$channelId) {
+            return [];
+        }
+
+        /** @var Channel $channel */
+        $channel = $this->doctrineHelper->getEntity(Channel::class, $channelId);
+        if (!$channel) {
+            return [];
+        }
+
+        $fields = $channel->getTransport()->getAkeneoAttributesFileList();
+        return explode(';', $fields);
     }
 
     private function saveSearchConfig(string $className, string $fieldName, bool $searchable): void

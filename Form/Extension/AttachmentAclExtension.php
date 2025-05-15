@@ -18,7 +18,12 @@ class AttachmentAclExtension extends AbstractTypeExtension
         if ($configModel instanceof FieldConfigModel && $builder->has('attachment')) {
             $data = $builder->getData();
             if (($data['importexport']['source'] ?? null) === 'akeneo') {
-                $builder->get('attachment')->get('acl_protected')->setDisabled(false);
+                if (
+                    $builder->has('attachment') &&
+                    $builder->get('attachment')->has('acl_protected')
+                ) {
+                    $builder->get('attachment')->get('acl_protected')->setDisabled(false);
+                }
             }
         }
     }

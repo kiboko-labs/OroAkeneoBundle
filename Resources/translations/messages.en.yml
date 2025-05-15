@@ -47,6 +47,9 @@ oro:
         akeneo_attribute_image_list:
           label: 'Image Attribute Filter'
           tooltip: 'List of Akeneo image attributes to use as product images. Values must be attribute code, separated with a semi-colon.'
+        akeneo_attribute_file_list:
+          label: 'File Attribute Filter'
+          tooltip: 'List of Akeneo file attributes to use as external  file. Values must be attribute code, separated with a semi-colon.'
         price_list:
           label: 'Price List'
         merge_image:
