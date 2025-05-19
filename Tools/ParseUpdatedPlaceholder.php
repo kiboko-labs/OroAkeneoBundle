@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Diglin GmbH - Switzerland.
  *

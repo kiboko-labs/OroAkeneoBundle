@@ -405,6 +405,7 @@ class AttributeWriter extends BaseAttributeWriter implements StepExecutionAwareI
         }
 
         $fields = $channel->getTransport()->getAkeneoAttributesFileList();
+
         return explode(';', $fields);
     }
 

@@ -222,8 +222,6 @@ class AkeneoSettings extends Transport
     private $settings;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="akeneo_attributes_file_list", type="text", nullable=true)
      */
     private string $akeneoAttributesFileList;
