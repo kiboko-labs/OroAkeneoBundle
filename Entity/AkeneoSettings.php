@@ -221,6 +221,11 @@ class AkeneoSettings extends Transport
      */
     private $settings;
 
+    /**
+     * @ORM\Column(name="akeneo_attributes_file_list", type="text", nullable=true)
+     */
+    private string $akeneoAttributesFileList;
+
     public function __construct()
     {
         $this->akeneoLocales = new ArrayCollection();
@@ -339,6 +344,7 @@ class AkeneoSettings extends Transport
                     'akeneoAttributesMapping' => $this->getAkeneoAttributesMapping(),
                     'akeneoBrandReferenceEntityCode' => $this->getAkeneoBrandReferenceEntityCode(),
                     'akeneoBrandMapping' => $this->getAkeneoBrandMapping(),
+                    'akeneoAttributesFileList' => $this->getAkeneoAttributesFileList(),
                 ]
             );
         }
@@ -804,5 +810,17 @@ class AkeneoSettings extends Transport
     public function getAlternativeIdentifier(): ?string
     {
         return $this->alternativeIdentifier;
+    }
+
+    public function getAkeneoAttributesFileList(): string
+    {
+        return $this->akeneoAttributesFileList;
+    }
+
+    public function setAkeneoAttributesFileList(string $akeneoAttributesFileList): self
+    {
+        $this->akeneoAttributesFileList = $akeneoAttributesFileList;
+
+        return $this;
     }
 }

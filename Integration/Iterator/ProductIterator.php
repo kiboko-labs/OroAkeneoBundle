@@ -183,9 +183,9 @@ class ProductIterator extends AbstractIterator
                                 continue;
                             }
 
-//                            if (!pathinfo($asset['data'], \PATHINFO_EXTENSION)) {
-//                                continue;
-//                            }
+                            //                            if (!pathinfo($asset['data'], \PATHINFO_EXTENSION)) {
+                            //                                continue;
+                            //                            }
 
                             $this->assets[$assetFamily . $assetCode][$assetCode] = $asset['data'];
                             $data[$assetCode] = $asset['data'];

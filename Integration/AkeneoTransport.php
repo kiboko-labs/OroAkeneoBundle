@@ -389,7 +389,8 @@ class AkeneoTransport implements AkeneoTransportInterface
         if (!empty($attrList)) {
             return array_merge(
                 explode(';', $attrList) ?? [],
-                explode(';', $this->transportEntity->getAkeneoAttributesImageList()) ?? []
+                explode(';', $this->transportEntity->getAkeneoAttributesImageList()) ?? [],
+                explode(';', $this->transportEntity->getAkeneoAttributesFileList()) ?? []
             );
         }
 
