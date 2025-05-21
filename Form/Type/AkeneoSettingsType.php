@@ -227,6 +227,17 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                 ]
             )
             ->add(
+                'akeneoAttributesFileList',
+                TextareaType::class,
+                [
+                    'required' => false,
+                    'label'    => 'oro.akeneo.integration.settings.akeneo_attribute_file_list.label',
+                    'constraints' => [
+                        new AttributeCodeConstraint(),
+                    ],
+                ]
+            )
+            ->add(
                 'rootCategory',
                 EntityType::class,
                 [

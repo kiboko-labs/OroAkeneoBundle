@@ -59,6 +59,14 @@ class AttributeImportStrategy extends EntityFieldImportStrategy
     }
 
     /**
+     * @param DoctrineHelper $doctrineHelper
+     */
+    public function setDoctrineHelper($doctrineHelper)
+    {
+        $this->doctrineHelper = $doctrineHelper;
+    }
+
+    /**
      * @param FieldConfigModel $entity
      *
      * @return object|null

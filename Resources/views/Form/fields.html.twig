@@ -226,6 +226,17 @@
                 </div>
             </div>
 
+            <div class="control-group control-group-choice">
+                <div class="control-label wrap">
+                    {{ UI.tooltip('oro.akeneo.integration.settings.akeneo_attribute_file_list.tooltip'|trans, {}, 'right') }}
+                    {{ form_label(form.akeneoAttributesFileList) }}
+                </div>
+                <div class="controls {% if (form_errors(form.akeneoAttributesFileList)|length > 0) %} validation-error {% endif %}">
+                    {{ form_widget(form.akeneoAttributesFileList) }}
+                    {{ form_errors(form.akeneoAttributesFileList) }}
+                </div>
+            </div>
+
             {{ form_row(form.akeneoMergeImageToParent) }}
 
             <div class="control-group control-group-choice">
