@@ -224,7 +224,7 @@ class AkeneoSettings extends Transport
     /**
      * @ORM\Column(name="akeneo_attributes_file_list", type="text", nullable=true)
      */
-    private string $akeneoAttributesFileList;
+    private $akeneoAttributesFileList;
 
     public function __construct()
     {
@@ -812,12 +812,12 @@ class AkeneoSettings extends Transport
         return $this->alternativeIdentifier;
     }
 
-    public function getAkeneoAttributesFileList(): string
+    public function getAkeneoAttributesFileList(): ?string
     {
         return $this->akeneoAttributesFileList;
     }
 
-    public function setAkeneoAttributesFileList(string $akeneoAttributesFileList): self
+    public function setAkeneoAttributesFileList(?string $akeneoAttributesFileList= null): self
     {
         $this->akeneoAttributesFileList = $akeneoAttributesFileList;
 
