@@ -817,7 +817,7 @@ class AkeneoSettings extends Transport
         return $this->akeneoAttributesFileList;
     }
 
-    public function setAkeneoAttributesFileList(?string $akeneoAttributesFileList= null): self
+    public function setAkeneoAttributesFileList(?string $akeneoAttributesFileList = null): self
     {
         $this->akeneoAttributesFileList = $akeneoAttributesFileList;
 
