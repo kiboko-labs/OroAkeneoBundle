@@ -24,6 +24,9 @@ class ProductIterator extends AbstractIterator
      * @var string|null
      */
     private $alternativeAttribute;
+    
+    /** @var bool|null  */
+    private $disableExtensionCheck;
 
     public function __construct(
         ResourceCursorInterface $resourceCursor,
@@ -34,6 +37,8 @@ class ProductIterator extends AbstractIterator
         array $measureFamilies = [],
         array $attributeMapping = [],
         ?string $alternativeAttribute = null,
+        ?bool $disableExtensionCheck = true,
+        ?string $mediaOrderCode = null,
     ) {
         parent::__construct($resourceCursor, $client, $logger);
 
@@ -42,6 +47,8 @@ class ProductIterator extends AbstractIterator
         $this->familyVariants = $familyVariants;
         $this->measureFamilies = $measureFamilies;
         $this->attributeMapping = $attributeMapping;
+        $this->disableExtensionCheck = $disableExtensionCheck;
+        $this->mediaOrderCode = $mediaOrderCode;
     }
 
     public function doCurrent()
@@ -182,13 +189,18 @@ class ProductIterator extends AbstractIterator
                             if (empty($asset['data'])) {
                                 continue;
                             }
+                            if(!$this->disableExtensionCheck) {
+                                if (!pathinfo($asset['data'], \PATHINFO_EXTENSION)) {
+                                    continue;
+                                }
+                            }
 
-                            //                            if (!pathinfo($asset['data'], \PATHINFO_EXTENSION)) {
-                            //                                continue;
-                            //                            }
-
-                            $this->assets[$assetFamily . $assetCode][$assetCode] = $asset['data'];
-                            $data[$assetCode] = $asset['data'];
+                            $this->assets[$assetFamily . $assetCode][$assetCode]['data'] = $asset['data'];
+                            $data[$assetCode]['uri'] = $asset['data'];
+                            if($this->mediaOrderCode && array_key_exists($this->mediaOrderCode, $assetData['values'])) {
+                                $data[$assetCode]['order'] = $assetData['values'][$this->mediaOrderCode] ?? null;
+                                $this->assets[$assetFamily . $assetCode][$assetCode]['order'] = (int)$assetData['values'][$this->mediaOrderCode][0]['data'] ?? null;
+                            }
                         }
                     }
                     $value['data'] = $data;

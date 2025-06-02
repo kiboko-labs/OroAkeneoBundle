@@ -176,8 +176,43 @@ class AkeneoSettings extends Transport
      *
      * @ORM\Column(name="akeneo_attributes_image_list", type="text", nullable=true)
      */
-    private $akeneoAttributesImageList;
+    private $akeneoAttributesImageList;    
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="akeneo_media_order_code", type="text", nullable=true)
+     */
+    private $mediaOrderCode;
+    
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="akeneo_disable_extension_check", type="boolean", nullable=true)
+     */
+    private $disableExtensionCheck = true;
 
+    public function getMediaOrderCode(): ?string
+    {
+        return $this->mediaOrderCode;
+    }
+
+    public function setMediaOrderCode(string $mediaOrderCode): void
+    {
+        $this->mediaOrderCode = $mediaOrderCode;
+    }
+
+    public function isDisableExtensionCheck(): bool
+    {
+        return $this->disableExtensionCheck;
+    }
+
+    public function setDisableExtensionCheck(bool $disableExtensionCheck): void
+    {
+        $this->disableExtensionCheck = $disableExtensionCheck;
+    }
+    
+    
     /**
      * @var string|null
      *
@@ -224,7 +259,7 @@ class AkeneoSettings extends Transport
     /**
      * @ORM\Column(name="akeneo_attributes_file_list", type="text", nullable=true)
      */
-    private string $akeneoAttributesFileList;
+    private $akeneoAttributesFileList;
 
     public function __construct()
     {
@@ -339,6 +374,8 @@ class AkeneoSettings extends Transport
                     'akeneoAttributesList' => $this->getAkeneoAttributesList(),
                     'alternativeIdentifier'         => $this->getAlternativeIdentifier(),
                     'akeneoAttributesImageList'     => $this->getAkeneoAttributesImageList(),
+                    'disableExtensionCheck' => $this->isDisableExtensionCheck(),
+                    'mediaOrderCode' => $this->getMediaOrderCode(),
                     'akeneoMergeImageToParent'      => $this->isAkeneoMergeImageToParent(),
                     'akeneoVariantLevels' => $this->getAkeneoVariantLevels(),
                     'akeneoAttributesMapping' => $this->getAkeneoAttributesMapping(),
@@ -812,12 +849,12 @@ class AkeneoSettings extends Transport
         return $this->alternativeIdentifier;
     }
 
-    public function getAkeneoAttributesFileList(): string
+    public function getAkeneoAttributesFileList(): ?string
     {
         return $this->akeneoAttributesFileList;
     }
 
-    public function setAkeneoAttributesFileList(string $akeneoAttributesFileList): self
+    public function setAkeneoAttributesFileList(?string $akeneoAttributesFileList = null): self
     {
         $this->akeneoAttributesFileList = $akeneoAttributesFileList;
 

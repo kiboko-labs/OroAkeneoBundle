@@ -55,12 +55,13 @@ class AkeneoTransport implements AkeneoTransportInterface
     private $fileManager;
 
     public function __construct(
-        AkeneoClientFactory $clientFactory,
+        AkeneoClientFactory       $clientFactory,
         CurrencyProviderInterface $configProvider,
-        AkeneoSearchBuilder $akeneoSearchBuilder,
-        FileManager $fileManager,
-        LoggerInterface $logger,
-    ) {
+        AkeneoSearchBuilder       $akeneoSearchBuilder,
+        FileManager               $fileManager,
+        LoggerInterface           $logger,
+    )
+    {
         $this->clientFactory = $clientFactory;
         $this->configProvider = $configProvider;
         $this->akeneoSearchBuilder = $akeneoSearchBuilder;
@@ -219,7 +220,9 @@ class AkeneoTransport implements AkeneoTransportInterface
                 $this->familyVariants,
                 $this->measureFamilies,
                 $this->getAttributeMapping(),
-                $this->getAlternativeIdentifier()
+                $this->getAlternativeIdentifier(),
+                $this->isDisableExtensionCheck(),
+                $this->getMediaOrderCode()
             );
         }
 
@@ -231,7 +234,9 @@ class AkeneoTransport implements AkeneoTransportInterface
             $this->familyVariants,
             $this->measureFamilies,
             $this->getAttributeMapping(),
-            $this->getAlternativeIdentifier()
+            $this->getAlternativeIdentifier(),
+            $this->isDisableExtensionCheck(),
+            $this->getMediaOrderCode()
         );
     }
 
@@ -254,7 +259,9 @@ class AkeneoTransport implements AkeneoTransportInterface
                 $this->familyVariants,
                 $this->measureFamilies,
                 $this->getAttributeMapping(),
-                $this->getAlternativeIdentifier()
+                $this->getAlternativeIdentifier(),
+                $this->isDisableExtensionCheck(),
+                $this->getMediaOrderCode()
             );
         }
 
@@ -266,7 +273,9 @@ class AkeneoTransport implements AkeneoTransportInterface
             $this->familyVariants,
             $this->measureFamilies,
             $this->getAttributeMapping(),
-            $this->getAlternativeIdentifier()
+            $this->getAlternativeIdentifier(),
+            $this->isDisableExtensionCheck(),
+            $this->getMediaOrderCode()
         );
     }
 
@@ -325,7 +334,10 @@ class AkeneoTransport implements AkeneoTransportInterface
             $this->attributes,
             $this->familyVariants,
             $this->measureFamilies,
-            $this->getAttributeMapping()
+            $this->getAttributeMapping(),
+            null,
+            $this->isDisableExtensionCheck(),
+            $this->getMediaOrderCode()
         );
     }
 
@@ -638,5 +650,15 @@ class AkeneoTransport implements AkeneoTransportInterface
     public function getAlternativeIdentifier(): ?string
     {
         return $this->transportEntity->getAlternativeIdentifier();
+    }
+
+    public function getMediaOrderCode(): ?string
+    {
+        return $this->transportEntity->getMediaOrderCode();
+    }
+
+    public function isDisableExtensionCheck(): ?string
+    {
+        return $this->transportEntity->isDisableExtensionCheck();
     }
 }

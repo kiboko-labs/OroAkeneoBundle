@@ -73,22 +73,35 @@ class ProductImageReader extends IteratorBasedReader
 
                         foreach ((array)$value['data'] as $path) {
                             $sku = $item['sku'];
-                            $images[$sku][$path] = [
+                            $images[$sku][$path['data']] = [
                                 'SKU' => $sku,
-                                'Name' => $path,
+                                'Name' => $path['data'],
+                                'Order' => $path['order'] ?? null,
                             ];
 
                             if ($this->getTransport()->isAkeneoMergeImageToParent() && !empty($item['parent'])) {
                                 $sku = $item['parent'];
-                                $images[$sku][$path] = [
+                                $images[$sku][$path]['data'] = [
                                     'SKU' => $sku,
-                                    'Name' => $path,
+                                    'Name' => $path['data'],
+                                    'Order' => $path['order'] ?? null,
                                 ];
                             }
                         }
                     }
                 }
             }
+        }
+
+        foreach ($images as $sku => $skuImages) {
+            uasort($skuImages, function ($a, $b) {
+                if (array_key_exists('Order', $a) && $a['Order'] !== null) {
+                    return $a['Order'] <=> $b['Order'];
+                }
+                return $a;
+            });
+
+            $images[$sku] = $skuImages;
         }
 
         $this->stepExecution->setReadCount(0);
@@ -123,7 +136,7 @@ class ProductImageReader extends IteratorBasedReader
 
                         if (in_array($value['type'], ['pim_catalog_asset_collection'])) {
                             foreach ($value['data'] as $data) {
-                                $this->akeneoFileManager->registerAssetMediaFile($data);
+                                $this->akeneoFileManager->registerAssetMediaFile($data['data']);
                             }
                         }
 
