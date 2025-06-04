@@ -197,7 +197,7 @@ class AkeneoSettings extends Transport
         return $this->mediaOrderCode;
     }
 
-    public function setMediaOrderCode(string $mediaOrderCode): void
+    public function setMediaOrderCode(?string $mediaOrderCode = null): void
     {
         $this->mediaOrderCode = $mediaOrderCode;
     }

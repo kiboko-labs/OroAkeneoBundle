@@ -71,21 +71,36 @@ class ProductImageReader extends IteratorBasedReader
                             continue;
                         }
 
-                        foreach ((array)$value['data'] as $path) {
+                        foreach ((array) $value['data'] as $path) {
                             $sku = $item['sku'];
-                            $images[$sku][$path['data']] = [
-                                'SKU' => $sku,
-                                'Name' => $path['data'],
-                                'Order' => $path['order'] ?? null,
-                            ];
 
-                            if ($this->getTransport()->isAkeneoMergeImageToParent() && !empty($item['parent'])) {
-                                $sku = $item['parent'];
-                                $images[$sku][$path]['data'] = [
+                            if (is_string($path)) {
+                                $images[$sku][$path] = [
+                                    'SKU' => $sku,
+                                    'Name' => $path,
+                                ];
+                            } else {
+                                $images[$sku][$path['data']] = [
                                     'SKU' => $sku,
                                     'Name' => $path['data'],
                                     'Order' => $path['order'] ?? null,
                                 ];
+                            }
+
+                            if ($this->getTransport()->isAkeneoMergeImageToParent() && !empty($item['parent'])) {
+                                $sku = $item['parent'];
+                                if (is_string($sku)) {
+                                    $images[$sku][$path] = [
+                                        'SKU' => $sku,
+                                        'Name' => $path,
+                                    ];
+                                } else {
+                                    $images[$sku][$path]['data'] = [
+                                        'SKU' => $sku,
+                                        'Name' => $path['data'],
+                                        'Order' => $path['order'] ?? null,
+                                    ];
+                                }
                             }
                         }
                     }
@@ -93,16 +108,26 @@ class ProductImageReader extends IteratorBasedReader
             }
         }
 
-        foreach ($images as $sku => $skuImages) {
-            uasort($skuImages, function ($a, $b) {
-                if (array_key_exists('Order', $a) && $a['Order'] !== null) {
-                    return $a['Order'] <=> $b['Order'];
-                }
-                return $a;
-            });
+        foreach ($images as &$sku) {
+            uasort($sku, function ($a, $b) {
+                $aOrder = $a['Order'] ?? null;
+                $bOrder = $b['Order'] ?? null;
 
-            $images[$sku] = $skuImages;
+                if ($aOrder === null && $bOrder === null) {
+                    return 0;
+                }
+
+                if ($aOrder === null) {
+                    return 1;
+                }
+                if ($bOrder === null) {
+                    return -1;
+                }
+
+                return $aOrder <=> $bOrder;
+            });
         }
+        unset($sku);
 
         $this->stepExecution->setReadCount(0);
 
