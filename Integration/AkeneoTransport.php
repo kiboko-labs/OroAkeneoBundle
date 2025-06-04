@@ -219,7 +219,9 @@ class AkeneoTransport implements AkeneoTransportInterface
                 $this->familyVariants,
                 $this->measureFamilies,
                 $this->getAttributeMapping(),
-                $this->getAlternativeIdentifier()
+                $this->getAlternativeIdentifier(),
+                $this->isDisableExtensionCheck(),
+                $this->getMediaOrderCode()
             );
         }
 
@@ -231,7 +233,9 @@ class AkeneoTransport implements AkeneoTransportInterface
             $this->familyVariants,
             $this->measureFamilies,
             $this->getAttributeMapping(),
-            $this->getAlternativeIdentifier()
+            $this->getAlternativeIdentifier(),
+            $this->isDisableExtensionCheck(),
+            $this->getMediaOrderCode()
         );
     }
 
@@ -254,7 +258,9 @@ class AkeneoTransport implements AkeneoTransportInterface
                 $this->familyVariants,
                 $this->measureFamilies,
                 $this->getAttributeMapping(),
-                $this->getAlternativeIdentifier()
+                $this->getAlternativeIdentifier(),
+                $this->isDisableExtensionCheck(),
+                $this->getMediaOrderCode()
             );
         }
 
@@ -266,7 +272,9 @@ class AkeneoTransport implements AkeneoTransportInterface
             $this->familyVariants,
             $this->measureFamilies,
             $this->getAttributeMapping(),
-            $this->getAlternativeIdentifier()
+            $this->getAlternativeIdentifier(),
+            $this->isDisableExtensionCheck(),
+            $this->getMediaOrderCode()
         );
     }
 
@@ -325,7 +333,10 @@ class AkeneoTransport implements AkeneoTransportInterface
             $this->attributes,
             $this->familyVariants,
             $this->measureFamilies,
-            $this->getAttributeMapping()
+            $this->getAttributeMapping(),
+            null,
+            $this->isDisableExtensionCheck(),
+            $this->getMediaOrderCode()
         );
     }
 
@@ -638,5 +649,15 @@ class AkeneoTransport implements AkeneoTransportInterface
     public function getAlternativeIdentifier(): ?string
     {
         return $this->transportEntity->getAlternativeIdentifier();
+    }
+
+    public function getMediaOrderCode(): ?string
+    {
+        return $this->transportEntity->getMediaOrderCode();
+    }
+
+    public function isDisableExtensionCheck(): ?string
+    {
+        return $this->transportEntity->isDisableExtensionCheck();
     }
 }

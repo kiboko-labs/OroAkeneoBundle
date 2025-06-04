@@ -11,6 +11,7 @@ use Oro\Bundle\AkeneoBundle\Validator\Constraints\AttributeCodeConstraint;
 use Oro\Bundle\AkeneoBundle\Validator\Constraints\AttributeMappingConstraint;
 use Oro\Bundle\AkeneoBundle\Validator\Constraints\JsonConstraint;
 use Oro\Bundle\CatalogBundle\Entity\Category;
+use Oro\Bundle\FormBundle\Form\Type\CheckboxType;
 use Oro\Bundle\FormBundle\Form\Type\OroEncodedPlaceholderPasswordType;
 use Oro\Bundle\PricingBundle\Form\Type\PriceListSelectType;
 use Oro\Component\Tree\Entity\Repository\NestedTreeRepository;
@@ -224,6 +225,22 @@ class AkeneoSettingsType extends AbstractType implements LoggerAwareInterface
                     'constraints' => [
                         new AttributeCodeConstraint(),
                     ],
+                ]
+            )
+            ->add(
+                'disableExtensionCheck',
+                CheckboxType::class,
+                [
+                    'required' => false,
+                    'label'    => 'oro.akeneo.integration.settings.disable_extension_check.label',
+                ]
+            )
+            ->add(
+                'mediaOrderCode',
+                TextType::class,
+                [
+                    'required' => false,
+                    'label'    => 'oro.akeneo.integration.settings.media_order_code.label',
                 ]
             )
             ->add(

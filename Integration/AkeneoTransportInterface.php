@@ -74,4 +74,8 @@ interface AkeneoTransportInterface extends TransportInterface
     public function downloadAndSaveAssetMediaFile(string $code): void;
 
     public function getAlternativeIdentifier(): ?string;
+
+    public function getMediaOrderCode(): ?string;
+
+    public function isDisableExtensionCheck(): ?string;
 }
