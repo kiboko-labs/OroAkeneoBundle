@@ -24,8 +24,8 @@ class ProductIterator extends AbstractIterator
      * @var string|null
      */
     private $alternativeAttribute;
-    
-    /** @var bool|null  */
+
+    /** @var bool|null */
     private $disableExtensionCheck;
 
     public function __construct(
@@ -189,7 +189,7 @@ class ProductIterator extends AbstractIterator
                             if (empty($asset['data'])) {
                                 continue;
                             }
-                            if(!$this->disableExtensionCheck) {
+                            if (!$this->disableExtensionCheck) {
                                 if (!pathinfo($asset['data'], \PATHINFO_EXTENSION)) {
                                     continue;
                                 }
@@ -197,7 +197,7 @@ class ProductIterator extends AbstractIterator
 
                             $this->assets[$assetFamily . $assetCode][$assetCode]['data'] = $asset['data'];
                             $data[$assetCode]['uri'] = $asset['data'];
-                            if($this->mediaOrderCode && array_key_exists($this->mediaOrderCode, $assetData['values'])) {
+                            if ($this->mediaOrderCode && array_key_exists($this->mediaOrderCode, $assetData['values'])) {
                                 $data[$assetCode]['order'] = $assetData['values'][$this->mediaOrderCode] ?? null;
                                 $this->assets[$assetFamily . $assetCode][$assetCode]['order'] = (int)$assetData['values'][$this->mediaOrderCode][0]['data'] ?? null;
                             }

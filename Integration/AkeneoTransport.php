@@ -55,13 +55,12 @@ class AkeneoTransport implements AkeneoTransportInterface
     private $fileManager;
 
     public function __construct(
-        AkeneoClientFactory       $clientFactory,
+        AkeneoClientFactory $clientFactory,
         CurrencyProviderInterface $configProvider,
-        AkeneoSearchBuilder       $akeneoSearchBuilder,
-        FileManager               $fileManager,
-        LoggerInterface           $logger,
-    )
-    {
+        AkeneoSearchBuilder $akeneoSearchBuilder,
+        FileManager $fileManager,
+        LoggerInterface $logger,
+    ) {
         $this->clientFactory = $clientFactory;
         $this->configProvider = $configProvider;
         $this->akeneoSearchBuilder = $akeneoSearchBuilder;

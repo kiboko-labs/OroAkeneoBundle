@@ -176,15 +176,15 @@ class AkeneoSettings extends Transport
      *
      * @ORM\Column(name="akeneo_attributes_image_list", type="text", nullable=true)
      */
-    private $akeneoAttributesImageList;    
-    
+    private $akeneoAttributesImageList;
+
     /**
      * @var string
      *
      * @ORM\Column(name="akeneo_media_order_code", type="text", nullable=true)
      */
     private $mediaOrderCode;
-    
+
     /**
      * @var bool
      *
@@ -211,8 +211,7 @@ class AkeneoSettings extends Transport
     {
         $this->disableExtensionCheck = $disableExtensionCheck;
     }
-    
-    
+
     /**
      * @var string|null
      *

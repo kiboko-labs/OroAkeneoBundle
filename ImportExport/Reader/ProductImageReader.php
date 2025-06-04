@@ -109,7 +109,7 @@ class ProductImageReader extends IteratorBasedReader
         }
 
         foreach ($images as &$sku) {
-            uasort($sku, function ($a, $b) {
+            uasort($sku, static function ($a, $b) {
                 $aOrder = $a['Order'] ?? null;
                 $bOrder = $b['Order'] ?? null;
 
