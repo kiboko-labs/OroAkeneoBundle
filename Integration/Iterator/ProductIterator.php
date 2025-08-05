@@ -184,7 +184,13 @@ class ProductIterator extends AbstractIterator
                         $this->assets[$assetFamily . $assetCode] = [];
 
                         $assetData = $this->client->getAssetManagerApi()->get($assetFamily, $assetCode);
-                        $assets = $assetData['values'][$valueField] ?? [];
+
+                        if (!isset($assetData['values'][$valueField]) || $assetData['values'][$valueField] === null) {
+                            unset($product['values'][$code][$key]);
+                            continue;
+                        }
+
+                        $assets = $assetData['values'][$valueField];
                         foreach ($assets as $asset) {
                             if (empty($asset['data'])) {
                                 continue;
