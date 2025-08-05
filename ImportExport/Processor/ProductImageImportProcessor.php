@@ -73,7 +73,7 @@ class ProductImageImportProcessor extends StepExecutionAwareImportProcessor impl
 
         $incoming = [];
         foreach ($images as $data) {
-            $incoming[$data['filename']] = $data['object'];
+            $incoming[$data->getImage()->getOriginalFilename()] = $data;
         }
 
         foreach ($product->getImages() as $image) {
