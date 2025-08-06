@@ -68,8 +68,11 @@ class ProductImageImportProcessor extends StepExecutionAwareImportProcessor impl
      */
     private function mergeImages(Product $product, array $images): Product
     {
-        /** @var string|null $firstFilename */
-        $firstFilename = $images[0]['filename'] ?? null;
+        $firstFilename = null;
+        if (!empty($images)) {
+            $firstImage = array_values($images)[0];
+            $firstFilename = $firstImage->getImage()->getOriginalFilename();
+        }
 
         $incoming = [];
         foreach ($images as $data) {

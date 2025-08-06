@@ -109,23 +109,28 @@ class ProductImageReader extends IteratorBasedReader
         }
 
         foreach ($images as &$sku) {
-            uasort($sku, static function ($a, $b) {
-                $aOrder = $a['Order'] ?? null;
-                $bOrder = $b['Order'] ?? null;
+            $sku = array_values($sku);
 
-                if ($aOrder === null && $bOrder === null) {
-                    return 0;
+            foreach ($sku as $i => &$img) {
+                $img['_original_index'] = $i;
+            }
+            unset($img);
+
+            usort($sku, function($a, $b) {
+                $aOrder = $a['Order'] ?? PHP_INT_MAX;
+                $bOrder = $b['Order'] ?? PHP_INT_MAX;
+
+                if ($aOrder !== $bOrder) {
+                    return $aOrder - $bOrder;
                 }
 
-                if ($aOrder === null) {
-                    return 1;
-                }
-                if ($bOrder === null) {
-                    return -1;
-                }
-
-                return $aOrder <=> $bOrder;
+                return $b['_original_index'] - $a['_original_index'];
             });
+
+            foreach ($sku as &$img) {
+                unset($img['_original_index']);
+            }
+            unset($img);
         }
         unset($sku);
 
