@@ -116,9 +116,9 @@ class ProductImageReader extends IteratorBasedReader
             }
             unset($img);
 
-            usort($sku, function($a, $b) {
-                $aOrder = $a['Order'] ?? PHP_INT_MAX;
-                $bOrder = $b['Order'] ?? PHP_INT_MAX;
+            usort($sku, static function ($a, $b) {
+                $aOrder = $a['Order'] ?? \PHP_INT_MAX;
+                $bOrder = $b['Order'] ?? \PHP_INT_MAX;
 
                 if ($aOrder !== $bOrder) {
                     return $aOrder - $bOrder;
