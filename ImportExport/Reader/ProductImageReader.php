@@ -108,9 +108,6 @@ class ProductImageReader extends IteratorBasedReader
             }
         }
 
-        foreach ($images as $sku => $image) {
-            $images[$sku] = array_reverse($images[$sku]);
-        }
         foreach ($images as &$sku) {
             $sku = array_values($sku);
 
