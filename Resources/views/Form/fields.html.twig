@@ -225,6 +225,26 @@
                     {{ form_errors(form.akeneoAttributesImageList) }}
                 </div>
             </div>
+            <div class="control-group control-group-choice">
+                <div class="control-label wrap">
+                    {{ UI.tooltip('oro.akeneo.integration.settings.disable_extension_check.tooltip'|trans, {}, 'right') }}
+                    {{ form_label(form.disableExtensionCheck) }}
+                </div>
+                <div class="controls">
+                    {{ form_widget(form.disableExtensionCheck) }}
+                    {{ form_errors(form.disableExtensionCheck) }}
+                </div>
+            </div>
+            <div class="control-group control-group-choice">
+                <div class="control-label wrap">
+                    {{ UI.tooltip('oro.akeneo.integration.settings.media_order_code.tooltip'|trans, {}, 'right') }}
+                    {{ form_label(form.mediaOrderCode) }}
+                </div>
+                <div class="controls">
+                    {{ form_widget(form.mediaOrderCode) }}
+                    {{ form_errors(form.mediaOrderCode) }}
+                </div>
+            </div>
 
             <div class="control-group control-group-choice">
                 <div class="control-label wrap">

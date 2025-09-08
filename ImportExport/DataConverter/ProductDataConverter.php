@@ -444,7 +444,7 @@ class ProductDataConverter extends BaseProductDataConverter implements ContextAw
 
         $paths = [];
         foreach ($items['data'] as $item) {
-            $paths[] = ['uri' => $this->getAttachmentPath($item)];
+            $paths[] = ['uri' => $this->getAttachmentPath($item['data'])];
         }
 
         return $paths;

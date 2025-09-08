@@ -72,25 +72,68 @@ class ProductImageReader extends IteratorBasedReader implements MemoryCacheProvi
                             continue;
                         }
 
-                        foreach ((array)$value['data'] as $path) {
+                        foreach ((array) $value['data'] as $path) {
                             $sku = $item['sku'];
-                            $images[$sku][$path] = [
-                                'SKU' => $sku,
-                                'Name' => $path,
-                            ];
 
-                            if ($this->getTransport()->isAkeneoMergeImageToParent() && !empty($item['parent'])) {
-                                $sku = $item['parent'];
+                            if (is_string($path)) {
                                 $images[$sku][$path] = [
                                     'SKU' => $sku,
                                     'Name' => $path,
                                 ];
+                            } else {
+                                $images[$sku][$path['data']] = [
+                                    'SKU' => $sku,
+                                    'Name' => $path['data'],
+                                    'Order' => $path['order'] ?? null,
+                                ];
+                            }
+
+                            if ($this->getTransport()->isAkeneoMergeImageToParent() && !empty($item['parent'])) {
+                                $sku = $item['parent'];
+                                if (is_string($sku)) {
+                                    $images[$sku][$path] = [
+                                        'SKU' => $sku,
+                                        'Name' => $path,
+                                    ];
+                                } else {
+                                    $images[$sku][$path]['data'] = [
+                                        'SKU' => $sku,
+                                        'Name' => $path['data'],
+                                        'Order' => $path['order'] ?? null,
+                                    ];
+                                }
                             }
                         }
                     }
                 }
             }
         }
+
+        foreach ($images as &$sku) {
+            $sku = array_values($sku);
+
+            foreach ($sku as $i => &$img) {
+                $img['_original_index'] = $i;
+            }
+            unset($img);
+
+            usort($sku, static function ($a, $b) {
+                $aOrder = $a['Order'] ?? \PHP_INT_MAX;
+                $bOrder = $b['Order'] ?? \PHP_INT_MAX;
+
+                if ($aOrder !== $bOrder) {
+                    return $aOrder - $bOrder;
+                }
+
+                return $b['_original_index'] - $a['_original_index'];
+            });
+
+            foreach ($sku as &$img) {
+                unset($img['_original_index']);
+            }
+            unset($img);
+        }
+        unset($sku);
 
         $this->stepExecution->setReadCount(0);
 
@@ -124,7 +167,7 @@ class ProductImageReader extends IteratorBasedReader implements MemoryCacheProvi
 
                         if (in_array($value['type'], ['pim_catalog_asset_collection'])) {
                             foreach ($value['data'] as $data) {
-                                $this->akeneoFileManager->registerAssetMediaFile($data);
+                                $this->akeneoFileManager->registerAssetMediaFile($data['data']);
                             }
                         }
 

@@ -68,56 +68,65 @@ class ProductImageImportProcessor extends StepExecutionAwareImportProcessor impl
      */
     private function mergeImages(Product $product, array $images): Product
     {
-        $hasMain = false;
-        $hasListing = false;
-        $image = null;
+        $firstFilename = null;
+        if (!empty($images)) {
+            $firstImage = array_values($images)[0];
+            $firstFilename = $firstImage->getImage()->getOriginalFilename();
+        }
+
+        $incoming = [];
+        foreach ($images as $data) {
+            $incoming[$data->getImage()->getOriginalFilename()] = $data;
+        }
 
         foreach ($product->getImages() as $image) {
-            if (!$image->getImage()) {
-                $product->removeImage($image);
+            $file = $image->getImage();
 
+            if (!$file || !is_a($file->getParentEntityClass(), ProductImage::class, true)) {
+                $product->removeImage($image);
                 continue;
             }
 
-            $filename = $image->getImage()->getOriginalFilename();
-            if (!in_array($filename, array_keys($images))) {
-                $product->removeImage($image);
+            $filename = $file->getOriginalFilename();
 
+            if (!isset($incoming[$filename])) {
+                $product->removeImage($image);
                 continue;
             }
 
-            if ($hasMain && $this->hasType($image, ProductImageType::TYPE_MAIN)) {
+            $isFirst = ($filename === $firstFilename);
+
+            if (!$isFirst && $this->hasType($image, ProductImageType::TYPE_MAIN)) {
                 $image->removeType(ProductImageType::TYPE_MAIN);
             }
-
-            if ($hasListing && $this->hasType($image, ProductImageType::TYPE_LISTING)) {
+            if (!$isFirst && $this->hasType($image, ProductImageType::TYPE_LISTING)) {
                 $image->removeType(ProductImageType::TYPE_LISTING);
             }
 
-            $hasMain = $hasMain || $this->hasType($image, ProductImageType::TYPE_MAIN);
-            $hasListing = $hasListing || $this->hasType($image, ProductImageType::TYPE_LISTING);
-
-            unset($images[$filename]);
-        }
-
-        foreach ($images as $image) {
-            if (!$image->getImage()) {
-                continue;
+            if ($isFirst) {
+                if (!$this->hasType($image, ProductImageType::TYPE_MAIN)) {
+                    $image->addType(ProductImageType::TYPE_MAIN);
+                }
+                if (!$this->hasType($image, ProductImageType::TYPE_LISTING)) {
+                    $image->addType(ProductImageType::TYPE_LISTING);
+                }
             }
 
+            unset($incoming[$filename]);
+        }
+
+        foreach ($incoming as $filename => $image) {
             $product->addImage($image);
-        }
 
-        if (!$hasMain) {
-            if ($product->getImages()->first()) {
-                $product->getImages()->first()->addType(ProductImageType::TYPE_MAIN);
+            if ($filename === $firstFilename) {
+                $image->addType(ProductImageType::TYPE_MAIN);
+                $image->addType(ProductImageType::TYPE_LISTING);
             }
         }
 
-        if (!$hasListing) {
-            if ($product->getImages()->first()) {
-                $product->getImages()->first()->addType(ProductImageType::TYPE_LISTING);
-            }
+        if ($firstFilename === null && $product->getImages()->first()
+            && !$this->hasType($product->getImages()->first(), ProductImageType::TYPE_LISTING)) {
+            $product->getImages()->first()->addType(ProductImageType::TYPE_LISTING);
         }
 
         return $product;

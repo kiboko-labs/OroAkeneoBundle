@@ -47,6 +47,12 @@ oro:
         akeneo_attribute_image_list:
           label: 'Image Attribute Filter'
           tooltip: 'List of Akeneo image attributes to use as product images. Values must be attribute code, separated with a semi-colon.'
+        disable_extension_check:
+          label: 'Disable extension check'
+          tooltip: 'Disable extension check when checking url from media data from Akeneo'
+        media_order_code:
+          label: 'Media order code'
+          tooltip: 'Attribute code inside an asset family used to build the image order who comes from ressources'
         akeneo_attribute_file_list:
           label: 'File Attribute Filter'
           tooltip: 'List of Akeneo file attributes to use as external  file. Values must be attribute code, separated with a semi-colon.'
