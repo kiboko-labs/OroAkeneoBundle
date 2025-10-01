@@ -2,14 +2,19 @@
 
 namespace Oro\Bundle\AkeneoBundle\ImportExport\Reader;
 
+use Akeneo\Pim\ApiClient\AkeneoPimClientInterface;
+use Oro\Bundle\AkeneoBundle\Client\AkeneoClientFactory;
 use Oro\Bundle\AkeneoBundle\ImportExport\AkeneoIntegrationTrait;
 use Oro\Bundle\AkeneoBundle\Integration\AkeneoFileManager;
 use Oro\Bundle\AkeneoBundle\Tools\CacheProviderTrait;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\ImportExportBundle\Context\ContextInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
-class ProductImageReader extends IteratorBasedReader
+class ProductImageReader extends IteratorBasedReader implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
     use AkeneoIntegrationTrait;
     use CacheProviderTrait;
 
@@ -24,6 +29,21 @@ class ProductImageReader extends IteratorBasedReader
 
     /** @var AkeneoFileManager */
     private $akeneoFileManager;
+
+    /**
+     * @var AkeneoPimClientInterface
+     */
+    protected $client;
+
+    private $attributes = [];
+
+    /** @var AkeneoClientFactory */
+    private $clientFactory;
+
+    public function setClientFactory(AkeneoClientFactory $clientFactory): void
+    {
+        $this->clientFactory = $clientFactory;
+    }
 
     public function setAkeneoFileManager(AkeneoFileManager $akeneoFileManager): void
     {
@@ -53,6 +73,8 @@ class ProductImageReader extends IteratorBasedReader
             $this->processImagesDownload($items, $context);
         }
 
+        $this->client = $this->clientFactory->getInstance($this->transport, true);
+
         $images = [];
         foreach ($items as $item) {
             foreach ($item['values'] as $code => $values) {
@@ -71,7 +93,7 @@ class ProductImageReader extends IteratorBasedReader
                             continue;
                         }
 
-                        foreach ((array) $value['data'] as $path) {
+                        foreach ((array)$value['data'] as $assetCode => $path) {
                             $sku = $item['sku'];
 
                             if (is_string($path)) {
@@ -80,10 +102,12 @@ class ProductImageReader extends IteratorBasedReader
                                     'Name' => $path,
                                 ];
                             } else {
+                                $order = $this->getAssetPhotoOrder($code, $assetCode);
+
                                 $images[$sku][$path['data']] = [
                                     'SKU' => $sku,
                                     'Name' => $path['data'],
-                                    'Order' => $path['order'] ?? null,
+                                    'Order' => $order,
                                 ];
                             }
 
@@ -95,13 +119,16 @@ class ProductImageReader extends IteratorBasedReader
                                         'Name' => $path,
                                     ];
                                 } else {
+                                    $order = $this->getAssetPhotoOrder($code, $assetCode);
+
                                     $images[$sku][$path]['data'] = [
                                         'SKU' => $sku,
                                         'Name' => $path['data'],
-                                        'Order' => $path['order'] ?? null,
+                                        'Order' => $order,
                                     ];
                                 }
                             }
+
                         }
                     }
                 }
@@ -182,6 +209,27 @@ class ProductImageReader extends IteratorBasedReader
                     }
                 }
             }
+        }
+    }
+
+    protected function getAssetPhotoOrder(string $attributeName,string $assetCode)
+    {
+        $order = null;
+        try {
+            if (!array_key_exists($attributeName, $this->attributes)) {
+                $this->attributes[$attributeName] = $this->client->getAttributeApi()->get($attributeName);
+            }
+
+            $assetData = $this->client->getAssetManagerApi()->get($this->attributes[$attributeName]['reference_data_name'], $assetCode);
+
+            if ($this->transport->getMediaOrderCode() && array_key_exists($this->transport->getMediaOrderCode(), $assetData['values'])) {
+                $order = $assetData['values'][$this->transport->getMediaOrderCode()][0]['data'] ?? null;
+            }
+
+            return (int)$order;
+        } catch (\Exception $e) {
+            $this->logger->error(sprintf('Unable to get Akeneo image %s', $attributeName), ['exception' => $e]);
+            return null;
         }
     }
 }

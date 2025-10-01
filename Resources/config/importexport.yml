@@ -394,6 +394,8 @@ services:
       - [ setDoctrineHelper, [ '@oro_entity.doctrine_helper' ] ]
       - [ setAkeneoFileManager, [ '@oro_akeneo.integration.akeneo_file_manager' ] ]
       - [ setCacheProvider, [ '@oro_akeneo.importexport.cache' ] ]
+      - [ setClientFactory, [ '@oro_akeneo.connection.client_factory' ] ]
+      - [setLogger, ["@logger"]]
 
   oro_akeneo.importexport.reader.product_variant:
     class: 'Oro\Bundle\AkeneoBundle\ImportExport\Reader\ProductVariantReader'

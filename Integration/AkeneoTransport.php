@@ -74,6 +74,10 @@ class AkeneoTransport implements AkeneoTransportInterface
         $this->transportEntity = $transportEntity;
     }
 
+    public function getAttributesWithNorms()
+    {
+        return $this->attributes;
+    }
     /**
      * @return array
      */
