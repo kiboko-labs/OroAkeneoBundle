@@ -192,26 +192,6 @@ class AkeneoSettings extends Transport
      */
     private $disableExtensionCheck = true;
 
-    public function getMediaOrderCode(): ?string
-    {
-        return $this->mediaOrderCode;
-    }
-
-    public function setMediaOrderCode(?string $mediaOrderCode = null): void
-    {
-        $this->mediaOrderCode = $mediaOrderCode;
-    }
-
-    public function isDisableExtensionCheck(): bool
-    {
-        return $this->disableExtensionCheck;
-    }
-
-    public function setDisableExtensionCheck(bool $disableExtensionCheck): void
-    {
-        $this->disableExtensionCheck = $disableExtensionCheck;
-    }
-
     /**
      * @var string|null
      *
@@ -856,6 +836,30 @@ class AkeneoSettings extends Transport
     public function setAkeneoAttributesFileList(?string $akeneoAttributesFileList = null): self
     {
         $this->akeneoAttributesFileList = $akeneoAttributesFileList;
+
+        return $this;
+    }
+
+    public function getMediaOrderCode(): ?string
+    {
+        return $this->mediaOrderCode;
+    }
+
+    public function setMediaOrderCode(?string $mediaOrderCode = null): self
+    {
+        $this->mediaOrderCode = $mediaOrderCode;
+
+        return $this;
+    }
+
+    public function isDisableExtensionCheck(): bool
+    {
+        return $this->disableExtensionCheck;
+    }
+
+    public function setDisableExtensionCheck(bool $disableExtensionCheck): self
+    {
+        $this->disableExtensionCheck = $disableExtensionCheck;
 
         return $this;
     }
